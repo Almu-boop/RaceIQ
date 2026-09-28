@@ -153,7 +153,7 @@ describe("local UI diff report", () => {
     expect(reusableUiSnapshot).toContain("REUSABLE_UI_SNAPSHOT_CASES");
     expect(packageJson.scripts["ui:diff"]).toBe("bun scripts/ui/local-ui-diff.ts");
     expect(packageJson.scripts["ui:diff:storybook"]).toBe("bun scripts/ui/local-ui-diff.ts --storybook-only");
-    expect(packageJson.scripts["test:screenshots"]).toContain("PW_SEED_SCREENSHOTS=1");
+    expect(packageJson.scripts["screenshots"]).toContain("PW_SEED_SCREENSHOTS=1");
     expect(gitignore).toContain(".ui-diff/");
   });
 
@@ -166,12 +166,12 @@ describe("local UI diff report", () => {
 
   test("keeps screenshot coverage bounded to high-value visual states", () => {
     expect(RESPONSIVE_VIEWPORTS).toHaveLength(3);
-    expect(RESPONSIVE_PAGES).toHaveLength(45);
+    expect(RESPONSIVE_PAGES).toHaveLength(49);
     expect(RESPONSIVE_INTERACTION_CASES).toHaveLength(5);
-    expect(RESPONSIVE_SCREENSHOT_COUNT).toBe(88);
+    expect(RESPONSIVE_SCREENSHOT_COUNT).toBe(92);
     expect(CORE_STORYBOOK_SNAPSHOT_CASES).toHaveLength(10);
     expect(REUSABLE_UI_SNAPSHOT_CASES).toHaveLength(17);
     expect(STORYBOOK_SNAPSHOT_CASES).toHaveLength(27);
-    expect(RESPONSIVE_SCREENSHOT_COUNT + STORYBOOK_SNAPSHOT_CASES.length).toBe(115);
+    expect(RESPONSIVE_SCREENSHOT_COUNT + STORYBOOK_SNAPSHOT_CASES.length).toBe(119);
   });
 });

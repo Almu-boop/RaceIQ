@@ -6,20 +6,21 @@
     "generator": {
       "name": "RaceIQ telemetry-catalog generator",
       "version": "0.18.0",
-      "sourceHash": "739f8e4930e401eb0dbec2624bd8f92b75b25a540ad2670c5830ba0dd92cf1b9"
+      "sourceHash": "91302eb626fe1f5bf86dc86e7c790f5ba61d1f8316042e3c3cfc4fde432f457e"
     },
     "sourceHashes": {
       "scripts/catalog/derived-projections.ts": "b81b4ebdaeb86a88a289d245946b3e9f32cf104970d11532ac517fb219e0eff7",
-      "server/games/ac-evo/parser.ts": "8551e41ada71099d236dad03483f7937e4fb2a8fe402cf6e3b3fbd4ae921291d",
+      "server/games/ac-evo/parser.ts": "ab6545961e854782bd7274958f8726b916ed0da4e170bc3c32e3aef514b707a5",
       "server/games/acc/parser.ts": "2f9aeab3d9e05cf214ba03ddd118416533028b9b7245a695a029a371b9391e09",
       "server/games/f1-2025/f1-state.ts": "a9e464d9f96e115874402b16d57d660e509ecc30cc4070f1395b72d27ec26b9c",
       "server/games/fm-2023/parser.ts": "8ac6812fc6622f9c1cd4587268583997325fa1ce207d9a8f8c7930fdb6bc1c56",
       "server/games/iracing/normalizer.ts": "7a9f061a649426812b3689b5848a045a7b51208334db4b2167b3c188a9864775",
       "server/games/lmu/normalizer.ts": "857907ba7c281de8cdd53acfbbdbaa5a72bf695b9dbc18ace4732cff62676596",
+      "server/session-capture/frame-time.ts": "fb6d18d5da69d0a1cb946e72ec8ee62bc01eb9d21b1176c11cfd5d44cf5ce0f0",
       "shared/games/iracing/session-info/catalog.ts": "4d39b51587bf71a519991ff91a7781efd01190cd633c8e8ef3f4234fa6affb98",
       "shared/racing/setups/schema.ts": "c53d10d0584a16ef76425c61b6389e71e53136456411eadebdec2ad53b5a5415"
     },
-    "contentHash": "0639551c1aee75fa6772ab780e39845b61fb93edaf3a42081cfbd61dc339051c"
+    "contentHash": "96f39c935ac604c4d0ff8916b0cd80897e3db823502fdb3a3514540435829b21"
   },
   "generatedFrom": [
     "scripts/catalog/ast-discovery.ts",
@@ -517,6 +518,7 @@
         "race.driver-incident-count",
         "race.driver-marker",
         "race.driver-status",
+        "race.extended-race-iq",
         "race.flag-status",
         "race.incident-flags",
         "race.is-online",
@@ -1003,6 +1005,7 @@
         "timing.delta-to-session-last-lap-valid",
         "timing.distance-traveled",
         "timing.drs-activation-distance",
+        "timing.frame-time-ms",
         "timing.gap-ahead-ms",
         "timing.gap-behind-ms",
         "timing.grid-position",
@@ -29404,6 +29407,57 @@
       "limitations": []
     },
     {
+      "id": "race.extended-race-iq",
+      "label": "Extended Race IQ",
+      "description": "Extended Race IQ reported by normalized RaceIQ telemetry.",
+      "parentId": "race",
+      "canonicalUnit": "unitless",
+      "shape": "scalar",
+      "packetFields": [
+        "extendedRaceIQ"
+      ],
+      "games": {
+        "fm-2023": {
+          "kind": "unavailable",
+          "reason": "parser-placeholder",
+          "description": "fm-2023 parser fills this value with a placeholder because source does not provide it."
+        },
+        "f1-2025": {
+          "kind": "unavailable",
+          "reason": "parser-placeholder",
+          "description": "f1-2025 parser fills this value with a placeholder because source does not provide it."
+        },
+        "acc": {
+          "kind": "unavailable",
+          "reason": "parser-placeholder",
+          "description": "acc parser fills this value with a placeholder because source does not provide it."
+        },
+        "ac-evo": {
+          "kind": "unavailable",
+          "reason": "parser-placeholder",
+          "description": "ac-evo parser fills this value with a placeholder because source does not provide it."
+        },
+        "iracing": {
+          "kind": "unavailable",
+          "reason": "parser-placeholder",
+          "description": "iracing parser fills this value with a placeholder because source does not provide it."
+        },
+        "lmu": {
+          "kind": "unavailable",
+          "reason": "parser-placeholder",
+          "description": "lmu parser fills this value with a placeholder because source does not provide it."
+        }
+      },
+      "valueType": "number",
+      "dimensions": [
+        "unit:unitless"
+      ],
+      "cardinality": {
+        "kind": "scalar"
+      },
+      "limitations": []
+    },
+    {
       "id": "race.flag-status",
       "label": "Flag Status",
       "description": "Flag Status source value reported by acc in text.",
@@ -46234,6 +46288,108 @@
       "limitations": []
     },
     {
+      "id": "timing.frame-time-ms",
+      "label": "Frame Time Ms",
+      "description": "UTC epoch milliseconds when source frame was acquired; absent in historical captures.",
+      "parentId": "timing",
+      "canonicalUnit": "ms",
+      "shape": "scalar",
+      "games": {
+        "fm-2023": {
+          "kind": "direct",
+          "nativeUnit": "ms",
+          "sources": [
+            "extendedRaceIQ.frameTimeMs"
+          ],
+          "freshness": "continuous",
+          "description": "RaceIQ records frame acquisition UTC for new captures; historical captures may lack it.",
+          "provenance": {
+            "origin": "parser",
+            "artifact": "server/session-capture/frame-time.ts"
+          },
+          "limitations": []
+        },
+        "f1-2025": {
+          "kind": "direct",
+          "nativeUnit": "ms",
+          "sources": [
+            "extendedRaceIQ.frameTimeMs"
+          ],
+          "freshness": "continuous",
+          "description": "RaceIQ records frame acquisition UTC for new captures; historical captures may lack it.",
+          "provenance": {
+            "origin": "parser",
+            "artifact": "server/session-capture/frame-time.ts"
+          },
+          "limitations": []
+        },
+        "acc": {
+          "kind": "direct",
+          "nativeUnit": "ms",
+          "sources": [
+            "extendedRaceIQ.frameTimeMs"
+          ],
+          "freshness": "continuous",
+          "description": "RaceIQ records frame acquisition UTC for new captures; historical captures may lack it.",
+          "provenance": {
+            "origin": "parser",
+            "artifact": "server/session-capture/frame-time.ts"
+          },
+          "limitations": []
+        },
+        "ac-evo": {
+          "kind": "direct",
+          "nativeUnit": "ms",
+          "sources": [
+            "extendedRaceIQ.frameTimeMs"
+          ],
+          "freshness": "continuous",
+          "description": "RaceIQ records frame acquisition UTC for new captures; historical captures may lack it.",
+          "provenance": {
+            "origin": "parser",
+            "artifact": "server/session-capture/frame-time.ts"
+          },
+          "limitations": []
+        },
+        "iracing": {
+          "kind": "direct",
+          "nativeUnit": "ms",
+          "sources": [
+            "extendedRaceIQ.frameTimeMs"
+          ],
+          "freshness": "continuous",
+          "description": "RaceIQ records frame acquisition UTC for new captures; historical captures may lack it.",
+          "provenance": {
+            "origin": "parser",
+            "artifact": "server/session-capture/frame-time.ts"
+          },
+          "limitations": []
+        },
+        "lmu": {
+          "kind": "direct",
+          "nativeUnit": "ms",
+          "sources": [
+            "extendedRaceIQ.frameTimeMs"
+          ],
+          "freshness": "continuous",
+          "description": "RaceIQ records frame acquisition UTC for new captures; historical captures may lack it.",
+          "provenance": {
+            "origin": "parser",
+            "artifact": "server/session-capture/frame-time.ts"
+          },
+          "limitations": []
+        }
+      },
+      "valueType": "number",
+      "dimensions": [
+        "time"
+      ],
+      "cardinality": {
+        "kind": "scalar"
+      },
+      "limitations": []
+    },
+    {
       "id": "timing.gap-ahead-ms",
       "label": "Gap Ahead Ms",
       "description": "Race gaps (GRAPHICS_EVO)",
@@ -53122,9 +53278,44 @@
           "description": "ACC reserves this shared-memory field but does not populate it."
         },
         "ac-evo": {
-          "kind": "unavailable",
-          "reason": "source-not-populated",
-          "description": "AC Evo v0.6 reserves matching fields, but fixture-backed pages report zero instead of live surface-band temperatures."
+          "kind": "normalized",
+          "nativeUnit": "°C",
+          "sources": {
+            "FL": [
+              "AC-Evo.Graphics.tyre_lf.tyre_temperature_right"
+            ],
+            "FR": [
+              "AC-Evo.Graphics.tyre_rf.tyre_temperature_left"
+            ],
+            "RL": [
+              "AC-Evo.Graphics.tyre_lr.tyre_temperature_right"
+            ],
+            "RR": [
+              "AC-Evo.Graphics.tyre_rr.tyre_temperature_left"
+            ]
+          },
+          "freshness": "continuous",
+          "normalization": "innerFL > 0 ? innerFL : undefined | innerFR > 0 ? innerFR : undefined | innerRL > 0 ? innerRL : undefined | innerRR > 0 ? innerRR : undefined",
+          "description": "ac-evo maps 4 native source channels into this value.",
+          "provenance": {
+            "origin": "parser",
+            "artifact": "server/games/ac-evo/parser.ts"
+          },
+          "limitations": [],
+          "execution": {
+            "kind": "conversion",
+            "id": "ac-evo:tire.temperature.surface.inner:normalized",
+            "version": "0.18.0",
+            "deterministic": true,
+            "declaredInputs": [
+              "AC-Evo.Graphics.tyre_lf.tyre_temperature_right",
+              "AC-Evo.Graphics.tyre_rf.tyre_temperature_left",
+              "AC-Evo.Graphics.tyre_lr.tyre_temperature_right",
+              "AC-Evo.Graphics.tyre_rr.tyre_temperature_left"
+            ],
+            "missingDataPolicy": "require-all",
+            "codeHash": "a73d9ca0421d403e59eb87908fcb8eb3e39416845960386b15011930ad2f6bb9"
+          }
         },
         "iracing": {
           "kind": "unavailable",
@@ -53203,9 +53394,44 @@
           "description": "ACC reserves middle surface temperatures but does not populate them."
         },
         "ac-evo": {
-          "kind": "unavailable",
-          "reason": "source-not-populated",
-          "description": "AC Evo v0.6 native middle-temperature array currently mirrors zero placeholder offsets."
+          "kind": "normalized",
+          "nativeUnit": "°C",
+          "sources": {
+            "FL": [
+              "AC-Evo.Graphics.tyre_lf.tyre_temperature_center"
+            ],
+            "FR": [
+              "AC-Evo.Graphics.tyre_rf.tyre_temperature_center"
+            ],
+            "RL": [
+              "AC-Evo.Graphics.tyre_lr.tyre_temperature_center"
+            ],
+            "RR": [
+              "AC-Evo.Graphics.tyre_rr.tyre_temperature_center"
+            ]
+          },
+          "freshness": "continuous",
+          "normalization": "middleFL > 0 ? middleFL : undefined | middleFR > 0 ? middleFR : undefined | middleRL > 0 ? middleRL : undefined | middleRR > 0 ? middleRR : undefined",
+          "description": "ac-evo maps 4 native source channels into this value.",
+          "provenance": {
+            "origin": "parser",
+            "artifact": "server/games/ac-evo/parser.ts"
+          },
+          "limitations": [],
+          "execution": {
+            "kind": "conversion",
+            "id": "ac-evo:tire.temperature.surface.middle:normalized",
+            "version": "0.18.0",
+            "deterministic": true,
+            "declaredInputs": [
+              "AC-Evo.Graphics.tyre_lf.tyre_temperature_center",
+              "AC-Evo.Graphics.tyre_rf.tyre_temperature_center",
+              "AC-Evo.Graphics.tyre_lr.tyre_temperature_center",
+              "AC-Evo.Graphics.tyre_rr.tyre_temperature_center"
+            ],
+            "missingDataPolicy": "require-all",
+            "codeHash": "11c5b67ae4d12df4dd1d868069e88d2a6871003657dd8d501830c37282276347"
+          }
         },
         "iracing": {
           "kind": "unavailable",
@@ -53284,9 +53510,44 @@
           "description": "ACC reserves outer surface temperatures but does not populate them."
         },
         "ac-evo": {
-          "kind": "unavailable",
-          "reason": "source-not-populated",
-          "description": "AC Evo v0.6 reserves outer surface temperatures but current shared-memory pages report zero placeholders."
+          "kind": "normalized",
+          "nativeUnit": "°C",
+          "sources": {
+            "FL": [
+              "AC-Evo.Graphics.tyre_lf.tyre_temperature_left"
+            ],
+            "FR": [
+              "AC-Evo.Graphics.tyre_rf.tyre_temperature_right"
+            ],
+            "RL": [
+              "AC-Evo.Graphics.tyre_lr.tyre_temperature_left"
+            ],
+            "RR": [
+              "AC-Evo.Graphics.tyre_rr.tyre_temperature_right"
+            ]
+          },
+          "freshness": "continuous",
+          "normalization": "outerFL > 0 ? outerFL : undefined | outerFR > 0 ? outerFR : undefined | outerRL > 0 ? outerRL : undefined | outerRR > 0 ? outerRR : undefined",
+          "description": "ac-evo maps 4 native source channels into this value.",
+          "provenance": {
+            "origin": "parser",
+            "artifact": "server/games/ac-evo/parser.ts"
+          },
+          "limitations": [],
+          "execution": {
+            "kind": "conversion",
+            "id": "ac-evo:tire.temperature.surface.outer:normalized",
+            "version": "0.18.0",
+            "deterministic": true,
+            "declaredInputs": [
+              "AC-Evo.Graphics.tyre_lf.tyre_temperature_left",
+              "AC-Evo.Graphics.tyre_rf.tyre_temperature_right",
+              "AC-Evo.Graphics.tyre_lr.tyre_temperature_left",
+              "AC-Evo.Graphics.tyre_rr.tyre_temperature_right"
+            ],
+            "missingDataPolicy": "require-all",
+            "codeHash": "d6d82e82dde6b6b6259c95b31b9e242a23633c0aa0956efdc43f01ebd3dd788e"
+          }
         },
         "iracing": {
           "kind": "unavailable",
@@ -53420,29 +53681,44 @@
           "description": "ACC exposes only core tire temperature; its legacy TireTemp field must not be labeled as surface temperature."
         },
         "ac-evo": {
-          "kind": "direct",
+          "kind": "derived",
           "nativeUnit": "°C",
           "sources": {
             "FL": [
-              "AC-Evo.Physics.tyreTempFL"
+              "AC-Evo.Graphics.tyre_lf.tyre_temperature_center"
             ],
             "FR": [
-              "AC-Evo.Physics.tyreTempFR"
+              "AC-Evo.Graphics.tyre_rf.tyre_temperature_center"
             ],
             "RL": [
-              "AC-Evo.Physics.tyreTempRL"
+              "AC-Evo.Graphics.tyre_lr.tyre_temperature_center"
             ],
             "RR": [
-              "AC-Evo.Physics.tyreTempRR"
+              "AC-Evo.Graphics.tyre_rr.tyre_temperature_center"
             ]
           },
           "freshness": "continuous",
+          "normalization": "tempFL => middleFL => graphicsBuf.readFloatLE(tyreLF + TYRE_STATE.temperatureCenter) | tempFR => middleFR => graphicsBuf.readFloatLE(tyreRF + TYRE_STATE.temperatureCenter) | tempRL => middleRL => graphicsBuf.readFloatLE(tyreLR + TYRE_STATE.temperatureCenter) | tempRR => middleRR => graphicsBuf.readFloatLE(tyreRR + TYRE_STATE.temperatureCenter)",
           "description": "ac-evo maps 4 native source channels into this value.",
           "provenance": {
             "origin": "parser",
             "artifact": "server/games/ac-evo/parser.ts"
           },
-          "limitations": []
+          "limitations": [],
+          "execution": {
+            "kind": "derivation",
+            "id": "ac-evo:tire.temperature.surface.representative:derived",
+            "version": "0.18.0",
+            "deterministic": true,
+            "declaredInputs": [
+              "AC-Evo.Graphics.tyre_lf.tyre_temperature_center",
+              "AC-Evo.Graphics.tyre_rf.tyre_temperature_center",
+              "AC-Evo.Graphics.tyre_lr.tyre_temperature_center",
+              "AC-Evo.Graphics.tyre_rr.tyre_temperature_center"
+            ],
+            "missingDataPolicy": "require-all",
+            "codeHash": "a6582c22fedbac169698cf4fcdbf7b883c8e5b1e3247387e13cf9336f3a15a85"
+          }
         },
         "iracing": {
           "kind": "unavailable",
@@ -56099,9 +56375,18 @@
           "description": "ACC reserves inner surface temperatures but does not populate them."
         },
         "ac-evo": {
-          "kind": "unavailable",
-          "reason": "source-not-populated",
-          "description": "AC Evo v0.6 reserves inner surface temperatures but current shared-memory pages report zero placeholders."
+          "kind": "direct",
+          "nativeUnit": "°C",
+          "sources": [
+            "acc.tireInnerTemp"
+          ],
+          "freshness": "continuous",
+          "description": "ac-evo parser exposes 1 linked field.",
+          "provenance": {
+            "origin": "parser",
+            "artifact": "server/games/ac-evo/parser.ts"
+          },
+          "limitations": []
         },
         "iracing": {
           "kind": "unavailable",
@@ -61569,6 +61854,18 @@
         "sourceKind": "packet",
         "recordedByRaceIQ": true,
         "retention": "exact"
+      },
+      {
+        "path": "extendedRaceIQ.frameTimeMs",
+        "label": "Frame Time Ms",
+        "unit": "ms",
+        "dataType": "number",
+        "count": 1,
+        "description": "RaceIQ frame acquisition UTC; absent in historical captures.",
+        "semanticId": "timing.frame-time-ms",
+        "sourceKind": "extension",
+        "recordedByRaceIQ": true,
+        "retention": "exact"
       }
     ],
     "f1-2025": [
@@ -62997,6 +63294,18 @@
         "description": "Game session UID (used for reliable session boundary detection)",
         "semanticId": "session.session-uid",
         "sourceKind": "packet",
+        "recordedByRaceIQ": true,
+        "retention": "exact"
+      },
+      {
+        "path": "extendedRaceIQ.frameTimeMs",
+        "label": "Frame Time Ms",
+        "unit": "ms",
+        "dataType": "number",
+        "count": 1,
+        "description": "RaceIQ frame acquisition UTC; absent in historical captures.",
+        "semanticId": "timing.frame-time-ms",
+        "sourceKind": "extension",
         "recordedByRaceIQ": true,
         "retention": "exact"
       },
@@ -67429,6 +67738,18 @@
         "sourceKind": "extension",
         "recordedByRaceIQ": true,
         "retention": "exact"
+      },
+      {
+        "path": "extendedRaceIQ.frameTimeMs",
+        "label": "Frame Time Ms",
+        "unit": "ms",
+        "dataType": "number",
+        "count": 1,
+        "description": "RaceIQ frame acquisition UTC; absent in historical captures.",
+        "semanticId": "timing.frame-time-ms",
+        "sourceKind": "extension",
+        "recordedByRaceIQ": true,
+        "retention": "exact"
       }
     ],
     "ac-evo": [
@@ -70006,7 +70327,7 @@
         "unit": "°C",
         "dataType": "[number, number, number, number]",
         "count": 1,
-        "description": "AC Evo v0.6 native middle-temperature array currently mirrors zero placeholder offsets.",
+        "description": "Tyre Middle Temp C source value reported by ac-evo in °C.",
         "semanticId": "tire.temperature.surface.middle",
         "sourceKind": "extension",
         "recordedByRaceIQ": true,
@@ -70402,7 +70723,7 @@
         "unit": "°C",
         "dataType": "[number, number, number, number]",
         "count": 1,
-        "description": "AC Evo v0.6 reserves inner surface temperatures but current shared-memory pages report zero placeholders.",
+        "description": "Tire Inner Temp source value reported by ac-evo in °C.",
         "semanticId": "tires.tire-inner-temp",
         "sourceKind": "extension",
         "recordedByRaceIQ": true,
@@ -70414,7 +70735,7 @@
         "unit": "°C",
         "dataType": "[number, number, number, number]",
         "count": 1,
-        "description": "AC Evo v0.6 reserves middle surface temperatures but current shared-memory pages report zero placeholders.",
+        "description": "Middle-band surface temp per tire (°C, FL/FR/RL/RR). Read from physics offsets 384-396. With inner/outer this gives the 3-point lateral temp profile the tire symptom module uses for a camber-direction recommendation.",
         "semanticId": "tire.temperature.surface.middle",
         "sourceKind": "extension",
         "recordedByRaceIQ": true,
@@ -70426,7 +70747,7 @@
         "unit": "°C",
         "dataType": "[number, number, number, number]",
         "count": 1,
-        "description": "AC Evo v0.6 reserves outer surface temperatures but current shared-memory pages report zero placeholders.",
+        "description": "Tire Outer Temp source value reported by ac-evo in °C.",
         "semanticId": "tire.temperature.surface.outer",
         "sourceKind": "extension",
         "recordedByRaceIQ": true,
@@ -70488,6 +70809,18 @@
         "count": 1,
         "description": "AC Evo v0.6 shared ACC wind-speed field is a constant placeholder.",
         "semanticId": "weather.wind-speed",
+        "sourceKind": "extension",
+        "recordedByRaceIQ": true,
+        "retention": "exact"
+      },
+      {
+        "path": "extendedRaceIQ.frameTimeMs",
+        "label": "Frame Time Ms",
+        "unit": "ms",
+        "dataType": "number",
+        "count": 1,
+        "description": "RaceIQ frame acquisition UTC; absent in historical captures.",
+        "semanticId": "timing.frame-time-ms",
         "sourceKind": "extension",
         "recordedByRaceIQ": true,
         "retention": "exact"
@@ -81595,6 +81928,18 @@
         "retention": "not-recorded"
       },
       {
+        "path": "extendedRaceIQ.frameTimeMs",
+        "label": "Frame Time Ms",
+        "unit": "ms",
+        "dataType": "number",
+        "count": 1,
+        "description": "RaceIQ frame acquisition UTC; absent in historical captures.",
+        "semanticId": "timing.frame-time-ms",
+        "sourceKind": "extension",
+        "recordedByRaceIQ": true,
+        "retention": "exact"
+      },
+      {
         "path": "iracing.carClassName",
         "label": "Car Class Name",
         "unit": "text",
@@ -83312,6 +83657,18 @@
         "retention": "exact"
       },
       {
+        "path": "extendedRaceIQ.frameTimeMs",
+        "label": "Frame Time Ms",
+        "unit": "ms",
+        "dataType": "number",
+        "count": 1,
+        "description": "RaceIQ frame acquisition UTC; absent in historical captures.",
+        "semanticId": "timing.frame-time-ms",
+        "sourceKind": "extension",
+        "recordedByRaceIQ": true,
+        "retention": "exact"
+      },
+      {
         "path": "lmu.absActive",
         "label": "ABS Active",
         "unit": "boolean",
@@ -83854,62 +84211,62 @@
     ]
   },
   "coverage": {
-    "normalizedPacketFields": 148,
-    "semanticVariables": 772,
+    "normalizedPacketFields": 149,
+    "semanticVariables": 774,
     "sourceCounts": {
       "fm-2023": {
-        "total": 95,
+        "total": 96,
         "packet": 95,
-        "extension": 0,
+        "extension": 1,
         "sdk": 0,
         "yaml": 0,
         "setup": 0,
-        "recorded": 95
+        "recorded": 96
       },
       "f1-2025": {
-        "total": 288,
+        "total": 289,
         "packet": 119,
-        "extension": 169,
+        "extension": 170,
         "sdk": 0,
         "yaml": 0,
         "setup": 0,
-        "recorded": 288
+        "recorded": 289
       },
       "acc": {
-        "total": 200,
+        "total": 201,
         "packet": 124,
-        "extension": 43,
+        "extension": 44,
         "sdk": 0,
         "yaml": 0,
         "setup": 33,
-        "recorded": 167
+        "recorded": 168
       },
       "ac-evo": {
-        "total": 255,
+        "total": 256,
         "packet": 124,
-        "extension": 95,
+        "extension": 96,
         "sdk": 0,
         "yaml": 0,
         "setup": 36,
-        "recorded": 219
+        "recorded": 220
       },
       "iracing": {
-        "total": 951,
+        "total": 952,
         "packet": 115,
-        "extension": 17,
+        "extension": 18,
         "sdk": 324,
         "yaml": 495,
         "setup": 0,
-        "recorded": 701
+        "recorded": 702
       },
       "lmu": {
-        "total": 171,
+        "total": 172,
         "packet": 126,
-        "extension": 45,
+        "extension": 46,
         "sdk": 0,
         "yaml": 0,
         "setup": 0,
-        "recorded": 171
+        "recorded": 172
       }
     }
   }

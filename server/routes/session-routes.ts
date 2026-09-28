@@ -3,9 +3,10 @@ import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import { GameIdQuerySchema, IdParamSchema } from "@shared/platform/http/route-schemas";
 import { GameIdSchema } from "../../shared/games/ids";
-import { getSessions, deleteSession, updateSession, countStaleSessions, getStaleSessions, getSessionRecapData, setSessionFavorite } from "../db/session-queries";
+import { getSessions, deleteSession, updateSession, countStaleSessions, getStaleSessions, getSessionRecapData, setSessionFavorite, getCaptureMigrationCandidates } from "../db/session-queries";
 import { getSessionResult, getStaleRaceResultSessionIds } from "../db/session-result-queries";
 import { reprocessSession, SessionNotFoundError, SessionRawFileMissingError } from "../session-capture/reprocess";
+import { getCaptureMigrationProgress, migrateCaptures } from "../session-capture/migrate-captures";
 import { LAP_DETECTOR_ID } from "../lap-detection/detector";
 import { LAP_DETECTOR_ACC_ID } from "../games/acc/lap-detector";
 import { LAP_DETECTOR_AC_EVO_ID } from "../games/ac-evo/lap-detector";
@@ -24,6 +25,27 @@ import { recoverDeletedSessions } from "../telemetry/live-pipeline";
 const ALL_DETECTOR_IDS = [LAP_DETECTOR_ID, LAP_DETECTOR_ACC_ID, LAP_DETECTOR_AC_EVO_ID, LAP_DETECTOR_IRACING_ID];
 
 export const sessionRoutes = new Hono()
+  .get("/api/sessions/capture-migration-status", async (c) => c.json({
+    ...await getCaptureMigrationCandidates(),
+    migrationProgress: getCaptureMigrationProgress(),
+  }))
+  .post("/api/sessions/migrate-captures", async (c) => {
+    const result = await migrateCaptures((done, total, progress) => {
+      wsManager.broadcastCaptureMigrationProgress({ done, total, status: progress.status, ...(progress.error ? { error: progress.error } : {}) });
+    });
+    const remaining = await getCaptureMigrationCandidates();
+    wsManager.setCaptureMigrationNotification(remaining.sessionCount, remaining.captureCount);
+    const progress = getCaptureMigrationProgress();
+    wsManager.broadcastCaptureMigrationProgress({
+      done: progress.done,
+      total: progress.total,
+      status: progress.status === "partial" ? "partial" : "success",
+      migrated: progress.migrated,
+      failed: progress.failed,
+      ...(progress.error ? { error: progress.error } : {}),
+    });
+    return c.json(result);
+  })
   .get("/api/sessions", zValidator("query", GameIdQuerySchema), async (c) => {
     const { gameId } = c.req.valid("query");
     return c.json(await getSessions(gameId));

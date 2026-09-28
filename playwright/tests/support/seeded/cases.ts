@@ -79,6 +79,7 @@ export const SEEDED_GAME_CASES: readonly SeededGame[] = [
 ] as const;
 
 const FEATURE_LABELS: Record<SeededFeature, string> = {
+  landing: "landing",
   sessions: "sessions",
   compare: "compare",
   analyse: "analyse",

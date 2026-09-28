@@ -12,6 +12,7 @@ import { getLocale, isLocale } from "@/paraglide/runtime";
 import { AppSidebar } from "../components/AppSidebar";
 import { RaceResultStatus } from "../components/RaceResultStatus";
 import { ResponsiveWorkspace } from "../components/ResponsiveWorkspace";
+import { CaptureMigration } from "../components/CaptureMigration";
 import { StaleLapReprocessing } from "../components/StaleLapReprocessing";
 import { UpdateModal } from "../components/UpdateModal";
 import { Button } from "../components/ui/button";
@@ -177,6 +178,7 @@ function AppShell() {
         {(showUpdateModal || updateProgress) && <UpdateModal version={updateState?.latest ?? updateAvailable ?? "?"} currentVersion={updateState?.current ?? "?"} newReleases={updateState?.newReleases ?? []} fullReleaseNotes={updateState?.fullReleaseNotes ?? null} currentReleaseNotes={updateState?.currentReleaseNotes ?? null} currentReleaseDate={updateState?.currentReleaseDate ?? null} updatesDisabled={updateState?.updatesDisabled} onClose={() => setShowUpdateModal(false)} />}
         {onboardingOpen && <OnboardingModal onClose={closeOnboarding} />}
       </div>
+      <CaptureMigration />
       <StaleLapReprocessing />
       <RaceResultStatus compact />
     </>

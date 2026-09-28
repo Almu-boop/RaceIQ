@@ -2,8 +2,15 @@
 
 ### Breaking
 - Open lap replays through session-scoped links; old track/car/lap query links no longer work
+- New recordings from every supported game use lossless sparse storage; older builds cannot read sparse captures.
+- New session captures include per-frame UTC acquisition times; older app versions cannot read these captures.
 
 ### Features
+- Bind `bun run dev` UDP telemetry to Forza's default port `5301`; allow overrides with `RACEIQ_DEV_UDP_PORT`.
+- Record every supported game with lossless sparse captures, retaining every source frame. Measured raw captures shrink by up to 98.45% (LMU); compared with gzipped raw captures, sparse captures shrink by up to 5.1% (AC Evo). Savings vary by game and recording.
+- Preserve real pauses and capture gaps in six-game telemetry replay without changing simulator source frames.
+- Convert older `.bin` and `.bin.gz` recordings losslessly in the background; existing laps and Analyse replay remain usable after conversion.
+- Import native iRacing dumps and opt into full raw capture storage through the import API for later conversion; ordinary UI imports stay sparse.
 - Move Live dashboard to bottom-left of app sidebar, outside game-specific navigation.
 - Add French and Italian interface translations and complete German catalog coverage; localize audited setup, analysis, telemetry, session, and assistant UI copy.
 - List lap detector checks by category in Analyse, separating findings from checks with no finding and unavailable checks; infer aid checks where wheel telemetry supports them without native intervention channels
@@ -23,9 +30,26 @@
 - Render 3D replays, onboarding preview, and model comparisons with WebGPU where available and WebGL2 fallback; pause stops recurring scene draws.
 
 ### Fixes
+- Restore track and car context when opening Compare chats from saved lap IDs.
+- Open session-level Analyse from lap Actions using its current menu label.
+- Verify seeded database upgrades against migrations actually pending from PR base, without failing when base already includes earlier migrations.
+- Ignore stale Compare lap selections from another game, track, or car so drivers can pick a valid lap without a misleading mismatch error.
+- Read recorded frame acquisition times as telemetry for all six games; older captures without timestamps remain supported.
+- Avoid growing LMU, ACC, and AC Evo recordings when changed frames are cheaper to store in full than as sparse deltas.
+- Keep exported lap slices within source session segments; validate sparse checkpoints before replay, preserve shared lap offsets during capture conversion, and avoid prompting to reconvert newly imported sparse recordings.
+- Replace every eligible older recording after lossless verification, even when sparse storage does not reduce file size.
+- Show sparse capture conversion before stale lap-detection prompts; offer lap reprocessing once conversion finishes.
+- Seed responsive screenshot databases with sparse imports so migration prompts do not obscure screenshots.
+- Include seeded raw recordings in sparse conversion candidates so clean seeds exercise the migration prompt.
+- Keep RaceIQ usable during legacy-capture conversion, allow game recording, and restore aggregate progress in a compact bottom-right dialog after browser refresh.
+- Simplify sparse-recording conversion dialogs: show savings once, label the bottom-right progress card “Migrating old recordings”, and match its size, typography, and status treatment to other reconciliation cards.
+- Reprocess every segment in large imported session captures without loading the full recording into memory; refresh stale lap detection and preserve lap notes and favourites when lap numbers change.
+- Bundle ACC map-spline SVGs for track edges; derive centre points from aligned SVG edges instead of incorrect embedded centre paths or fastlane-derived boundary JSON.
 - Label brake temperatures clearly in tire diagrams.
+- Show Forza's single representative tire-temperature reading across the full-height 2D tire shape without inventing three distinct surface bands.
 - Keep Analyse map overlay menu clickable on narrow screens by separating it from zoom controls.
 - Mark AC Evo tire surface-profile checks unavailable when only representative surface temperature is recorded.
+- Show AC Evo's inner, middle, and outer surface temperatures along both tread edges in live tire grids and newly recorded or reprocessed Analyse laps, with its single core temperature in the center.
 - Detect LMU tire tread temperature gradients from its available inner, middle, and outer surface channels.
 - Ship ACC map-spline SVGs in compiled builds for track edges; derive centre points from aligned SVG edges instead of incorrect embedded centre paths or fastlane-derived boundary JSON.
 - Expose LMU racing lines already present in shipped track SVGs to 2D and 3D replay overlays.
@@ -35,9 +59,7 @@
 - Allow OpenAI-compatible endpoints without saved API keys for auto-tune and driver-profile AI settings, consistent with analysis and chat.
 - Keep 3D replay grid at 1-metre spacing and anchored to track coordinates through turns, without yaw-amplified motion or overlapping line flicker.
 - Group 3D per-wheel surface temperatures into one mirrored row like 2D tire diagrams, with carcass and core on separate rows instead of a vertical stat list.
-
 - Show recent sessions instead of individual laps on global and per-game home pages, including sessions without recorded laps
-
 - Lap analysis detects sustained oversteer slides
 - Lap analysis detects persistent left-right tire-pressure imbalance
 - ACC and AC Evo lap analysis detects late-braking corner overshoots against bundled racing lines
@@ -47,8 +69,6 @@
 - F1 lap analysis identifies DRS that remains closed during eligible full-throttle opportunities
 - F1 lap analysis reports ERS depletion corroborated by reduced electrical power and deployment
 - Lap analysis highlights low throttle after a stable corner exit without claiming unproven time loss
-
-### Fixes
 - Show larger replay tires with three surface-temperature segments on each tread edge, gray side outlines, carcass layers, and core overlays only when available; remove slip-angle and slip-percent labels from wheels.
 - Show wheel rotation speed as a positive magnitude in Analyse, including existing LMU replays
 - Show LMU's inner, middle, and outer surface temperatures in Analyse; keep its carcass reading separate from core and surface temperatures in live and replay views
@@ -57,7 +77,6 @@
 - Restore full-size 3D car views and temperature-colored brake discs
 - Announce simulator-specific tire temperatures with selected units in 3D views
 - Load large recorded sessions for lap review without exhausting memory
-
 - Label sector-time columns S1, S2, S3 in Analyse session lap-selection dialog and allow sorting by sector.
 - Improve logging and diagnostic exports
 - Keep Analyse timelines clear and responsive when telemetry timestamps sit on floating-point gap boundaries
@@ -76,7 +95,6 @@
 - Run completed-lap tuning analysis only when the AI Engineer requests it in an experiment, rather than during recording.
 - Improve telemetry recording performance and reduce memory use during live capture, session compression, and diagnostic recording shutdown.
 - Preserve Forza Motorsport sessions and active status through pit service, reconcile missing pit telemetry, mark pit-entry and pit-exit laps invalid using timing, fuel, and tire-service evidence, record final laps, and retain elapsed S1 time after telemetry resumes.
-
 - Forza lap analysis no longer treats normalized lateral-slip telemetry as physical slip angles
 - Lap analysis avoids wheelspin and traction-loss findings when a simulator does not provide wheel-rotation telemetry
 - Distinguish partial wheel lockups from wheelspin using independently calibrated tire radii
@@ -103,14 +121,13 @@
 - Align seeded Analyse and landing browser tests with session-scoped review/replay routes, session empty/error states, lap-only selection, and simulator-specific tire labels; exercise responsive Analyse against seeded replay data.
 - Split large LMU test recordings into gzip parts under GitHub's per-file size limit.
 - Let seed tooling assemble numbered recording parts and stream large LMU capture imports.
-
 - Build developer-state snapshots only for active subscribers and serialize live telemetry at publication time.
-
 - Cache versioned static lap insights for reuse, stale backfill, and explicit reruns
 - Reuse per-frame wheel dynamics across static insight detectors
 - Avoid per-frame wheel-speed sorting during effective-radius calculation
 - Use linear-time rolling-window analysis for boost-drop detection
 - Represent racing-line availability with an explicit per-track semantic contract
+- Run every `bun run test:all` suite after failures, then report all failing suites.
 
 ## v0.18.0 - 2026-09-18
 
