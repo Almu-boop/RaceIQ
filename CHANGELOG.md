@@ -1,6 +1,7 @@
 ## Unreleased
 
 ### Fixes
+- Display session, lap, and experiment timestamps in the system's local timezone.
 - Measure suspension spikes from raw wheel travel rather than normalized travel, which can collapse to zero when calibration data is missing; distinguish spikes from confirmed rumble-strip impacts.
 - Show highest-severity lap insight findings first within each category.
 - Report Counter-Steer only for observed steering reversals against continuing corner rotation, not ordinary turns with game-specific yaw sign conventions or unverified rear traction loss.
