@@ -6,6 +6,8 @@
 
 ### Fixes
 - Display session, lap, and experiment timestamps in the system's local timezone.
+- Use recorded lap validity for completed ACC laps when available; preserve existing rules for legacy ACC recordings.
+- Restore AC Evo track-limits classification when reprocessing recorded laps.
 - Measure suspension spikes from raw wheel travel rather than normalized travel, which can collapse to zero when calibration data is missing; distinguish spikes from confirmed rumble-strip impacts.
 - Show highest-severity lap insight findings first within each category.
 - Report Counter-Steer only for observed steering reversals against continuing corner rotation, not ordinary turns with game-specific yaw sign conventions or unverified rear traction loss.
@@ -15,6 +17,7 @@
 - Stop treating ACC and AC Evo tyre/road vibration as TC or ABS intervention; label ACC physics-signal findings as possible rather than game-confirmed, and use AC Evo's explicit aid-active flags for confirmed findings.
 
 ### Internal
+- Keep PR Storybook comparisons advisory for new, changed, and missing screenshots; preserve preview artifacts and warnings when either render is incomplete.
 
 ## v0.19.0 - 2026-09-28
 
