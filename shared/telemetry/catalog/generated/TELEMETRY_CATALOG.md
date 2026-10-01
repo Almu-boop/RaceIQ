@@ -7,8 +7,8 @@
 - Catalog version: `0.19.0`
 - Schema version: `v7`
 - Generator: `RaceIQ telemetry-catalog generator@0.19.0`
-- Generator source SHA-256: `91302eb626fe1f5bf86dc86e7c790f5ba61d1f8316042e3c3cfc4fde432f457e`
-- Content SHA-256: `888f90718173e727676adc038c65e876a2063841f178eeb4ad10e597f429b6e6`
+- Generator source SHA-256: `8ccaf31d0d5ee0bd8870207f674222fc8c84894d73155e458f124328bfebdb40`
+- Content SHA-256: `a6fc19bb45b4dd767bd19ae547068e4c018d1108f241a963d561d1d776f1ef70`
 
 ## Coverage
 
@@ -16,8 +16,8 @@
 |---|---:|---:|---:|---:|---:|---:|---:|
 | fm-2023 | 96 | 96 | 95 | 1 | 0 | 0 | 0 |
 | f1-2025 | 289 | 289 | 119 | 170 | 0 | 0 | 0 |
-| acc | 201 | 168 | 124 | 44 | 0 | 0 | 33 |
-| ac-evo | 256 | 220 | 124 | 96 | 0 | 0 | 36 |
+| acc | 205 | 172 | 124 | 48 | 0 | 0 | 33 |
+| ac-evo | 260 | 224 | 124 | 100 | 0 | 0 | 36 |
 | iracing | 952 | 702 | 115 | 18 | 324 | 495 | 0 |
 | lmu | 172 | 172 | 126 | 46 | 0 | 0 | 0 |
 
@@ -411,6 +411,9 @@
 | `race.on-pit-road` | On Pit Road | boolean | dimensionless | boolean | scalar |  |  |  |
 | `race.pace-car-index` | Pace-car index | number | dimensionless | index | scalar |  |  |  |
 | `race.penalties` | Penalties | number | dimensionless | count | scalar |  |  |  |
+| `race.penalty-code` | Penalty | enum | unit:enum | enum | scalar |  | domain: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22 |  |
+| `race.penalty-time` | Penalty Time | number | time | s | scalar |  |  |  |
+| `race.penalty-type` | Penalty Type | string | dimensionless | text | scalar |  |  |  |
 | `race.pit-lane-timer-active` | Pit Lane Timer Active | number | time | s | scalar |  |  |  |
 | `race.pit-service.flags` | Requested pit-service flags | number | unit:bitfield | bitfield | scalar |  |  |  |
 | `race.pit-service.fuel-add-amount` | Pit-service fuel add amount | number | unit:l or kwh | L or kWh | scalar |  |  |  |

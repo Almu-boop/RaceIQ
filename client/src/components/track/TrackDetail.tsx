@@ -2,7 +2,6 @@ import { segmentDisplayNames } from "@shared/racing/tracks/segment-label";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AccTrackGuide, AccTrackSetups } from "@/components/acc/AccTrackSetups";
-import { F125Leaderboard } from "@/components/f1/F125Leaderboard";
 import { F125TrackGuide } from "@/components/f1/f125/TrackGuide";
 import { F125SetupsWithGuide } from "@/components/f1/f125/TrackSetups";
 import { Button } from "@/components/ui/button";
@@ -16,12 +15,11 @@ import { m } from "@/paraglide/messages";
 import { useGameId } from "@/stores/game";
 import { parseUtcTimestamp } from "@/lib/utc-date";
 import { CatalogTrackSetups } from "./CatalogTrackSetups";
-import { CommunityLeaderboard } from "./CommunityLeaderboard";
 import { TrackDebugPanel } from "./debug/TrackDebugPanel";
 import { LapManagement } from "./detail/LapManagement";
 import { TrackCanvasPanel } from "./detail/TrackCanvasPanel";
 import { TrackDebugSidebar } from "./detail/TrackDebugSidebar";
-import type { TrackLap } from "./detail/types";
+import type { TrackLap, TrackLapSortKey } from "./detail/types";
 import { useTrackSegmentEditor } from "./detail/useTrackSegmentEditor";
 import { TrackInfoPanel } from "./TrackInfoPanel";
 import type { Point, TrackInfo, TrackSectors, TrackSegment } from "./types";
@@ -59,6 +57,8 @@ export function TrackDetail({
   panRef.current = pan;
   const dragging = useRef<{ startX: number; startY: number; startPanX: number; startPanZ: number } | null>(null);
   const [mapDisplayMode, setMapDisplayMode] = useState<"segments" | "sectors">("segments");
+  const [hoveredSegments, setHoveredSegments] = useState<readonly number[] | null>(null);
+  const [hoveredSector, setHoveredSector] = useState<number | null>(null);
   const [editing, setEditing] = useState(false);
   const [editSegments, setEditSegments] = useState<TrackSegment[]>([]);
   const [saving, setSaving] = useState(false);
@@ -70,7 +70,7 @@ export function TrackDetail({
   const [selectedDivision, setSelectedDivision] = useState<string | null>(null);
   const [selectedCars, setSelectedCars] = useState<Set<number>>(new Set());
   const [selectedLaps, setSelectedLaps] = useState<Set<number>>(new Set());
-  const [sortBy, setSortBy] = useState<"time" | "lap" | "date">("time");
+  const [sortBy, setSortBy] = useState<TrackLapSortKey>("time");
   const [sortAsc, setSortAsc] = useState(true);
   const [deleting, setDeleting] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -114,6 +114,11 @@ export function TrackDetail({
   // The tab is the route — the URL owns it, not this component. A tab the
   // current game doesn't have falls back to info rather than rendering blank.
   const activeTab: Tab = (validTabs as readonly string[]).includes(tab) ? (tab as Tab) : "info";
+
+  useEffect(() => {
+    setHoveredSegments(null);
+    setHoveredSector(null);
+  }, [activeTab, trackKey, gameId]);
 
   const { data: trackMapData } = useQuery({
     queryKey: ["track-map", trackKey, gameId ?? null],
@@ -167,14 +172,16 @@ export function TrackDetail({
 
   useEffect(() => {
     if (!outline || !canvasRef.current) return;
-    const showSectors = editingSectors || mapDisplayMode === "sectors";
+    const previewSegment = activeTab === "info" ? hoveredSegments : null;
+    const previewSector = activeTab === "info" ? hoveredSector : null;
+    const showSectors = previewSegment == null && (previewSector != null || editingSectors || mapDisplayMode === "sectors");
     const sectorBoundsForDraw = editingSectors ? { starts: [0, editS1 / 100, editS2 / 100] } : sectorBounds ? { starts: [0, sectorBounds.s1End, sectorBounds.s2End] } : undefined;
     const sectorOverride = showSectors ? sectorBoundsForDraw : undefined;
     // While editing, every turn of a complex gets its own label so the row
     // being edited is identifiable on the map; otherwise the complex is
     // labelled once under its group name.
-    drawTrack(canvasRef.current, outline, true, showSectors ? null : displaySectors, zoom, pan, sectorOverride, flipX, undefined, editing);
-  }, [outline, displaySectors, zoom, pan, editingSectors, editS1, editS2, mapDisplayMode, sectorBounds, activeTab, flipX, editing]);
+    drawTrack(canvasRef.current, outline, true, showSectors ? null : displaySectors, zoom, pan, sectorOverride, flipX, undefined, editing, previewSegment, previewSector);
+  }, [outline, displaySectors, zoom, pan, editingSectors, editS1, editS2, mapDisplayMode, sectorBounds, activeTab, flipX, editing, hoveredSegments, hoveredSector]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -229,17 +236,6 @@ export function TrackDetail({
     return [...divs].sort();
   }, [trackLaps]);
 
-  const filteredLaps = useMemo(() => {
-    return trackLaps
-      .filter((l) => selectedCars.size === 0 || selectedCars.has(l.carOrdinal))
-      .filter((l) => !selectedDivision || l.division === selectedDivision)
-      .sort((a, b) => {
-        const cmp = sortBy === "time" ? a.lapTime - b.lapTime : sortBy === "date" ? (a.createdAt ? parseUtcTimestamp(a.createdAt).getTime() : 0) - (b.createdAt ? parseUtcTimestamp(b.createdAt).getTime() : 0) : a.lapNumber - b.lapNumber;
-        return sortAsc ? cmp : -cmp;
-      });
-  }, [trackLaps, selectedCars, selectedDivision, sortBy, sortAsc]);
-  const sectorCount = storedLapsSectorCount(filteredLaps);
-
   const sessionLapCounts = useMemo(() => {
     if (!isF125) return new Map<number, number>();
     const counts = new Map<number, number>();
@@ -248,6 +244,38 @@ export function TrackDetail({
     }
     return counts;
   }, [isF125, trackLaps]);
+  const filteredLaps = useMemo(() => {
+    return trackLaps
+      .filter((l) => selectedCars.size === 0 || selectedCars.has(l.carOrdinal))
+      .filter((l) => !selectedDivision || l.division === selectedDivision)
+      .sort((a, b) => {
+        let cmp: number;
+        if (typeof sortBy === "number") {
+          const aTime = a.sectorTimes?.[sortBy] ?? 0;
+          const bTime = b.sectorTimes?.[sortBy] ?? 0;
+          if (aTime <= 0 || bTime <= 0) return (aTime <= 0 ? 1 : 0) - (bTime <= 0 ? 1 : 0);
+          cmp = aTime - bTime;
+        } else {
+          switch (sortBy) {
+            case "car": cmp = a.carName.localeCompare(b.carName); break;
+            case "class": cmp = a.carClass.localeCompare(b.carClass) || a.pi - b.pi; break;
+            case "type": {
+              const aType = a.sessionId != null && (sessionLapCounts.get(a.sessionId) ?? 0) > 1 ? m.track_detail_race() : m.track_detail_quali();
+              const bType = b.sessionId != null && (sessionLapCounts.get(b.sessionId) ?? 0) > 1 ? m.track_detail_race() : m.track_detail_quali();
+              cmp = aType.localeCompare(bType);
+              break;
+            }
+            case "notes": cmp = (a.notes ?? "").localeCompare(b.notes ?? ""); break;
+            case "date": cmp = (a.createdAt ? parseUtcTimestamp(a.createdAt).getTime() : 0) - (b.createdAt ? parseUtcTimestamp(b.createdAt).getTime() : 0); break;
+            case "lap": cmp = a.lapNumber - b.lapNumber; break;
+            case "time": cmp = a.lapTime - b.lapTime; break;
+          }
+        }
+        return sortAsc ? cmp : -cmp;
+      });
+  }, [trackLaps, selectedCars, selectedDivision, sortBy, sortAsc, sessionLapCounts]);
+  const sectorCount = storedLapsSectorCount(filteredLaps);
+
   const hasSessionTypes = useMemo(() => {
     if (!isF125) return false;
     const vals = [...sessionLapCounts.values()];
@@ -292,7 +320,7 @@ export function TrackDetail({
   }, [selectedLaps, refetchLaps, bulkDelete]);
 
   const handleSort = useCallback(
-    (col: "time" | "lap" | "date") => {
+    (col: TrackLapSortKey) => {
       if (sortBy === col) setSortAsc((a) => !a);
       else {
         setSortBy(col);
@@ -303,9 +331,9 @@ export function TrackDetail({
   );
 
   return (
-    <div className="p-4 overflow-auto h-full">
+    <div className="flex h-full min-h-0 min-w-0 flex-col overflow-y-auto p-4 @3xl/workspace:overflow-hidden">
       {/* Header */}
-      <div className="mb-4 flex flex-col gap-3 @3xl/workspace:flex-row @3xl/workspace:items-center">
+      <div className="mb-4 flex shrink-0 flex-col gap-3 @3xl/workspace:flex-row @3xl/workspace:items-center">
         <div className="flex items-center gap-3 min-w-0">
           <Button
             type="button"
@@ -319,8 +347,7 @@ export function TrackDetail({
           <div className="min-w-0">
             <div className="text-app-heading font-semibold text-app-text">{track.name}</div>
             <div className="text-app-label text-app-text-muted">
-              {track.variant} · {track.location}, {countryName(track.country)}
-              {track.lengthKm > 0 && ` · ${track.lengthKm} km`}
+              {[track.variant, track.location, countryName(track.country), track.lengthKm > 0 ? `${track.lengthKm} km` : ""].filter(Boolean).join(" · ")}
             </div>
           </div>
         </div>
@@ -346,8 +373,8 @@ export function TrackDetail({
 
       {/* Debug: full-page view with segments/sectors sidebar */}
       {activeTab === "debug" ? (
-        <div className="flex gap-4 h-[calc(100vh-160px)]">
-          <div className="flex-1 min-h-0 overflow-hidden">
+        <div className="flex shrink-0 flex-col gap-4 @3xl/workspace:min-h-0 @3xl/workspace:flex-1 @3xl/workspace:shrink @3xl/workspace:flex-row @3xl/workspace:overflow-hidden">
+          <div className="min-w-0 @3xl/workspace:min-h-0 @3xl/workspace:flex-1 @3xl/workspace:overflow-auto @5xl/workspace:overflow-hidden">
             <TrackDebugPanel
               trackOrdinal={track.ordinal}
               outline={outline}
@@ -392,24 +419,13 @@ export function TrackDetail({
           />
         </div>
       ) : (
-        <div className="flex flex-col gap-4 @5xl/workspace:h-[calc(100vh-160px)] @5xl/workspace:overflow-hidden">
-          <div className="flex min-h-0 flex-1 flex-col gap-4 @3xl/workspace:overflow-hidden">
-            {/* Track map — hidden on setups tab so the setups panel can take the full left column */}
-            {activeTab !== "setups" && (
-              <div className={`flex shrink-0 flex-col gap-3 @3xl/workspace:flex-row ${activeTab === "guide" && isF125 ? "@3xl/workspace:h-[160px]" : "@3xl/workspace:h-[320px]"}`}>
-                {/* Info summary left of map, same shape as the laps leaderboard */}
-                {activeTab === "info" && (
-                  <div className="order-2 min-h-[200px] w-full shrink-0 overflow-auto @3xl/workspace:order-1 @3xl/workspace:min-h-0 @3xl/workspace:w-[560px]">
-                    <TrackInfoPanel track={track} sectors={displaySectors} sectorBounds={sectorBounds} segSource={segSource} lapCount={trackLaps.length} gameId={gameId} part="summary" />
-                  </div>
-                )}
-
-                {/* Leaderboard left of map on laps tab */}
-                {activeTab === "laps" && (
-                  <div className="order-2 min-h-[200px] w-full shrink-0 overflow-hidden @3xl/workspace:order-1 @3xl/workspace:min-h-0 @3xl/workspace:w-[560px]">
-                    {isF125 ? <F125Leaderboard trackOrdinal={track.ordinal} /> : <CommunityLeaderboard trackName={track.name} trackVariant={track.variant} />}
-                  </div>
-                )}
+        <div className="flex shrink-0 flex-col gap-4 @3xl/workspace:min-h-0 @3xl/workspace:flex-1 @3xl/workspace:shrink @3xl/workspace:overflow-hidden">
+          <div className="flex flex-col gap-4 @3xl/workspace:min-h-0 @3xl/workspace:flex-1 @3xl/workspace:overflow-hidden">
+            {/* Track map — reference views only; laps and setups use the full workspace. */}
+            {activeTab !== "setups" && activeTab !== "laps" && (
+              <div className={activeTab === "info"
+                ? "grid shrink-0 grid-cols-1 gap-3 @3xl/workspace:min-h-0 @3xl/workspace:flex-1 @3xl/workspace:shrink @3xl/workspace:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] @3xl/workspace:grid-rows-[minmax(0,1fr)] @3xl/workspace:overflow-hidden"
+                : `flex shrink-0 flex-col gap-3 @3xl/workspace:flex-row ${isF125 ? "@3xl/workspace:h-[min(160px,35%)]" : "@3xl/workspace:h-[min(320px,45%)]"}`}>
                 <TrackCanvasPanel
                   track={track}
                   outline={outline}
@@ -426,11 +442,16 @@ export function TrackDetail({
                   corners={corners}
                   straights={straights}
                 />
+                {activeTab === "info" && (
+                  <div className="min-w-0 @3xl/workspace:min-h-0 @3xl/workspace:overflow-auto">
+                    <TrackInfoPanel track={track} sectors={displaySectors} sectorBounds={sectorBounds} segSource={segSource} gameId={gameId} onSegmentHover={outline ? setHoveredSegments : undefined} onSectorHover={outline ? setHoveredSector : undefined} />
+                  </div>
+                )}
               </div>
             )}
 
             {/* Tab content */}
-            <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
+            <div className={`flex flex-col @3xl/workspace:min-h-0 @3xl/workspace:flex-1 @3xl/workspace:overflow-auto ${activeTab === "info" ? "hidden" : ""}`}>
               {/* Setups tab — no outer scroll, component handles its own */}
               {activeTab === "setups" && (
                 <div className="flex-1 min-h-0">
@@ -451,11 +472,7 @@ export function TrackDetail({
                 </div>
               )}
 
-              <div className={`min-h-0 flex-1 ${activeTab === "laps" ? "@3xl/workspace:overflow-hidden" : "overflow-auto"} ${activeTab === "setups" || activeTab === "guide" ? "hidden" : ""}`}>
-                {/* Info tab — guide + segments read full width under the map */}
-                {activeTab === "info" && (
-                  <TrackInfoPanel track={track} sectors={displaySectors} sectorBounds={sectorBounds} segSource={segSource} lapCount={trackLaps.length} gameId={gameId} part="details" />
-                )}
+              <div className={`@3xl/workspace:min-h-0 @3xl/workspace:flex-1 ${activeTab === "laps" ? "@3xl/workspace:overflow-hidden" : "@3xl/workspace:overflow-auto"} ${activeTab === "setups" || activeTab === "guide" ? "hidden" : ""}`}>
 
                 {activeTab === "laps" && (
                   <LapManagement

@@ -3,7 +3,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { formatLapTime } from "@/components/LiveTelemetry";
-import { SortableTH, Table, TBody, TD, TH, THead, TRow } from "@/components/ui/AppTable";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { SortableTableHead } from "@/components/ui/sortable-table-head";
 import { Button } from "@/components/ui/button";
 import { queryKeys } from "@/hooks/query-keys";
 import { bestSectorLapIds } from "@/lib/lap-sectors";
@@ -38,60 +39,45 @@ export function SessionLapTable({ session, laps, sectorCount, lapSortKey, lapSor
 
   return (
     <>
-      <Table layout="fixed">
-        <colgroup>
-          <col className="w-11" />
-          <col className="w-6" />
-          <col className="w-[8%]" />
-          <col className="w-[22%]" />
-          {sectorLabels.map((label) => (
-            <col key={label} className="w-[12%]" />
-          ))}
-          <col />
-        </colgroup>
-        <THead>
-          <TH />
-          <TH />
-          {(["lap", "time"] as const).map((field) => (
-            <SortableTH key={field} direction={lapSortKey === field ? (lapSortDir === "asc" ? "ascending" : "descending") : undefined} onSort={() => toggleLapSort(field)}>
-              {field === "lap" ? m.label_lap() : m.label_time()}
-            </SortableTH>
-          ))}
-          {sectorLabels.map((label) => (
-            <TH key={label}>{label}</TH>
-          ))}
-          <TH>{m.sessions_col_notes()}</TH>
-        </THead>
-        <TBody>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-11 min-w-11 max-w-11" />
+            <SortableTableHead className="w-1 min-w-10 pr-1" direction={lapSortKey === "lap" ? (lapSortDir === "asc" ? "ascending" : "descending") : undefined} onSort={() => toggleLapSort("lap")}>
+              {m.label_lap()}
+            </SortableTableHead>
+            <TableHead className="w-1 pl-1" />
+            <SortableTableHead className="w-1 min-w-32" direction={lapSortKey === "time" ? (lapSortDir === "asc" ? "ascending" : "descending") : undefined} onSort={() => toggleLapSort("time")}>
+              {m.label_time()}
+            </SortableTableHead>
+            {sectorLabels.map((label, index) => (
+              <SortableTableHead key={label} className="w-1 min-w-24 text-right" direction={lapSortKey === index ? (lapSortDir === "asc" ? "ascending" : "descending") : undefined} onSort={() => toggleLapSort(index)}>
+                {label}
+              </SortableTableHead>
+            ))}
+            <SortableTableHead className="w-auto min-w-40" direction={lapSortKey === "notes" ? (lapSortDir === "asc" ? "ascending" : "descending") : undefined} onSort={() => toggleLapSort("notes")}>
+              {m.sessions_col_notes()}
+            </SortableTableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {sortedLaps.map((lap) => {
             const isBest = (session.bestLapTime ?? 0) > 0 && Math.abs(lap.lapTime - (session.bestLapTime ?? 0)) < 0.001;
             return (
-              <TRow
+              <TableRow
                 key={lap.id}
                 onContextMenu={(event) => {
                   event.preventDefault();
                   setContextMenu({ x: event.clientX, y: event.clientY, lapId: lap.id });
                 }}
               >
-                <TD align="center">
+                <TableCell className="w-11 min-w-11 max-w-11 text-center whitespace-nowrap">
                   <input type="checkbox" checked={selectedLaps.has(lap.id)} onChange={() => toggleLapSelection(lap.id)} className="accent-app-accent w-4 h-4" />
-                </TD>
-                <TD align="center" onClick={(event) => event.stopPropagation()}>
-                  <FavoriteToggleButton target="lap" id={lap.id} isFavorite={Boolean(lap.isFavorite)} />
-                </TD>
-                <TD numeric tone="primary">
-                  {lap.lapNumber}
-                </TD>
-                <TD>
-                  <div className="flex items-center gap-2">
-                    <span className={`font-mono tabular-nums ${isBest ? "text-(--lap-pace-best) font-bold" : "text-app-text/90"}`}>{formatLapTime(lap.lapTime)}</span>
-                    {lap.isValid ? (
-                      <span className="text-status-success text-sm">&#10003;</span>
-                    ) : (
-                      <span className="text-status-danger text-sm" title={lap.invalidReason}>
-                        &#10007;
-                      </span>
-                    )}
+                </TableCell>
+                <TableCell className="w-1 min-w-10 pr-1 font-mono tabular-nums text-app-label whitespace-nowrap">{lap.lapNumber}</TableCell>
+                <TableCell className="w-1 pl-1 whitespace-nowrap" onClick={(event) => event.stopPropagation()}>
+                  <div className="flex items-center gap-1">
+                    <FavoriteToggleButton target="lap" id={lap.id} isFavorite={Boolean(lap.isFavorite)} />
                     <Button
                       variant="app-primary"
                       size="app-sm"
@@ -105,16 +91,28 @@ export function SessionLapTable({ session, laps, sectorCount, lapSortKey, lapSor
                       {m.sessions_replay_lap()}
                     </Button>
                   </div>
-                </TD>
+                </TableCell>
+                <TableCell className="w-1 min-w-32 whitespace-nowrap">
+                  <div className="flex items-center gap-2">
+                    <span className={`font-mono tabular-nums ${isBest ? "text-(--lap-pace-best) font-bold" : "text-app-text/90"}`}>{formatLapTime(lap.lapTime)}</span>
+                    {lap.isValid ? (
+                      <span className="text-status-success text-sm">&#10003;</span>
+                    ) : (
+                      <span className="text-status-danger text-sm" title={lap.invalidReason}>
+                        &#10007;
+                      </span>
+                    )}
+                  </div>
+                </TableCell>
                 {sectorLabels.map((label, index) => {
                   const value = lap.sectorTimes?.[index] ?? 0;
                   return (
-                    <TD key={label} numeric>
+                    <TableCell key={label} className="w-1 min-w-24 text-right font-mono tabular-nums whitespace-nowrap">
                       <span className={bestSectorLaps[index] === lap.id ? "text-(--lap-pace-best) font-bold" : "text-app-text/90"}>{value > 0 ? formatLapTime(value) : "—"}</span>
-                    </TD>
+                    </TableCell>
                   );
                 })}
-                <TD>
+                <TableCell className="w-auto min-w-40 whitespace-normal">
                   <NoteCell
                     value={lap.notes ?? undefined}
                     onSave={(notes) => {
@@ -122,11 +120,11 @@ export function SessionLapTable({ session, laps, sectorCount, lapSortKey, lapSor
                       void queryClient.invalidateQueries({ queryKey: queryKeys.laps });
                     }}
                   />
-                </TD>
-              </TRow>
+                </TableCell>
+              </TableRow>
             );
           })}
-        </TBody>
+        </TableBody>
       </Table>
       {contextMenu && (
         <>
