@@ -6,6 +6,7 @@ Build and package RaceIQ artifacts from repository root.
 |---|---|
 | `bun scripts/build/build.ts` | Clean `dist`, build client, copy runtime data/assets, compile server binary, ad-hoc sign and verify it on macOS, copy native libsql addon. |
 | `bun scripts/build/build-installer.ts [version]` | Build client, copy data, compile Windows binary, and run Inno Setup. Defaults version to `package.json`. |
+| `bun scripts/build/build-icon.ts` | Render Windows ICO frames (16–256px) directly from the official 1024px `assets/raceiq-icon.png` logo using Sharp. |
 | `bun scripts/build/bundle-client.ts` | Embed `client/dist` assets in `server/client-assets.generated.ts`. |
 | `bun scripts/build/copy-client-dist.ts` | Copy `client/dist` to `dist/public`. |
 | `bun scripts/build/copy-shared-data.ts` | Copy shared CSV/JSON data and `credstore.ps1` into `dist`. |
