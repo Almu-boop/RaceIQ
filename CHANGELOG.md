@@ -2,28 +2,31 @@
 
 ### Features
 
-- Use structured setup editing without a Paste JSON mode, and label the save action “Save Setup”.
-- Show each saved setup's best valid recorded lap from sessions using that setup, and sort setups by recorded lap time.
-- Select or clear a track when creating or editing ACC and AC Evo setups; restrict track-specific setup best laps to that circuit.
-- Use accessible toggle groups for setup sections and setup sources.
+- See each saved setup's best valid lap and sort setups by lap time.
+- Choose a track for ACC and AC Evo setups to see best laps recorded on that circuit.
+- Search cars, tracks, and categories in ACC and AC Evo setup forms.
+- Use keyboard-accessible controls to switch setup sections and sources.
+- Edit setups through structured fields instead of Paste JSON, with a clearly labelled “Save Setup” action.
 
 ### Fixes
 
-- Stop opening a browser automatically on startup, including first-run and development launches.
-- Warn before deleting a setup that is in use, list its linked sessions and laps, and preserve recordings when removing their setup associations.
-- Keep Analyse Data vertically scrollable; restore borderless wheel metrics, right-align wheel headings, show the combined balance signal, and label pressure units once per row.
-- Label the lap replay selector “Setup” and let users select “No setup” to unlink a saved setup from a lap.
-- Hide setup lap times and lap-time sorting until a specific track is selected.
-- Keep AC Evo setup editor actions visible while scrolling and remove excess left padding from the editor header.
-- Restore AC Evo `.carsetup` imports from Sessions and the setup-file browser, with automatic car selection for uploaded setups that identify their car.
-- Match AC Evo setup editing to the experiment setup viewer's tabs, corner cards, units, and ranges; preserve imported per-wheel details and saved edits.
-- Keep unavailable per-car adjustments read-only in imported AC Evo setups.
-- Refresh saved setup best laps and rankings when recordings or setup associations change.
-- Align AC Evo setup inputs regardless of units, use compact controls without native number spinners, fill the available editor width, and arrange wheel sections side by side on desktop and stacked on mobile.
-- Use searchable car, track, and category selectors in ACC and AC Evo setup forms.
-- Use the application background instead of gray fill for shared text and numeric inputs.
+- Warn before deleting a setup, showing its linked sessions and laps without deleting their recordings.
+- Scroll through all telemetry in Analyse Data.
+- See combined balance readings alongside wheel metrics in Analyse Data.
+- Select “No setup” in lap replay to unlink a saved setup.
+- Show setup lap times and lap-time sorting only when a specific track is selected.
+- Keep AC Evo setup editor actions visible while scrolling.
+- Import AC Evo `.carsetup` files from Sessions and the setup-file browser again.
+- Automatically select the car when an imported AC Evo setup identifies it.
+- Use consistent tabs, units, and adjustment ranges across the AC Evo setup editor and experiment setup viewer.
+- Preserve imported per-wheel settings and saved edits in AC Evo setups.
+- Prevent editing AC Evo adjustments that are unavailable for the selected car.
+- Keep setup best laps and rankings up to date after recordings or setup links change.
+- Fit AC Evo wheel settings side by side on desktop and stack them on mobile.
+- Match text and number field backgrounds to the rest of the app.
 
 ### Internal
+- Stop opening a browser automatically for development launches; preserve first-run browser opening in installed builds.
 - Remove game-file extraction tools and their settings UI.
 - Use bundled ACC track SVGs for segment generation, visualization, and runtime centerlines; remove obsolete centerline CSVs and migrate saved segment and sector positions while preserving curated turns.
 - Exclude generated JavaScript from client typechecking and emit Paraglide declarations in development so translation imports remain typed.
