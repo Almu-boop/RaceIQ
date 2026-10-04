@@ -1,3 +1,4 @@
+import { gameImagesPlugin } from "./game-images.ts";
 import { spawn } from "node:child_process";
 import path from "node:path";
 import tailwindcss from "@tailwindcss/vite";
@@ -88,6 +89,7 @@ export default defineConfig(({ command }) => {
       react(),
       tailwindcss(),
       TanStackRouterVite(),
+      gameImagesPlugin(),
       ...(isBuild ? [paraglideBuildPlugin()] : []),
     ],
     customLogger: logger,
@@ -108,7 +110,6 @@ export default defineConfig(({ command }) => {
       ],
       alias: {
         "@": path.resolve(import.meta.dirname, "src"),
-        "@shared": path.resolve(import.meta.dirname, "../shared"),
       },
     },
     build: {

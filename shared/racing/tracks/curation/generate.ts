@@ -1,7 +1,7 @@
 /**
  * Core of the track segment generator: turns committed game centerlines +
  * curated track facts into a track's shared facts plus one geometry file
- * per game. Used by scripts/tracks/generate-track-segments.ts (CLI) and by tests, so
+ * per game. Used by packages/tooling-data/src/tracks/generate-track-segments.ts (CLI) and by tests, so
  * the exact code path that produces committed meta is what the test suite
  * exercises.
  */
@@ -19,19 +19,19 @@ import {
 } from "../storage/meta";
 import { cornerNumbers, type CornerFact, type StraightFact, type TrackFacts } from "../facts";
 import type { TrackGeometry } from "../geometry";
+import type { NamedSegment } from "../named-segments";
 import { joinSegments, splitSegments } from "./join";
 import { cornerKey } from "../keys";
 import { loadDetectHints } from "../detect-hints";
-import type { NamedSegment } from "../named-segments";
-import { SHARED_DIR } from "@shared/platform/runtime/data-paths";
-import type { GameId } from "@shared/games/ids";
+import { gameAssetsDir, SHARED_DIR } from "../../../platform/runtime/data-paths";
+import type { GameId } from "../../../games/ids";
 import { loadAccSvgBoundaryByName } from "../geometry/acc-svg";
 
 export const TRACK_META_DIR = resolve(SHARED_DIR, "tracks", "meta");
 const NO_CENTERLINE_DIR = null;
 const GAME_DIRS: Record<GameId, string | typeof NO_CENTERLINE_DIR> = {
   "f1-2025": resolve(SHARED_DIR, "tracks", "f1-2025"),
-  acc: resolve(SHARED_DIR, "tracks", "acc"),
+  acc: resolve(gameAssetsDir("acc"), "tracks"),
   "fm-2023": resolve(SHARED_DIR, "tracks", "fm-2023"),
   "ac-evo": resolve(SHARED_DIR, "tracks", "ac-evo"),
   iracing: NO_CENTERLINE_DIR,

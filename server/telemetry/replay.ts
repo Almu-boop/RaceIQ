@@ -1,12 +1,12 @@
-import { TELEMETRY_CATALOG } from "../../shared/telemetry/catalog/data";
-import { canonicalTelemetryValue } from "../../shared/telemetry/replay/canonicalize";
-import type { CanonicalTelemetryEnvelope, CanonicalTelemetryValue, SemanticTelemetryReplay, TelemetryRawReference } from "../../shared/telemetry/replay/contracts";
-import { compileTelemetryResolver } from "../../shared/telemetry/resolver/compile";
-import type { ResolvedValue, SourceObservation, TelemetryFrameView, TelemetryTimestamp } from "../../shared/telemetry/resolver/contracts";
-import type { TelemetryPacket } from "../../shared/telemetry/types";
+import { TELEMETRY_CATALOG } from "@raceiq/shared/telemetry/catalog/data";
+import { canonicalTelemetryValue } from "@raceiq/telemetry-core/telemetry/replay/canonicalize";
+import type { CanonicalTelemetryEnvelope, CanonicalTelemetryValue, SemanticTelemetryReplay, TelemetryRawReference } from "@raceiq/shared/telemetry/replay/contracts";
+import { compileTelemetryResolver } from "@raceiq/telemetry-core/telemetry/resolver/compile";
+import type { ResolvedValue, SourceObservation, TelemetryFrameView, TelemetryTimestamp } from "@raceiq/shared/telemetry/resolver/contracts";
+import type { TelemetryPacket } from "@raceiq/shared/telemetry/types";
 import { getLapById } from "../db/lap-read-queries";
 import { getLapReplaySource, type LapReplaySource } from "../db/telemetry-replay-storage";
-import { createIRacingSourceDecoderState, decodeIRacingSourceFrame, type IRacingValue } from "../games/iracing/source-frame";
+import { createIRacingSourceDecoderState, decodeIRacingSourceFrame, type IRacingValue } from "@raceiq/capture-formats/iracing/source-frame";
 import { iterateSessionCaptureRecords } from "../session-capture/framing";
 import { loadRawCaptureIdentity, type RawCaptureIdentity, rawCaptureObjectId } from "../session-capture/identity";
 export interface QueryLapTelemetryOptions {

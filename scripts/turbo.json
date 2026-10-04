@@ -1,0 +1,33 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "extends": ["//"],
+  "tags": ["tooling"],
+  "tasks": {
+    "transit": {
+      "inputs": ["$TURBO_EXTENDS$", "!test/*-files.txt", "!test/tests/**"]
+    },
+    "test": {
+      "dependsOn": ["transit"],
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/client/src/**",
+        "$TURBO_ROOT$/client/DESIGN.md",
+        "$TURBO_ROOT$/client/.impeccable/design.json",
+        "$TURBO_ROOT$/client/.storybook/preview.ts"
+      ]
+    },
+    "test:unit": {
+      "dependsOn": ["transit"]
+    },
+    "test:tooling": {
+      "dependsOn": ["transit"],
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/client/src/**",
+        "$TURBO_ROOT$/client/DESIGN.md",
+        "$TURBO_ROOT$/client/.impeccable/design.json",
+        "$TURBO_ROOT$/client/.storybook/preview.ts"
+      ]
+    }
+  }
+}
