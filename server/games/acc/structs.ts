@@ -140,8 +140,8 @@ export const PHYSICS = {
   slipAngleRL:    { offset: 664, type: "f32" },
   slipAngleRR:    { offset: 668, type: "f32" },
   // tcInAction (672), absInAction (676), suspensionDamage[4] (680-692)
-  // — all marked "Not used in ACC" per Kunos header; real intervention
-  // signals are the vibration floats at the very end of the struct.
+  // — marked "Not used in ACC" per Kunos header. The physics tc/abs floats
+  // at 204/252 report aid activity; vibrations also occur without intervention.
   // tyreTemp[4] — ACC core-temperature alias, °C; not a surface channel
   tyreTempFL:     { offset: 696, type: "f32" },
   tyreTempFR:     { offset: 700, type: "f32" },
@@ -202,9 +202,10 @@ export const GRAPHICS = {
   // carID[60] at 976 (240 bytes → 1216)
   carIDBase:        { offset: 976, type: "i32" },   // stride: 4 bytes per car
   playerCarID:      { offset: 1216, type: "i32" },
-  // penaltyTime (1220)
+  penaltyTime:      { offset: 1220, type: "f32" },
   flag:             { offset: 1224, type: "i32" },
-  // penalty (1228), idealLineOn (1232)
+  penalty:          { offset: 1228, type: "i32" },
+  // idealLineOn (1232)
   isInPitLane:      { offset: 1236, type: "i32" },
   // surfaceGrip (1240), mandatoryPitDone (1244)
   windSpeed:        { offset: 1248, type: "f32" },

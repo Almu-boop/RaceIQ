@@ -1,6 +1,7 @@
 import { existsSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { bundledTrackDir as bundledGameDir, computedAverageFileName, getBundledTrackName, loadBundledPointCsv } from "../resolve-name";
+import { loadAccSvgBoundaryByName } from "../geometry/acc-svg";
 import { filterOutlierPoints } from "../geometry/points";
 import { getBundledOutlineByOrdinal, hasBundledOutlineByOrdinal } from "../geometry/outlines";
 import { loadSharedOutline } from "../geometry/shared";
@@ -34,10 +35,12 @@ export function scanRecordedFiles(): void {
 }
 function ensureRecordedScanned() { if (!_recordedScanned) scanRecordedFiles(); }
 
-/** Check if a game-extracted centerline exists (user-extracted or bundled). */
+/** Check if higher-quality game-specific centerline geometry exists. */
 function hasExtractedOutline(ordinal: number, gameId: string): boolean {
   const name = getBundledTrackName(gameId, ordinal);
-  if (name && existsSync(resolve(bundledGameDir(gameId), `${name}-centerline.csv`))) return true;
+  if (!name) return false;
+  if (gameId === "acc") return loadAccSvgBoundaryByName(name) !== null;
+  if (existsSync(resolve(bundledGameDir(gameId), `${name}-centerline.csv`))) return true;
   return false;
 }
 
@@ -114,10 +117,9 @@ export function recordLapTrace(ordinal: number, trace: Point[], startLinePos: Po
     if (yaws.length > 10) yaws.shift();
   }
 
-  // If an extracted (game-file) outline already exists, don't overwrite it
-  // with telemetry recordings — the game data is higher quality.
-  // Exception: AC Evo reuses ACC's extracted outlines but still needs its own
-  // telemetry recording for boundary alignment (different coordinate space).
+  // Prefer existing game-specific outlines over telemetry recordings.
+  // AC Evo reuses ACC geometry but needs its own telemetry recording for
+  // boundary alignment because it uses a different coordinate space.
   if (hasExtractedOutline(ordinal, gameId) && gameId !== "ac-evo") return;
 
   // Filter outlier points from the trace (pit lane teleports, rewind jumps)
@@ -209,8 +211,7 @@ export function recordLapTrace(ordinal: number, trace: Point[], startLinePos: Po
  */
 export function getTrackOutlineByOrdinal(ordinal: number, gameId: string, sharedName?: string): Point[] | null {
   validateGameId(gameId);
-  const resolvedSharedName =
-    sharedName ?? getBundledTrackName(gameId, ordinal);
+  const resolvedSharedName = sharedName ?? getBundledTrackName(gameId, ordinal);
   return loadBundledPointCsv(ordinal, gameId, "centerline") ??
     loadRecordedOutline(ordinal, gameId) ??
     loadSharedOutline(resolvedSharedName ?? "") ??

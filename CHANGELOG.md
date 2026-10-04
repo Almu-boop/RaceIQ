@@ -1,5 +1,115 @@
 ## Unreleased
 
+### Features
+
+- See each saved setup's best valid lap and sort setups by lap time.
+- Choose a track for ACC and AC Evo setups to see best laps recorded on that circuit.
+- Search cars, tracks, and categories in ACC and AC Evo setup forms.
+- Use keyboard-accessible controls to switch setup sections and sources.
+- Edit setups through structured fields instead of Paste JSON, with a clearly labelled “Save Setup” action.
+
+### Fixes
+
+- Warn before deleting a setup, showing its linked sessions and laps without deleting their recordings.
+- Scroll through all telemetry in Analyse Data.
+- See combined balance readings alongside wheel metrics in Analyse Data.
+- Select “No setup” in lap replay to unlink a saved setup.
+- Show setup lap times and lap-time sorting only when a specific track is selected.
+- Keep AC Evo setup editor actions visible while scrolling.
+- Import AC Evo `.carsetup` files from Sessions and the setup-file browser again.
+- Automatically select the car when an imported AC Evo setup identifies it.
+- Use consistent tabs, units, and adjustment ranges across the AC Evo setup editor and experiment setup viewer.
+- Preserve imported per-wheel settings and saved edits in AC Evo setups.
+- Prevent editing AC Evo adjustments that are unavailable for the selected car.
+- Keep setup best laps and rankings up to date after recordings or setup links change.
+- Fit AC Evo wheel settings side by side on desktop and stack them on mobile.
+- Match text and number field backgrounds to the rest of the app.
+
+### Internal
+- Stop opening a browser automatically for development launches; preserve first-run browser opening in installed builds.
+- Remove game-file extraction tools and their settings UI.
+- Use bundled ACC track SVGs for segment generation, visualization, and runtime centerlines; remove obsolete centerline CSVs and migrate saved segment and sector positions while preserving curated turns.
+- Exclude generated JavaScript from client typechecking and emit Paraglide declarations in development so translation imports remain typed.
+- Seed and validate the compiled E2E database once per workflow, then restore isolated database and capture copies in seeded shards instead of repeating fixture imports.
+- Include LMU recordings and saved Analyse/Compare chat histories in shared Playwright seed artifacts; restore isolated chat-memory databases in each seeded shard.
+- Remove redundant development database-seed tests from CI and verify recording imports after database upgrades.
+- Prevent setup deletion from refetching usage data for a removed setup.
+- Restore query context for setup browser snapshots, fail immediately on Storybook render errors, and show per-test snapshot progress in CI.
+- Reduce snapshot memory churn by checking canvas stability inside the browser without PNG serialization and reusing screenshot dimensions during diff generation.
+- Reuse validated Paraglide output and exact-key static Storybook builds in snapshot CI, separating compilation from capture while rejecting stale or damaged caches.
+- Isolate Storybook cache Git operations from inherited hook variables so tooling tests cannot replace the caller's staging index.
+- Install Node.js 22 in the CI test job so Storybook cache tooling tests use the required runtime instead of Bun's Node compatibility shim.
+- Reuse compiled Paraglide output from the upstream build artifact in snapshot and compiled E2E jobs, with validated cache or compilation fallback.
+- Run compiled E2E gates after build and test without waiting for snapshot comparison.
+- Remove Storybook Docs generation and its addon from local previews and snapshot builds.
+
+## v0.19.1 - 2026-10-01
+
+### Features
+
+- Add Spanish, Brazilian Portuguese, Japanese, Ukrainian, Dutch, Polish, Finnish, and Russian interfaces.
+- Search track, car, language, and other option lists with accessible combobox controls.
+- Slightly reduce corner radii through shared Tailwind tokens.
+- Use accessible toggle groups for Sessions Mine/Others and Analyse tooltip display.
+- Preview segments, sectors, and guide corners on the track map by hovering or focusing their reference rows or cards, highlighting the selected sections and hiding unrelated labels.
+- Show session types for ACC and AC Evo in desktop session tables and mobile session cards.
+- Expose ACC penalty codes, types, and time in telemetry, and list observed penalties on the race timeline without counting them as pit stops.
+
+### Fixes
+- Preserve LMU track map orientation when segment data loads, keeping segment overlays aligned with the initial map.
+- Use common circuit definitions and guides for LMU tracks, aligning the map's lap origin with curated segment percentages instead of showing anonymous auto-detected turns.
+- Show track facts and guides before slow map geometry loads, keeping reference data visible while the outline is loading.
+- Show all 14 Barcelona 2025 turns as separate LMU segments, restoring T6 and T11 and using the correct no-chicane layout and guide.
+- Restore missing official turns across ACC, AC Evo, F1 25, and Forza, keeping Barcelona's 14-turn no-chicane and 16-turn chicane layouts distinct.
+- Stop showing race finishing, grid, and position-change ranks for practice sessions, including LMU test days; retain raw simulator timing ranks.
+- Place qualifying position before Start on the race timeline instead of alongside Finish.
+- Keep the New experiment dialog header and footer visible while its form content scrolls.
+- Keep the track map full height beside a scrollable circuit reference, place compact stats above sector boundaries, and remove the redundant laps-recorded stat; stack track details on mobile.
+- Show ACC track lengths derived from available circuit outlines instead of leaving length blank.
+- List sector turns as separate bullet rows and keep Trap notes anchored to the bottom of track guide cards.
+- Restore Brands Hatch T7 Dingle Dell as a separate right-hand kink between T6 Westfield Bend and T8 Sheene Curve, including track labels and segment previews.
+- Reduce oversized Best, Median, and Worst lap Stats times; keep typography readable at different panel widths and text sizes, and label sector totals as theoretical best and delta.
+- Place Replay immediately after the lap number in the track lap table.
+- Sort every data column in the track lap table, including car, class, session type, sectors, and notes; keep missing sector times last in either direction.
+- Align selected-lap Compare and Delete actions with the lap table in the existing desktop header row without shifting the table; keep actions above lap cards on mobile.
+- Apply the Laps car filter to the Community Leaderboard, matching car names despite display punctuation differences.
+- Place the Laps label and filters before the Stats and Community Leaderboard tabs in a shared desktop header, keeping the reference panel left and lap list right.
+- Use available workspace height across track detail tabs, keep overflowing content scrollable on desktop and mobile, and keep community leaderboard headers visible while scrolling.
+- Replace the track map in Laps with full-height Stats and Community Leaderboard tabs beside the lap list, align table headers, remove redundant leaderboard labels, and use the same Replay action as Sessions.
+- Remove duplicate borders around Sector Ledger and Segment Ledger tables in session Analyse.
+- Show a pointer cursor across clickable recent session rows on Home, including track buttons.
+- Show pointer cursors on enabled shared buttons and toggles, including toggle groups, while disabled controls retain default cursors.
+- Choose visible games with labelled, keyboard-accessible switches in a grouped settings list.
+- Use shared inputs with transparent backgrounds and cyan focus borders for searches, including searchable selectors.
+- Keep input borders at 1px when focused, matching table borders; use cyan focus borders across shared controls instead of gray or purple.
+- Give segmented toggle groups a black background that stays black on hover, with a thin cyan border and cyan text on the selected option.
+- Keep the Sessions Favorites label neutral when enabled, while retaining the highlighted star.
+- Blend expanded session lap tables into their parent with transparent backgrounds and headers, without an upper divider or separate table frame on desktop and mobile.
+- Place lap favorite and replay actions together after the lap number, keep checkbox columns compact, and group right-aligned sectors beside lap time while Notes uses available width.
+- Sort expanded session laps by sector times and notes; keep missing sector times last in both directions.
+- Give all table headers hover colors and cyan active-sort text, and make shared sortable headers clickable across the whole cell.
+- Display session, lap, and experiment timestamps in the system's local timezone.
+- Use recorded lap validity for completed ACC laps when available; preserve existing rules for legacy ACC recordings.
+- Restore AC Evo track-limits classification when reprocessing recorded laps.
+- Measure suspension spikes from raw wheel travel rather than normalized travel, which can collapse to zero when calibration data is missing; distinguish spikes from confirmed rumble-strip impacts.
+- Show highest-severity lap insight findings first within each category.
+- Report Counter-Steer only for observed steering reversals against continuing corner rotation, not ordinary turns with game-specific yaw sign conventions or unverified rear traction loss.
+- Restore sustained understeer and oversteer findings in ACC/AC Evo replays when multiple capture frames share one simulator timestamp.
+- Use simulator time for lap insight detection across supported games, independent of recorder arrival time; restore checks on older ACC captures without frame timestamps.
+- Show detector findings for the primary lap alongside tune issues in session Analyse, without loading full replay telemetry.
+- Stop treating ACC and AC Evo tyre/road vibration as TC or ABS intervention; label ACC physics-signal findings as possible rather than game-confirmed, and use AC Evo's explicit aid-active flags for confirmed findings.
+- Keep expanded session lap tables within mobile viewport with internal horizontal scrolling, separate replay actions, and rounded corners.
+
+### Internal
+- Enforce complete segment turn coverage against layout facts across committed game geometry, including LMU; reject missing, duplicate, extra, and unnumbered turns without historical gap exemptions.
+- Preserve curated segment overrides during generation and apply that protection to Brands Hatch across ACC, AC Evo, and Forza; remove stale Dingle Dell gap exceptions.
+- Automatically mark dev-panel segment saves as curated overrides and retain override protection when editing sector boundaries.
+- Centralize the Sessions Favorites control in the shared Toggle component with optional star rendering and built-in active styling.
+- Keep PR Storybook comparisons advisory for new, changed, and missing screenshots; preserve preview artifacts and warnings when either render is incomplete.
+- Keep the SearchSelect Storybook menu open after interaction checks and wait for visual readiness before capture, preventing missing PR comparison screenshots.
+
+## v0.19.0 - 2026-09-28
+
 ### Breaking
 - Open lap replays from session links; old track/car/lap query links no longer work.
 - Older RaceIQ versions cannot open new recordings; keep current version installed to replay captures made with it.

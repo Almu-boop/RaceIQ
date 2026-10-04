@@ -1,5 +1,6 @@
 import { describe, test, expect } from "bun:test";
 import { parseAcEvoBuffers, createAcEvoParserCache } from "../../../server/games/ac-evo/parser";
+import { parseAcEvoLapIndex } from "../../../server/games/kunos/lap-index";
 import { PHYSICS, GRAPHICS_EVO, STATIC_EVO, TYRE_STATE, ACEVO_STATUS } from "../../../server/games/ac-evo/structs";
 
 function emptyBuffers() {
@@ -44,6 +45,43 @@ describe("AC Evo parser — malformed/empty STATIC recovery", () => {
 
     expect(packet).not.toBeNull();
     expect(cache.trackOrdinal).toBe(-1);
+  });
+
+  test("only explicit graphics flags confirm TC or ABS intervention", () => {
+    const { physics, graphics, staticData } = emptyBuffers();
+    physics.writeFloatLE(0.5, PHYSICS.slipVibrations.offset);
+    physics.writeFloatLE(0.5, PHYSICS.absVibrations.offset);
+    physics.writeFloatLE(1, PHYSICS.tc.offset);
+    physics.writeFloatLE(1, PHYSICS.abs.offset);
+    const cache = createAcEvoParserCache();
+    const vibration = parseAcEvoBuffers(physics, graphics, staticData, cache);
+    expect(vibration!.acc!.tcIntervention).toBe(0);
+    expect(vibration!.acc!.absIntervention).toBe(0);
+
+    graphics.writeUInt8(1, GRAPHICS_EVO.tc_active.offset);
+    graphics.writeUInt8(1, GRAPHICS_EVO.abs_active.offset);
+    const intervention = parseAcEvoBuffers(physics, graphics, staticData, cache);
+    expect(intervention!.acc!.tcIntervention).toBe(1);
+    expect(intervention!.acc!.absIntervention).toBe(1);
+  });
+
+  test("full and compact parsers preserve on-track validity and ignore pit invalidity", () => {
+    const { physics, graphics, staticData } = emptyBuffers();
+    for (const [raw, inPit, expected] of [
+      [1, 0, true],
+      [0, 0, false],
+      [0, 1, null],
+    ] as const) {
+      graphics.writeUInt8(raw, GRAPHICS_EVO.is_valid_lap.offset);
+      graphics.writeUInt8(inPit, GRAPHICS_EVO.is_in_pit_lane.offset);
+      const full = parseAcEvoBuffers(physics, graphics, staticData, createAcEvoParserCache());
+      const compact = parseAcEvoLapIndex(physics, graphics, staticData, createAcEvoParserCache());
+      expect(full?.acc?.isValidLap).toBe(expected);
+      expect(compact?.acc?.isValidLap).toBe(expected);
+    }
+    graphics.writeUInt8(0, GRAPHICS_EVO.is_in_pit_lane.offset);
+    graphics.writeUInt8(1, GRAPHICS_EVO.is_in_pit_box.offset);
+    expect(parseAcEvoLapIndex(physics, graphics, staticData, createAcEvoParserCache())?.acc?.isValidLap).toBeNull();
   });
 
   test("track name populated mid-session resolves on the frame it appears", () => {

@@ -1,6 +1,7 @@
 import { memo, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { getLocale } from "@/paraglide/runtime";
+import { parseUtcTimestamp } from "../../lib/utc-date";
 import { ChevronDown, Download, FileDown, NotebookPen, Sparkles, Trash2 } from "lucide-react";
 import type { LapMeta, SessionOwnership } from "../../../../shared/racing/sessions/types";
 import type { GameId } from "../../../../shared/games/ids";
@@ -10,6 +11,7 @@ import { m } from "../../paraglide/messages";
 import { Button } from "../ui/button";
 import { SearchSelect } from "../ui/SearchSelect";
 import { FavoriteToggleButton } from "../FavoriteToggleButton";
+import { queryKeys } from "../../hooks/query-keys";
 
 function buildAnalyseLapOption(lap: LapMeta, locale?: "en" | "de") {
   return {
@@ -121,7 +123,7 @@ export const AnalyseLapHeader = memo(function AnalyseLapHeader({
     }
     return filteredLaps.map((lap) => {
       const sessionLaps = sessions.get(lap.sessionId) ?? [lap];
-      const sessionDate = new Date(sessionLaps[sessionLaps.length - 1].createdAt);
+      const sessionDate = parseUtcTimestamp(sessionLaps[sessionLaps.length - 1].createdAt);
       const sessionLabel = m.analyse_session_group({ date: sessionDate.toLocaleDateString(getLocale()), time: sessionDate.toLocaleTimeString(getLocale(), { hour: "2-digit", minute: "2-digit" }), count: sessionLaps.length });
       return { ...buildAnalyseLapOption(lap), group: sessionLabel };
     });
@@ -187,7 +189,10 @@ export const AnalyseLapHeader = memo(function AnalyseLapHeader({
                 <SearchSelect
                   value={selectedLap?.tuneId != null ? String(selectedLap.tuneId) : ""}
                   onChange={(value) => onTuneChange(value ? Number.parseInt(value, 10) : null)}
-                  options={availableTunes?.map((tune) => ({ value: String(tune.id), label: tune.name })) ?? []}
+                  options={[
+                    { value: "", label: m.analyse_no_tune() },
+                    ...(availableTunes?.map((tune) => ({ value: String(tune.id), label: tune.name })) ?? []),
+                  ]}
                   placeholder={m.analyse_no_tune()}
                   ariaLabel={m.analyse_tune_label()}
                   disabled={tunePending}
@@ -349,6 +354,7 @@ export const AnalyseLapHeader = memo(function AnalyseLapHeader({
           onImported={() => {
             queryClient.invalidateQueries({ queryKey: ["laps"] });
             queryClient.invalidateQueries({ queryKey: ["sessions"] });
+            queryClient.invalidateQueries({ queryKey: queryKeys.userTunes });
           }}
         />
       )}

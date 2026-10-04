@@ -3,6 +3,7 @@ import type { LapMeta, RacingIdentityFields, SessionMeta, SessionRecap } from "@
 import { formatLapTime } from "@/lib/format";
 import { m } from "@/paraglide/messages";
 import type { LapSortKey, SessionNames, SessionsTab, SortDir, SortKey } from "./types";
+import { parseUtcTimestamp } from "@/lib/utc-date";
 
 export const PAGE_SIZE = 25;
 
@@ -16,7 +17,7 @@ export function fuzzyToken(token: string, field: string): boolean {
 
 export function formatSessionType(type?: string): string {
   if (!type || type === "unknown") return "";
-  return type.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  return type.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 export function sessionTrackName(session: RacingIdentityFields & { gameId?: string }, names: SessionNames): string {
@@ -52,7 +53,7 @@ export function sortSessions(sessions: SessionMeta[], sortKey: SortKey, sortDir:
     let valueA: string | number;
     let valueB: string | number;
     switch (sortKey) {
-      case "date": valueA = new Date(a.createdAt).getTime(); valueB = new Date(b.createdAt).getTime(); break;
+      case "date": valueA = parseUtcTimestamp(a.createdAt).getTime(); valueB = parseUtcTimestamp(b.createdAt).getTime(); break;
       case "track": valueA = sessionTrackName(a, names); valueB = sessionTrackName(b, names); break;
       case "car": valueA = sessionCarName(a, names); valueB = sessionCarName(b, names); break;
       case "laps": valueA = a.lapCount ?? 0; valueB = b.lapCount ?? 0; break;
@@ -97,7 +98,17 @@ export function paginateSessions(sessions: SessionMeta[], page: number, pageSize
 
 export function sortLaps(laps: LapMeta[], sortKey: LapSortKey, sortDir: SortDir): LapMeta[] {
   return [...laps].sort((a, b) => {
-    const comparison = sortKey === "lap" ? a.lapNumber - b.lapNumber : a.lapTime - b.lapTime;
+    let comparison: number;
+    if (typeof sortKey === "number") {
+      const aTime = a.sectorTimes?.[sortKey] ?? 0;
+      const bTime = b.sectorTimes?.[sortKey] ?? 0;
+      if (aTime <= 0 || bTime <= 0) return (aTime <= 0 ? 1 : 0) - (bTime <= 0 ? 1 : 0);
+      comparison = aTime - bTime;
+    } else if (sortKey === "notes") {
+      comparison = (a.notes ?? "").localeCompare(b.notes ?? "");
+    } else {
+      comparison = sortKey === "lap" ? a.lapNumber - b.lapNumber : a.lapTime - b.lapTime;
+    }
     return sortDir === "asc" ? comparison : -comparison;
   });
 }

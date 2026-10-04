@@ -19,7 +19,7 @@ import { wsManager, type WSData } from "./websocket-manager";
 import { udpListener } from "./udp-listener";
 import { PUBLIC_DIR, IS_COMPILED } from "./config/paths";
 import { getOnboardingOverride } from "./options";
-import { preventMacSleep, openFirstRunDashboard } from "./desktop";
+import { openFirstRunDashboard, preventMacSleep } from "./desktop";
 import { clearHttpPort, startHttpServer } from "./http-server";
 import { startNativeSourceSupervisor, type NativeSourceSupervisor } from "./native-sources";
 import { installShutdown } from "./shutdown";
@@ -85,7 +85,7 @@ export async function bootServer(options: BootOptions = {}): Promise<RunningServ
   ]);
   injectDiscoveredLMUIdentity(lmuCars, lmuTracks);
 
-  const firstRun = isFirstRun();
+  const firstRun = IS_COMPILED && isFirstRun();
   const settings = loadSettings();
   if (settings.wsRefreshRate) {
     wsManager.setRefreshRate(settings.wsRefreshRate);

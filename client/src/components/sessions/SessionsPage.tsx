@@ -176,7 +176,7 @@ export function SessionsPage() {
       setSelectedLaps(new Set());
       setSelectedSessions(new Set());
       setConfirmDelete(false);
-      await Promise.all([queryClient.invalidateQueries({ queryKey: queryKeys.sessions }), queryClient.invalidateQueries({ queryKey: queryKeys.laps })]);
+      await Promise.all([queryClient.invalidateQueries({ queryKey: queryKeys.sessions }), queryClient.invalidateQueries({ queryKey: queryKeys.laps }), queryClient.invalidateQueries({ queryKey: queryKeys.userTunes })]);
     } catch (error) {
       setDeleteError(error instanceof Error ? error.message : String(error));
     } finally {
@@ -200,6 +200,7 @@ export function SessionsPage() {
         queryClient.invalidateQueries({ queryKey: queryKeys.laps }),
         queryClient.invalidateQueries({ queryKey: queryKeys.storageSessions }),
         queryClient.invalidateQueries({ queryKey: queryKeys.cacheStatus }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.userTunes }),
       ]);
     },
     [allLaps, queryClient],
@@ -211,7 +212,7 @@ export function SessionsPage() {
     },
     [queryClient],
   );
-  const showSessionType = gameId === "f1-2025" || gameId === "lmu";
+  const showSessionType = gameId === "f1-2025" || gameId === "lmu" || gameId === "acc" || gameId === "ac-evo";
   const colCount = showSessionType ? 9 : 8;
   const emptyMessage = favoriteOnly ? m.sessions_none_favorites() : tab === "others" ? m.sessions_none_others() : m.sessions_none();
 
@@ -225,6 +226,7 @@ export function SessionsPage() {
           onImported={() => {
             void queryClient.invalidateQueries({ queryKey: queryKeys.sessions });
             void queryClient.invalidateQueries({ queryKey: queryKeys.laps });
+            void queryClient.invalidateQueries({ queryKey: queryKeys.userTunes });
           }}
         />
       )}
@@ -279,8 +281,6 @@ export function SessionsPage() {
         lapSortDir={lapSortDir}
         toggleLapSort={toggleLapSort}
         saveSessionNotes={saveSessionNotes}
-        exporting={exporting}
-        runExport={runExport}
         setRecapSessionId={setRecapSessionId}
       />
       <SessionDesktopTable
@@ -310,8 +310,6 @@ export function SessionsPage() {
         lapSortDir={lapSortDir}
         toggleLapSort={toggleLapSort}
         saveSessionNotes={saveSessionNotes}
-        exporting={exporting}
-        runExport={runExport}
         setRecapSessionId={setRecapSessionId}
       />
       {totalPages > 1 && (

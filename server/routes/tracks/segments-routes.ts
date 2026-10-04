@@ -185,6 +185,7 @@ export const trackSectorBoundaryRoutes = new Hono()
       if (slug && gameId) {
         const geometry = loadTrackGeometry(slug, gameId);
         saveTrackGeometry(slug, gameId, {
+          ...(geometry?.override !== undefined ? { override: geometry.override } : {}),
           sectors: { s1End, s2End },
           segments: geometry?.segments ?? [],
         });
@@ -247,6 +248,7 @@ export const trackSegmentRoutes = new Hono()
       });
       const existingGeometry = loadTrackGeometry(slug, gameId);
       saveTrackGeometry(slug, gameId, {
+        override: true,
         ...(existingGeometry?.sectors ? { sectors: existingGeometry.sectors } : {}),
         segments: geometry,
       });
@@ -280,11 +282,17 @@ export const trackSegmentRoutes = new Hono()
   // The same knowledge the AI analyst is given, so the Info page can show what
   // the coach knows before you ask it anything.
   .get("/api/track-guide/:ordinal",
-    zValidator("param", OrdinalParamSchema),
+    zValidator("param", OrdinalKeyParamSchema),
     zValidator("query", GameIdQuerySchema),
     async (c) => {
-      const { ordinal } = c.req.valid("param");
+      const trackKey = decodeTrackKey(c.req.valid("param").ordinal);
       const gameId = c.req.query("gameId");
+      if (gameId === "lmu") {
+        const track = getLMUTrack(trackKey);
+        return c.json(track ? getTrackGuide(track.name, { slug: track.commonTrackName }) : null);
+      }
+      const ordinal = Number(trackKey);
+      if (!Number.isInteger(ordinal)) return c.json({ error: "ordinal must be an integer" }, 400);
       const slug = getSharedTrackName(ordinal, gameId);
       const guide = getTrackGuide(resolveTrackName(ordinal, gameId as never), { slug });
       return c.json(guide);

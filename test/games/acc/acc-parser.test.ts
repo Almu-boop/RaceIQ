@@ -2,6 +2,7 @@ import { describe, test, expect, afterAll } from "bun:test";
 import { readFileSync } from "node:fs";
 import { gunzipSync } from "node:zlib";
 import { parseAccBuffers } from "../../../server/games/acc/parser";
+import { parseAccLapIndex } from "../../../server/games/kunos/lap-index";
 import { PHYSICS, GRAPHICS, STATIC } from "../../../server/games/acc/structs";
 import { initGameAdapters } from "../../../shared/games/init";
 import { initServerGameAdapters } from "../../../server/games/init";
@@ -156,6 +157,20 @@ describe("ACC parser", () => {
     expect(packet!.Yaw).toBeCloseTo(1.5);
   });
 
+  test("full and compact parsers agree on known, unknown, and legacy validity", () => {
+    const physics = makePhysicsBuf();
+    const stat = makeStaticBuf();
+    for (const [raw, expected] of [[0, false], [1, true], [2, null]] as const) {
+      const graphics = makeGraphicsBuf();
+      graphics.writeInt32LE(raw, GRAPHICS.isValidLap.offset);
+      expect(parseAccBuffers(physics, graphics, stat)?.acc?.isValidLap).toBe(expected);
+      expect(parseAccLapIndex(physics, graphics, stat, 0, 0)?.acc?.isValidLap).toBe(expected);
+    }
+    const legacy = makeGraphicsBuf().subarray(0, 1320);
+    expect(parseAccBuffers(physics, legacy, stat)?.acc?.isValidLap).toBeNull();
+    expect(parseAccLapIndex(physics, legacy, stat, 0, 0)?.acc?.isValidLap).toBeNull();
+  });
+
   test("parseAccBuffers populates ACC extended data", () => {
     const physics = makePhysicsBuf();
     const graphics = makeGraphicsBuf();
@@ -169,6 +184,23 @@ describe("ACC parser", () => {
     expect(packet!.acc!.tc).toBe(3);
     expect(packet!.acc!.abs).toBe(2);
     expect(packet!.acc!.brakeBias).toBeCloseTo(0.58);
+  });
+
+  test("road vibration never impersonates native TC or ABS activity", () => {
+    const physics = makePhysicsBuf({ tc: 0, abs: 0, speedKmh: 240, steerAngle: 0 });
+    physics.writeFloatLE(0.5, PHYSICS.slipVibrations.offset);
+    physics.writeFloatLE(0.5, PHYSICS.absVibrations.offset);
+    const graphics = makeGraphicsBuf();
+    const staticData = makeStaticBuf();
+    const straight = parseAccBuffers(physics, graphics, staticData);
+    expect(straight!.acc!.tcIntervention).toBe(0);
+    expect(straight!.acc!.absIntervention).toBe(0);
+
+    physics.writeFloatLE(1, PHYSICS.tc.offset);
+    physics.writeFloatLE(1, PHYSICS.abs.offset);
+    const intervention = parseAccBuffers(physics, graphics, staticData);
+    expect(intervention!.acc!.tcIntervention).toBe(1);
+    expect(intervention!.acc!.absIntervention).toBe(1);
   });
 
   test("maps ACC core temperature without relabeling reserved bands", () => {

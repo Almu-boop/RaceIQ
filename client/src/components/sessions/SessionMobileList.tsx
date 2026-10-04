@@ -12,6 +12,7 @@ import { SessionResultMeta } from "./SessionResultMeta";
 import type { LapSortKey, SessionSelectionEvent, SortDir } from "./types";
 import { getLocale } from "@/paraglide/runtime";
 import { m } from "@/paraglide/messages";
+import { parseUtcTimestamp } from "@/lib/utc-date";
 
 
 export type SessionMobileListProps = {
@@ -35,8 +36,6 @@ export type SessionMobileListProps = {
   lapSortDir: SortDir;
   toggleLapSort: (key: LapSortKey) => void;
   saveSessionNotes: (id: number, notes: string) => void;
-  exporting: boolean;
-  runExport: (selection: { sessionIds?: number[] }) => void;
   setRecapSessionId: (id: number) => void;
   analyseSession: (session: SessionMeta) => void;
 };
@@ -62,8 +61,6 @@ export function SessionMobileList({
   lapSortDir,
   toggleLapSort,
   saveSessionNotes,
-  exporting,
-  runExport,
   setRecapSessionId,
   analyseSession,
 }: SessionMobileListProps) {
@@ -79,7 +76,7 @@ export function SessionMobileList({
           const sessionLaps = lapsBySession.get(session.id) ?? [];
           const bestTime = session.bestLapTime || (sessionLaps.length > 0 ? Math.min(...sessionLaps.map((lap) => lap.lapTime)) : 0);
           return (
-            <div key={session.id} className={`rounded-lg border border-app-border bg-app-surface ${isExpanded ? "bg-app-surface-alt/40" : ""}`}>
+            <div key={session.id} className={`min-w-0 overflow-hidden rounded-lg border border-app-border bg-app-surface ${isExpanded ? "bg-app-surface-alt/40" : ""}`}>
               {/* oxlint-disable-next-line a11y/useSemanticElements: wraps checkbox and buttons */}
               <div
                 role="button"
@@ -107,7 +104,7 @@ export function SessionMobileList({
                     <div className="text-sm font-semibold text-app-text truncate">{sessionTrackName(session, { trackNames, carNames })}</div>
                     <div className="flex items-center gap-2 shrink-0">
                       <div className="text-app-compact text-app-text/90">
-                        {new Date(session.createdAt).toLocaleDateString(getLocale())} {new Date(session.createdAt).toLocaleTimeString(getLocale(), { hour: "2-digit", minute: "2-digit" })}
+                        {parseUtcTimestamp(session.createdAt).toLocaleDateString(getLocale())} {parseUtcTimestamp(session.createdAt).toLocaleTimeString(getLocale(), { hour: "2-digit", minute: "2-digit" })}
                         {session.source === "motec" && <MotecBadge />}
                       </div>
                       <FavoriteToggleButton target="session" id={session.id} isFavorite={Boolean(session.isFavorite)} />
@@ -133,18 +130,6 @@ export function SessionMobileList({
                       >
                         {m.sessions_analyse_session()}
                       </Button>
-                      <Button
-                        variant="app-outline"
-                        size="app-sm"
-                        disabled={exporting || session.telemetryAvailable === false}
-                        title={session.telemetryAvailable === false ? m.sessions_raw_telemetry_removed() : m.sessions_export_session()}
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          runExport({ sessionIds: [session.id] });
-                        }}
-                      >
-                        {m.label_export()}
-                      </Button>
                     </div>
                   </div>
                   <div className="text-xs text-app-text/90 truncate mt-0.5">
@@ -169,9 +154,13 @@ export function SessionMobileList({
                   </div>
                 </div>
               </div>
-              {isExpanded && gameId && <RaceResultLedger sessionId={session.id} gameId={gameId} enabled={isExpanded} />}
+              {isExpanded && gameId && (
+                <div className={sessionLaps.length > 0 ? "[&>section]:border-b-0 [&>div]:border-b-0" : undefined}>
+                  <RaceResultLedger sessionId={session.id} gameId={gameId} enabled={isExpanded} />
+                </div>
+              )}
               {isExpanded && sessionLaps.length > 0 && (
-                <div className="border-t border-app-border overflow-x-auto">
+                <div className="min-w-0 bg-transparent [&>[data-slot=table-container]]:max-w-full [&>[data-slot=table-container]]:rounded-none [&>[data-slot=table-container]]:border-0 [&_[data-slot=table-head]]:bg-transparent">
                   <SessionLapTable
                     session={session}
                     laps={sessionLaps}

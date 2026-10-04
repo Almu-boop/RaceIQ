@@ -5,7 +5,7 @@ import type { LineSpreadTrace } from "./experiments";
 import type { LapMeta } from "../../../shared/racing/sessions/types";
 import type { ComparisonData, AlignedTrace } from "../../../shared/racing/comparison/types";
 import type { AlignedLapSet } from "@shared/racing/laps/alignment/types";
-import type { LapDetectorCoverage } from "@shared/racing/analysis/laps/insights/types";
+import type { LapDetectorCoverage, LapInsight } from "@shared/racing/analysis/laps/insights/types";
 import { useAlignedTelemetry } from "./aligned-telemetry";
 import { client } from "../lib/rpc";
 import { errorFromResponse } from "../lib/rpc-error";
@@ -187,6 +187,20 @@ export function useLapSemanticTelemetry(lapId: number | null) {
   });
 }
 
+/** Findings only; avoids loading full semantic replay in session Analyse. */
+export function useLapInsights(lapId: number | null) {
+  const gameId = useGameId();
+  return useQuery({
+    queryKey: ["lap-insights", lapId, gameId ?? null],
+    queryFn: async () => {
+      const res = await fetch(`/api/laps/${lapId}/insights`, { headers: { "X-Game-Id": gameId! } });
+      if (!res.ok) throw await errorFromResponse(res);
+      return (await res.json() as { insights: LapInsight[] }).insights;
+    },
+    enabled: lapId != null && gameId != null,
+  });
+}
+
 export function useDeleteLap() {
   const qc = useQueryClient();
   return useMutation({
@@ -196,6 +210,7 @@ export function useDeleteLap() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.laps });
       qc.invalidateQueries({ queryKey: queryKeys.sessions });
+      qc.invalidateQueries({ queryKey: queryKeys.userTunes });
     },
   });
 }
@@ -210,6 +225,7 @@ export function useBulkDeleteLaps() {
       qc.invalidateQueries({ queryKey: queryKeys.laps });
       qc.invalidateQueries({ queryKey: queryKeys.sessions });
       qc.invalidateQueries({ queryKey: queryKeys.tracks });
+      qc.invalidateQueries({ queryKey: queryKeys.userTunes });
     },
   });
 }
@@ -228,6 +244,7 @@ export function useSetLapExcluded() {
     },
     onSuccess: (_data, { experimentId }) => {
       qc.invalidateQueries({ queryKey: queryKeys.laps });
+      qc.invalidateQueries({ queryKey: queryKeys.userTunes });
       if (experimentId != null) {
         qc.invalidateQueries({ queryKey: ["experiment", experimentId] });
         qc.invalidateQueries({ queryKey: ["experiment-tests", experimentId] });

@@ -1,9 +1,9 @@
 /**
  * Turn-count accuracy against real-world data: the corner roster in each
  * shared/data/tracks/meta/<slug>.json is the official turn count from the
- * circuit's own map / FIA track guide (see the `source` field). Every game's
- * centerline must align onto that roster such that every official turn
- * 1..officialTurnCount is accounted for.
+ * circuit's own map / FIA track guide (see the `source` field). Every
+ * available game must place every official turn 1..officialTurnCount, using
+ * curated geometry overrides where present and centerline alignment otherwise.
  *
  * This is deliberately NOT a snapshot of what the detector currently finds — a
  * detector regression that drops Blanchimont must fail, not be re-baselined.
@@ -22,7 +22,7 @@ import {
   listCuratedSlugs,
   listMetaSlugs,
 } from "../../../shared/racing/tracks/curation/generate";
-import { KNOWN_ALIGNMENT_GAPS, KNOWN_TURN_GAPS } from "../../support/tracks/known-gaps";
+import { KNOWN_ALIGNMENT_GAPS } from "../../support/tracks/known-gaps";
 
 const slugs = listCuratedSlugs();
 
@@ -57,7 +57,7 @@ describe("turn counts match real-world circuit data", () => {
   // An optional corner is only honest if EVERY game misses it. Where one game
   // finds it and another doesn't, the corner is real and the detector is the
   // problem — surface that instead of letting `optional` absorb it.
-  test("no undeclared detector gaps (optional corner one game sees and another misses)", () => {
+  test("no detector gaps between games for optional corners", () => {
     const found: string[] = [];
     for (const slug of slugs) {
       const facts = loadTrackFacts(slug)!;
@@ -74,13 +74,10 @@ describe("turn counts match real-world circuit data", () => {
         for (const m of misses) found.push(`${slug} T${opt.number} ${m.gameId}`);
       }
     }
-    const undeclared = found.filter((f) => !KNOWN_TURN_GAPS.has(f));
-    const fixed = [...KNOWN_TURN_GAPS].filter((k) => !found.includes(k));
     expect(
-      undeclared,
-      `new detector gap — these games see the corner, this one doesn't: ${undeclared.join(", ")}`,
+      found,
+      `detector gap — these games see the corner, this one doesn't: ${found.join(", ")}`,
     ).toEqual([]);
-    expect(fixed, `fixed! remove from KNOWN_TURN_GAPS: ${fixed.join(", ")}`).toEqual([]);
   });
 
   for (const slug of slugs) {
@@ -113,7 +110,7 @@ describe("turn counts match real-world circuit data", () => {
 
     // A failed alignment produces no GameAlignment, so without this every
     // per-game assertion below would silently vanish instead of failing.
-    test(`${slug}: every game centerline aligns`, () => {
+    test(`${slug}: every game has curated segments or aligns its centerline`, () => {
       const games = [...new Set(findCenterlines(slug).map((c) => c.gameId))];
       if (games.length === 0) {
         expect(outcomes).toContainEqual(expect.objectContaining({
