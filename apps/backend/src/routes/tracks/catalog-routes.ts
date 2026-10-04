@@ -12,7 +12,7 @@ import { fmTrackCatalog } from "@raceiq/game-fm-2023-metadata/racing/tracks/cata
 import { getF1Tracks } from "@raceiq/game-f1-2025-metadata/racing/tracks/catalogs/f1";
 import { getAccTracks } from "@raceiq/game-acc-metadata/racing/tracks/catalogs/acc";
 import { getAcEvoTracks } from "@raceiq/game-ac-evo-metadata/racing/tracks/catalogs/ac-evo";
-import { getAllIRacingTracks } from "@raceiq/game-iracing-metadata/racing/tracks/catalogs/iracing";
+import { getAllIRacingTracks, getIRacingTrack } from "@raceiq/game-iracing-metadata/racing/tracks/catalogs/iracing";
 import { getLMUTrack, getLMUTrackByAssetName, lmuTrackCatalog } from "@raceiq/game-lmu-metadata/catalog";
 import { gameAssetsDir } from "@raceiq/shared/platform/runtime/data-paths";
 import { tryGetServerGame } from "@raceiq/backend-core/games/registry";
@@ -30,6 +30,26 @@ export const trackCatalogInfoRoutes = new Hono()
       headers: { "Content-Type": "image/svg+xml", "Cache-Control": "public, max-age=31536000, immutable" },
     });
   })
+  .get("/api/iracing-assets/tracks/:ordinal", (c): Response => {
+    const ordinal = Number(c.req.param("ordinal"));
+    const track = getIRacingTrack(ordinal);
+    if (!track) return c.json({ error: "iRacing track asset not found" }, 404);
+    const file = resolve(
+      gameAssetsDir("iracing"),
+      "iracing-track-maps",
+      `${ordinal}.svg`,
+    );
+    if (!existsSync(file)) {
+      return c.json({ error: "iRacing track asset not found" }, 404);
+    }
+    return new Response(readFileSync(file), {
+      headers: {
+        "Content-Type": "image/svg+xml",
+        "Cache-Control": "public, max-age=31536000, immutable",
+      },
+    });
+  })
+
 
   // GET /api/tracks/:ordinal (info)
   .get("/api/tracks/:ordinal",
@@ -210,7 +230,9 @@ export const trackCatalogRoutes = new Hono()
             category: info.category,
             hasOutline,
             hasMap: hasOutline,
-            mapUrl: info.mapUrl || null,
+            mapUrl: info.mapUrl
+              ? `/api/iracing-assets/tracks/${info.ordinal}`
+              : null,
             outlineSource: hasShared
               ? "shared"
               : hasOfficialSvg

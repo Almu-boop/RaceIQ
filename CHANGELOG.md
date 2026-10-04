@@ -24,6 +24,7 @@
 - Use searchable car, track, and category selectors in ACC and AC Evo setup forms.
 - Use the application background instead of gray fill for shared text and numeric inputs.
 - Keep local OpenAI-compatible lap analysis schema-valid, including required setup symptoms, while retaining tool-assisted analysis.
+- Bundle official iRacing track maps for offline display without third-party browser requests.
 
 ### Internal
 - Separate backend core, capture formats, game implementations, and application composition into workspaces; colocate tests with their owners and isolate frontend contract tests from production dependency cycles.
@@ -55,6 +56,8 @@
 - Reuse compiled Paraglide output from the upstream build artifact in snapshot and compiled E2E jobs, with validated cache or compilation fallback.
 - Run compiled E2E gates after build and test without waiting for snapshot comparison.
 - Remove Storybook Docs generation and its addon from local previews and snapshot builds.
+- Install workspace dependencies before release version computation and finalization, and keep dependency-install helpers free of workspace imports.
+- Select telemetry-backed disposable import fixtures and allow long-running developer dump imports to finish in browser gates.
 
 ## v0.19.1 - 2026-10-01
 

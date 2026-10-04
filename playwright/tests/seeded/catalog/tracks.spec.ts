@@ -114,9 +114,9 @@ test("track lap deletion uses imported disposable data and cleans imported sessi
   const sessionsBefore = (await sessionsBeforeResponse.json()) as { id: number }[];
   const lapsResponse = await request.get("/api/laps?gameId=fm-2023");
   expect(lapsResponse.ok()).toBe(true);
-  const seededLaps = (await lapsResponse.json()) as { id: number; trackOrdinal: number; isValid: boolean }[];
-  const source = seededLaps.find((lap) => lap.isValid);
-  if (!source) throw new Error("Missing valid FM lap for disposable import");
+  const seededLaps = (await lapsResponse.json()) as { id: number; trackOrdinal: number; isValid: boolean; telemetryAvailable?: boolean; rawFrameCount?: number }[];
+  const source = seededLaps.find((lap) => lap.isValid && lap.telemetryAvailable && (lap.rawFrameCount ?? 0) > 0);
+  if (!source) throw new Error("Missing valid FM lap with available raw capture for disposable import");
   const exportResponse = await request.get(`/api/laps/${source.id}/export-bin`);
   expect(exportResponse.ok()).toBe(true);
   const importResponse = await request.post("/api/laps/import", {

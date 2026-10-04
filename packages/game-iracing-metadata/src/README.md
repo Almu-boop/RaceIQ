@@ -33,9 +33,9 @@ from iRacing's public static image host.
 
 ## Tracks
 
-`tracks.csv` follows the same offline catalog pattern and uses iRacing's native
-configuration-level `track_id` values. It also retains each layout's public
-`active.svg` map URL. Exact layout matches use `commonTrackName` to connect to
+`tracks.csv` follows same offline catalog pattern and uses iRacing's native
+configuration-level `track_id` values. It retains each layout's official map URL
+as source metadata. Exact layout matches use `commonTrackName` to connect to
 RaceIQ's existing centerlines, sectors, and named-corner data.
 
 Refresh it from the public track and track-assets test snapshots:
@@ -51,6 +51,8 @@ responses:
 bun run iracing:tracks:seed -- --tracks-source C:\path\to\get_tracks.json --assets-source C:\path\to\get_tracks_assets.json
 ```
 
-The public SVG URLs do not require an iRacing login. RaceIQ uses them as static
-maps for layouts without a compatible shared centerline; it does not treat an
-SVG track ribbon as world-coordinate telemetry geometry.
+The official SVG maps are bundled under
+`packages/game-iracing/assets/iracing-track-maps` and served from RaceIQ's
+same-origin asset route. Layouts without compatible shared centerlines therefore
+do not depend on browser access to iRacing's static CDN. The map URLs in
+`tracks.csv` remain source references; runtime responses use bundled asset paths.
