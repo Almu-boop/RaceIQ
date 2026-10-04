@@ -1,0 +1,20 @@
+{
+  "name": "@raceiq/game-f1-2025",
+  "private": true,
+  "type": "module",
+  "exports": {".":"./src/index.ts","./test-support/recordings":"./test/support/recordings.ts"},
+  "dependencies": {
+    "@raceiq/shared": "workspace:*",
+    "@raceiq/capture-formats": "workspace:*",
+    "@raceiq/backend-core": "workspace:*",
+    "@raceiq/game-f1-2025-metadata": "workspace:*",
+    "@raceiq/analysis-core": "workspace:*",
+    "@raceiq/telemetry-core": "workspace:*"
+  },
+  "scripts": {
+    "typecheck": "bunx tsc --project tsconfig.json --noEmit",
+    "test": "bun ../../scripts/test/run-suite.ts all --package @raceiq/game-f1-2025",
+    "test:e2e:recordings": "bun ../../scripts/test/run-suite.ts e2e --package @raceiq/game-f1-2025",
+    "test:integration": "bun ../../scripts/test/run-suite.ts integration --package @raceiq/game-f1-2025"
+  }
+}

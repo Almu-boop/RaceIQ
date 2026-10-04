@@ -10,23 +10,36 @@
 
 ### Fixes
 
-- Warn before deleting a setup, showing its linked sessions and laps without deleting their recordings.
-- Scroll through all telemetry in Analyse Data.
-- See combined balance readings alongside wheel metrics in Analyse Data.
-- Select “No setup” in lap replay to unlink a saved setup.
-- Show setup lap times and lap-time sorting only when a specific track is selected.
-- Keep AC Evo setup editor actions visible while scrolling.
-- Import AC Evo `.carsetup` files from Sessions and the setup-file browser again.
-- Automatically select the car when an imported AC Evo setup identifies it.
-- Use consistent tabs, units, and adjustment ranges across the AC Evo setup editor and experiment setup viewer.
-- Preserve imported per-wheel settings and saved edits in AC Evo setups.
-- Prevent editing AC Evo adjustments that are unavailable for the selected car.
-- Keep setup best laps and rankings up to date after recordings or setup links change.
-- Fit AC Evo wheel settings side by side on desktop and stack them on mobile.
-- Match text and number field backgrounds to the rest of the app.
+- Stop opening a browser automatically during development launches; preserve first-run browser opening in installed builds.
+- Warn before deleting a setup that is in use, list its linked sessions and laps, and preserve recordings when removing their setup associations.
+- Keep Analyse Data vertically scrollable; restore borderless wheel metrics, right-align wheel headings, show the combined balance signal, and label pressure units once per row.
+- Label the lap replay selector “Setup” and let users select “No setup” to unlink a saved setup from a lap.
+- Hide setup lap times and lap-time sorting until a specific track is selected.
+- Keep AC Evo setup editor actions visible while scrolling and remove excess left padding from the editor header.
+- Restore AC Evo `.carsetup` imports from Sessions and the setup-file browser, with automatic car selection for uploaded setups that identify their car.
+- Match AC Evo setup editing to the experiment setup viewer's tabs, corner cards, units, and ranges; preserve imported per-wheel details and saved edits.
+- Keep unavailable per-car adjustments read-only in imported AC Evo setups.
+- Refresh saved setup best laps and rankings when recordings or setup associations change.
+- Align AC Evo setup inputs regardless of units, use compact controls without native number spinners, fill the available editor width, and arrange wheel sections side by side on desktop and stacked on mobile.
+- Use searchable car, track, and category selectors in ACC and AC Evo setup forms.
+- Use the application background instead of gray fill for shared text and numeric inputs.
+- Keep local OpenAI-compatible lap analysis schema-valid, including required setup symptoms, while retaining tool-assisted analysis.
 
 ### Internal
-- Stop opening a browser automatically for development launches; preserve first-run browser opening in installed builds.
+- Separate backend core, capture formats, game implementations, and application composition into workspaces; colocate tests with their owners and isolate frontend contract tests from production dependency cycles.
+- Colocate game-specific car images and track SVGs with their owning game packages while preserving public URLs, offline asset delivery, and shared catalog data.
+- Run owner-scoped test processes with isolated databases and dependency-aware Turbo caches; select affected ordinary suites on pull requests with full-run fallback when SCM refs are unavailable.
+- Scope external test inputs to their consuming owner suites and isolate test-only manifests and application support from production transit hashes.
+- Split release, UI, build, catalog, data, and marketing utilities into responsibility-owned workspaces, preserving commands and test classifications while removing control-plane dependencies from runtime consumers.
+- Isolate six browser-safe game metadata owners from shared contracts and server parsers; move cross-game catalog composition to its own workspace while preserving offline source and compiled catalog lookup.
+- Extract browser-safe lap analysis and telemetry engines into dedicated core workspaces, preserving algorithm outputs, telemetry identities, suite classifications, and the separate Node projector boundary.
+- Give dependency-free frontend conversion and lap-time helpers their own unit-test owner without weakening retained cross-layer frontend coverage.
+- Isolate each workspace's TypeScript incremental cache and check projects sequentially without weakening the typed RPC contract.
+- Include seeded route, import, and six-game capture-conversion projects in the default and compiled browser test gates.
+- Serialize default browser test gates globally so capture migration cannot overlap other projects using the shared seeded database.
+- Install workspace dependencies before CI changelog validation while retaining package imports.
+- Stage checkout-local benchmark imports across the workspace layout migration without substituting current code for the base implementation.
+- Retain Mars runner routing for pull-request build, test, browser, snapshot, and benchmark jobs.
 - Remove game-file extraction tools and their settings UI.
 - Use bundled ACC track SVGs for segment generation, visualization, and runtime centerlines; remove obsolete centerline CSVs and migrate saved segment and sector positions while preserving curated turns.
 - Exclude generated JavaScript from client typechecking and emit Paraglide declarations in development so translation imports remain typed.

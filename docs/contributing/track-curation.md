@@ -21,7 +21,7 @@ A circuit's corner names and numbering are a property of the *circuit* — Spa's
 
 Where a corner physically *is* depends on the game's centerline, which differs per title (different digitisation, different granularity, sometimes a racing line rather than a centerline). So geometry is keyed by `gameId` + slug.
 
-ACC geometry comes only from bundled `<slug>.track.svg` files. Centerlines are derived from aligned SVG edges at runtime, not stored as CSVs. During the SVG cutover, existing segment and sector boundaries were projected onto those derived centerlines; migrated segment geometry is protected as a curated override so fallback detection cannot discard restored turns.
+ACC geometry comes only from `packages/game-acc/assets/tracks/<slug>.track.svg`. Centerlines are derived from aligned SVG edges at runtime, not stored as CSVs. During the SVG cutover, existing segment and sector boundaries were projected onto those derived centerlines; migrated segment geometry is protected as a curated override so fallback detection cannot discard restored turns.
 
 ## The fallback detector
 
@@ -35,14 +35,14 @@ Consequences, all deliberate:
 
 ### Sanctioned gaps
 
-Accepted detector misses are recorded in `test/support/tracks/known-gaps.ts` —
+Accepted detector misses are recorded in `server/test-support/tracks/known-gaps.ts` —
 `KNOWN_ALIGNMENT_GAPS`, `KNOWN_FUZZY_ALIGNMENTS`, `KNOWN_TURN_GAPS`.
 
 These are **shrink-only**: every entry is asserted to *still* be broken, so fixing one forces its deletion. Adding an entry is legitimate when the miss is genuinely a centerline-quality problem, and each entry needs a reason comment. It is not a way to silence a regression in curated data.
 
 Known centerline-quality classes, already understood — don't re-litigate:
 
-- ACC centerlines derive from aligned left/right edges in bundled `<slug>.track.svg` files. No ACC centerline CSV is stored or consumed; corner detection uses the same SVG-derived geometry as boundary views.
+- ACC centerlines derive from aligned left/right edges in `packages/game-acc/assets/tracks/<slug>.track.svg` files. No ACC centerline CSV is stored or consumed; corner detection uses the same SVG-derived geometry as boundary views.
 - ac-evo centerlines that under-detect individual corners.
 - Forza's Nordschleife / Watkins Glen, digitised at a different corner granularity than the shared name list.
 
@@ -352,7 +352,7 @@ If a track looks wrong in the app: fix that track's curated data.
 | Fallback detection + generation | `shared/racing/tracks/curation/segment-align-detect.ts`, `shared/racing/tracks/curation/generate.ts` |
 | Coverage stats | `shared/racing/tracks/curation/coverage.ts` |
 | Verification ledger | `shared/racing/tracks/curation/verified.ts` → `shared/data/tracks/verified.json` |
-| CLI | `scripts/tracks/track-coverage.ts` |
-| Guards | `test/tracks/track-coverage.test.ts`, `test/support/tracks/known-gaps.ts` |
+| CLI | `packages/tooling-data/src/tracks/track-coverage.ts` |
+| Guards | `apps/backend/test/tracks/track-coverage.test.ts`, `server/test-support/tracks/known-gaps.ts` |
 
-`test/tracks/track-coverage.test.ts` fails if the committed table drifts from the repo, so none of this can silently rot.
+`apps/backend/test/tracks/track-coverage.test.ts` fails if the committed table drifts from the repo, so none of this can silently rot.

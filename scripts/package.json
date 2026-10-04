@@ -1,0 +1,16 @@
+{
+  "name": "@raceiq/tooling",
+  "private": true,
+  "type": "module",
+  "exports": {},
+  "scripts": {
+    "typecheck": "bunx tsc --project tsconfig.json --noEmit",
+    "test": "bun test/run-suite.ts all --package @raceiq/tooling",
+    "test:tooling": "bun test/run-suite.ts tooling --package @raceiq/tooling"
+  },
+  "dependencies": {
+    "@raceiq/backend-core": "workspace:*",
+    "@raceiq/tooling-release": "workspace:*",
+    "@raceiq/tooling-build": "workspace:*"
+  }
+}
