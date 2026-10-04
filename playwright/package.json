@@ -2,12 +2,10 @@
   "name": "raceiq-e2e",
   "private": true,
   "scripts": {
-    "build": "cd .. && bun run build",
-    "test": "bun run build && playwright test --workers=1",
-    "test:ui": "bun run build && playwright test --workers=1 --ui",
+    "test": "playwright test --workers=1",
+    "test:ui": "bunx turbo run test --filter=raceiq-e2e -- --ui",
     "screenshots": "playwright test --project=marketing",
-    "screenshots:mobile": "bun run build && playwright test --project=mobile-screenshots",
-    "typecheck": "bunx tsc --noEmit -p tsconfig.json",
+    "screenshots:mobile": "bunx turbo run test --filter=raceiq-e2e -- --project=mobile-screenshots",
     "test:tooling": "bun ../scripts/test/run-suite.ts tooling --package raceiq-e2e"
   },
   "devDependencies": {

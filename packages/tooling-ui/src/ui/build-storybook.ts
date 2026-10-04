@@ -66,6 +66,15 @@ export async function getStorybookBuildKey(clientRoot: string): Promise<string> 
   const tracked = Bun.spawnSync(["git", "-C", repositoryRoot, "ls-files", "-z", "--cached", "--others", "--exclude-standard"], { env, stdout: "pipe", stderr: "pipe" });
   if (tracked.exitCode !== 0) throw new Error(`Could not enumerate repository inputs: ${tracked.stderr.toString()}`);
   const files = new Set(tracked.stdout.toString().split("\0").filter(Boolean));
+  // Windows Git treats junctions as directories and omits empty targets from
+  // the ordinary file listing. Include their link identity explicitly.
+  const directories = Bun.spawnSync(["git", "-C", repositoryRoot, "ls-files", "-z", "--others", "--directory", "--exclude-standard"], { env, stdout: "pipe", stderr: "pipe" });
+  if (directories.exitCode !== 0) throw new Error(`Could not enumerate repository directories: ${directories.stderr.toString()}`);
+  for (const relative of directories.stdout.toString().split("\0").filter(Boolean)) {
+    if (!relative.endsWith("/")) continue;
+    const linkPath = relative.slice(0, -1);
+    if ((await lstat(path.join(repositoryRoot, linkPath))).isSymbolicLink()) files.add(linkPath);
+  }
   const generatedPrefixes = ["src/paraglide", OUTPUT_DIR, "project.inlang/.cache"].map(
     (directory) => `${path.relative(repositoryRoot, path.join(root, directory)).split(path.sep).join("/")}/`,
   );

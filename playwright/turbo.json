@@ -2,8 +2,8 @@
   "$schema": "https://turbo.build/schema.json",
   "extends": ["//"],
   "tasks": {
-    "build": {
-      "dependsOn": ["client#build"]
+    "test": {
+      "dependsOn": ["@raceiq/tooling-build#build"]
     }
   }
 }

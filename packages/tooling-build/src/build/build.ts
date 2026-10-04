@@ -89,7 +89,6 @@ async function main() {
   });
   rmSync(distDir, { recursive: true, force: true });
   mkdirSync(distDir, { recursive: true });
-  await run(["bun", "run", "build"], { cwd: join(root, "client") });
   await run(["bun", "packages/tooling-build/src/build/copy-shared-data.ts"]);
   await run(["bun", "packages/tooling-build/src/build/copy-client-dist.ts"]);
 

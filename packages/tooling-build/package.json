@@ -15,6 +15,7 @@
     "@duckdb/node-api": "1.5.2-r.2"
   },
   "scripts": {
+    "build": "cd ../.. && bun packages/tooling-build/src/build/build.ts",
     "typecheck": "bunx tsc --project tsconfig.json --noEmit",
     "test": "bun ../../scripts/test/run-suite.ts all --package @raceiq/tooling-build",
     "test:unit": "bun ../../scripts/test/run-suite.ts unit --package @raceiq/tooling-build",
