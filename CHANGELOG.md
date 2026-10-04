@@ -5,6 +5,7 @@
 ### Fixes
 
 ### Internal
+- Skip build, test, browser, snapshot, and benchmark PR jobs for automated release version bump branches.
 
 ## v0.19.2 - 2026-10-04
 
