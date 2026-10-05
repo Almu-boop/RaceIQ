@@ -338,6 +338,16 @@ describe("telemetry capability UI", () => {
     expect(used).toContain("background-color:");
   });
 
+  test("forwards available AMS2 pressures into the live tire grid", () => {
+    const markup = renderToStaticMarkup(createElement(QueryClientProvider, { client: new QueryClient() },
+      createElement(LiveTelemetry, { mode: "driver", view: liveView("ams2", {
+        tires: { pressurePsi: { fl: 25.32, fr: 26.04, rl: 25.7, rr: 25.9 } },
+      }) })));
+    expect(markup).toContain("25.3");
+    expect(markup).toContain("26.0");
+    expect(markup).toContain("psi");
+  });
+
   test("scales pit crew semantic pedal inputs from 0–255 to percentages", () => {
     const markup = renderToStaticMarkup(
       createElement(
@@ -614,7 +624,8 @@ describe("telemetry capability UI", () => {
     expect(markup).toContain("100.0");
     expect(markup).toContain("90.0%");
     expect(markup).toContain("500°C");
-    expect(markup).toContain("24.0 psi");
+    expect(markup).toContain(">24.0</span>");
+    expect(markup).toContain("psi");
     expect(markup).toContain("20mm");
     expect(markup.match(/>—</g) ?? []).toHaveLength(2);
   });
@@ -645,7 +656,8 @@ describe("telemetry capability UI", () => {
       expect(markup, gameId).toContain("Rotation /s");
       if (gameId === "ac-evo") expect(markup, gameId).toContain("Wear /s");
       expect(markup, gameId).toContain("500°C");
-      expect(markup, gameId).toContain("24.0 psi");
+      expect(markup, gameId).toContain(">24.0</span>");
+      expect(markup, gameId).toContain("psi");
       expect(markup, gameId).not.toContain("Unavailable in Analyse");
       expect(markup, gameId).toContain("aria-label=\"Unavailable features in Analyse\"");
       expect(markup.match(/>—</g) ?? [], gameId).toHaveLength(gameId === "acc" ? 12 : 0);

@@ -2,6 +2,28 @@
 
 ### Features
 
+- Add native Windows AMS2 telemetry capture through Project CARS 2 shared memory, with game-specific car and track identity.
+- Add UI scaling and separate Driver profiles for AMS2 and iRacing.
+
+### Fixes
+
+- Return AMS2 Live to connection instructions after telemetry stops, and clear live readings when the server disconnects.
+
+- Show AMS2 connection instructions when waiting for telemetry, including the required shared-memory setting and driving-session steps.
+
+- Make date controls visibly interactive and restore Live child-page routing, production Raw Data updates and AMS2 game navigation.
+- Restore AMS2 live sector progression using telemetry track length and lap position; show available live tire pressures, use percentages in replay pedal charts, and exclude invalid laps from recorded PBs.
+- Build remote HUD QR links from usable LAN addresses, allow choosing between adapters, and keep game links visible on Live pages.
+
+### Internal
+- Run AMS2 capture tests through the isolated integration test runner.
+- Complete AMS2 telemetry catalog provenance, native units, extension coverage and supported fuel projections.
+- Skip build, test, browser, snapshot, and benchmark PR jobs for automated release version bump branches.
+
+## v0.19.2 - 2026-10-04
+
+### Features
+
 - See each saved setup's best valid lap and sort setups by lap time.
 - Choose a track for ACC and AC Evo setups to see best laps recorded on that circuit.
 - Search cars, tracks, and categories in ACC and AC Evo setup forms.
@@ -24,6 +46,7 @@
 - Use searchable car, track, and category selectors in ACC and AC Evo setup forms.
 - Use the application background instead of gray fill for shared text and numeric inputs.
 - Keep local OpenAI-compatible lap analysis schema-valid, including required setup symptoms, while retaining tool-assisted analysis.
+- Bundle official iRacing track maps for offline display without third-party browser requests.
 
 ### Internal
 - Separate backend core, capture formats, game implementations, and application composition into workspaces; colocate tests with their owners and isolate frontend contract tests from production dependency cycles.
@@ -55,6 +78,8 @@
 - Reuse compiled Paraglide output from the upstream build artifact in snapshot and compiled E2E jobs, with validated cache or compilation fallback.
 - Run compiled E2E gates after build and test without waiting for snapshot comparison.
 - Remove Storybook Docs generation and its addon from local previews and snapshot builds.
+- Install workspace dependencies before release version computation and finalization, and keep dependency-install helpers free of workspace imports.
+- Select telemetry-backed disposable import fixtures and allow long-running developer dump imports to finish in browser gates.
 
 ## v0.19.1 - 2026-10-01
 

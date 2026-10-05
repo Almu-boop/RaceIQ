@@ -5,6 +5,7 @@
   "exports": {},
   "scripts": {
     "typecheck": "bunx tsc --project tsconfig.json --noEmit",
+    "lint": "bun run --cwd ../client lint:root",
     "test": "bun test/run-suite.ts all --package @raceiq/tooling",
     "test:tooling": "bun test/run-suite.ts tooling --package @raceiq/tooling"
   },

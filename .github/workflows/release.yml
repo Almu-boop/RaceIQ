@@ -45,6 +45,9 @@ jobs:
         with:
           bun-version: 1.4.2
 
+      - name: Install workspace dependencies
+        run: bun install --frozen-lockfile --ignore-scripts
+
       - name: Compute new version
         id: bump
         env:
@@ -189,6 +192,9 @@ jobs:
         with:
           bun-version: 1.4.2
 
+      - name: Install workspace dependencies
+        run: bun install --frozen-lockfile --ignore-scripts
+
 
       - name: Roll over changelog
         run: bun packages/tooling-release/src/release/rollover-changelog.ts "${{ github.event.release.tag_name }}" "${{ github.event.release.published_at }}"
@@ -210,7 +216,8 @@ jobs:
         with:
           branch: release/v${{ steps.release-version.outputs.version }}
           delete-branch: true
-          title: "chore: bump version to ${{ steps.release-version.outputs.version }}"
+          title: "chore: bump version to v${{ steps.release-version.outputs.version }}"
+          update-title: true
           commit-message: "chore: bump version to ${{ steps.release-version.outputs.version }}"
           body: |
             Automated release finalization for v${{ steps.release-version.outputs.version }}.

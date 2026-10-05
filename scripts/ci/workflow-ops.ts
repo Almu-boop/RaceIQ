@@ -1,7 +1,6 @@
 import { tmpdir } from "node:os";
 import { appendFileSync, cpSync, existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { copyDuckDBRuntime } from "@raceiq/tooling-build/build/copy-duckdb-runtime";
 
 const [operation, ...args] = Bun.argv.slice(2);
 const env = process.env;
@@ -120,13 +119,14 @@ switch (operation) {
   case "copy-client":
     cpSync("client/dist", "dist/public", { recursive: true });
     break;
-  case "copy-addon":
+  case "copy-addon": {
     mkdirSync("dist/node_modules/@libsql/win32-x64-msvc", { recursive: true });
     for (const file of ["index.node", "package.json"]) {
       cpSync(`node_modules/@libsql/win32-x64-msvc/${file}`, `dist/node_modules/@libsql/win32-x64-msvc/${file}`);
     }
-    copyDuckDBRuntime();
+    run(["bun", "packages/tooling-build/src/build/copy-duckdb-runtime.ts"]);
     break;
+  }
   case "patch-pe": {
     const rcedit = join(env.TEMP ?? env.RUNNER_TEMP ?? tmpdir(), "rcedit.exe");
     const response = await fetch("https://github.com/electron/rcedit/releases/download/v2.0.0/rcedit-x64.exe");

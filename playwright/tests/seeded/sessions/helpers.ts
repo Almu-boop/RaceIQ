@@ -26,8 +26,10 @@ export async function lapsFor(request: APIRequestContext, gameId: GameId): Promi
 export async function importDisposableLap(request: APIRequestContext, gameId: GameId, label: string, sourceLapId?: number): Promise<DisposableImport> {
   const sessionsBefore = await sessionsFor(request, gameId);
   const available = await lapsFor(request, gameId);
-  const source = sourceLapId == null ? available.find((lap) => lap.isValid) : available.find((lap) => lap.id === sourceLapId);
-  expect(source, `${gameId} needs a source lap for disposable import`).toBeDefined();
+  const source = sourceLapId == null
+    ? available.find((lap) => lap.isValid && lap.telemetryAvailable && (lap.rawFrameCount ?? 0) > 0)
+    : available.find((lap) => lap.id === sourceLapId && lap.telemetryAvailable && (lap.rawFrameCount ?? 0) > 0);
+  expect(source, `${gameId} needs a valid lap with an available raw capture for disposable import`).toBeDefined();
 
   const exportResponse = await request.get(`/api/laps/${source!.id}/export-bin`);
   expect(exportResponse.ok(), "seeded lap export for disposable import").toBe(true);
