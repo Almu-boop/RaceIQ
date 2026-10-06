@@ -7,8 +7,8 @@
 - Catalog version: `0.19.2`
 - Schema version: `v7`
 - Generator: `RaceIQ telemetry-catalog generator@0.19.2`
-- Generator source SHA-256: `5969e97a9afcda0de717493711517d38c6e9d677fa26583839127dc98cbab289`
-- Content SHA-256: `2d1d377f634d2fae743339f39ee723706c496435d55278e89696b7d1f643365d`
+- Generator source SHA-256: `7b30b96dbea2ecabb5db6d82adf04492938afb3bfa91db136d5102e004b72cae`
+- Content SHA-256: `8241231682b541f57d221d961cad19da091221314f38c6e0bf8f63caddb35a5c`
 
 ## Coverage
 
@@ -21,6 +21,7 @@
 | iracing | 952 | 702 | 115 | 18 | 324 | 495 | 0 |
 | lmu | 172 | 172 | 126 | 46 | 0 | 0 | 0 |
 | ams2 | 112 | 112 | 108 | 4 | 0 | 0 | 0 |
+| pmr | 130 | 130 | 124 | 6 | 0 | 0 | 0 |
 
 ## Semantic variables
 
@@ -426,7 +427,7 @@
 | `race.pit-speed-limit` | Pit speed limit | number | length × time^-1 | km/h | scalar |  |  |  |
 | `race.pit-stall-lap-fraction` | Pit-stall lap fraction | number | dimensionless | fraction | scalar |  |  |  |
 | `race.pit-state` | Pit State | number | dimensionless | count | scalar |  |  |  |
-| `race.pit-status` | Pit Status | string | dimensionless | text | scalar |  |  |  |
+| `race.pit-status` | Pit Status | boolean | dimensionless | text | scalar |  |  |  |
 | `race.pits-open` | Pits Open | boolean | dimensionless | boolean | scalar |  |  |  |
 | `race.pitstop-active` | Pitstop Active | boolean | dimensionless | boolean | scalar |  |  |  |
 | `race.player-car-in-pit-stall` | Player Car In Pit Stall | boolean | dimensionless | boolean | scalar |  |  |  |

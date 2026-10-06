@@ -10,6 +10,7 @@ const GAME_ROUTES: Record<string, string> = {
   iracing: "/iracing",
   lmu: "/lmu",
   ams2: "/ams2",
+  pmr: "/pmr",
 };
 
 export interface GameState {

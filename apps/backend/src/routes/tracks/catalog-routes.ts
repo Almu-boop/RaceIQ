@@ -1,3 +1,4 @@
+import {getPMRTrackLength} from "@raceiq/game-pmr-metadata/index";
 import { getAMS2TrackLength } from "@raceiq/game-ams2-metadata/index";
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
@@ -199,12 +200,12 @@ export const trackCatalogRoutes = new Hono()
         return c.json([...tracks, ...discovered].sort((left, right) => left.name.localeCompare(right.name)));
       }
 
-      if (gameId === "ams2") {
-        const counts = await getLapCountsByTrack("ams2");
-        const tracks = (await listDiscoveredTracks("ams2")).map(track => {
-          const hasOutline = sharedHasRecordedOutline(track.ordinal, "ams2");
+      if (gameId === "ams2" || gameId === "pmr") {
+        const counts = await getLapCountsByTrack(gameId);
+        const tracks = (await listDiscoveredTracks(gameId)).map(track => {
+          const hasOutline = sharedHasRecordedOutline(track.ordinal, gameId);
           return {ordinal: track.ordinal, name: track.name, location: "", country: "", variant: "",
-            lengthKm: (getAMS2TrackLength(track.ordinal) ?? getTrackLengthMeters(track.ordinal, "ams2") ?? 0) / 1000,
+            lengthKm: ((gameId === "pmr" ? getPMRTrackLength(track.ordinal) : getAMS2TrackLength(track.ordinal)) ?? getTrackLengthMeters(track.ordinal, gameId) ?? 0) / 1000,
             category: "", hasOutline, hasMap: hasOutline, mapUrl: null,
             outlineSource: hasOutline ? "generated" : null, commonTrackName: null,
             createdAt: track.createdAt, lapCount: counts.get(track.ordinal) ?? 0};

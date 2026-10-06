@@ -176,6 +176,12 @@ export function readerFor(variable: TelemetryVariableDefinition, mapping: Exclud
   const sourcePaths = sources(mapping);
   const reading = {} as SourceReading;
   return (frame, context) => {
+    // PMR v1's legacy LastLap is a zero placeholder, while v2 records the native
+    // value explicitly. Honor the optional recorded source before packet fallback.
+    if (sourcePaths.includes("pmr.lastLapTime")) {
+      const value = sourceValue(frame, "pmr.lastLapTime");
+      return value === undefined ? undefined : setReading(reading, context, mapping, "pmr.lastLapTime", value);
+    }
     if (field) {
       const value = packetField(frame, field);
       if (value !== undefined) {

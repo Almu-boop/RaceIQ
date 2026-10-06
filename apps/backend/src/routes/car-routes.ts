@@ -113,8 +113,8 @@ export const carRoutes = new Hono()
       return c.json([...cars, ...discovered].sort((left, right) => left.name.localeCompare(right.name)));
     }
 
-    if (gameIdResult.data === "ams2") {
-      return c.json((await listDiscoveredCars("ams2")).map(({ordinal,name}) => ({ordinal,name,path:"",category:"discovered",imageUrl:""})));
+    if ((gameIdResult.data === "ams2" || gameIdResult.data === "pmr")) {
+      return c.json((await listDiscoveredCars(gameIdResult.data)).map(({ordinal,name}) => ({ordinal,name,path:"",category:"discovered",imageUrl:""})));
     }
     if (gameIdResult.data === "iracing") {
       const catalogCars = getAllIRacingCars();
@@ -177,8 +177,8 @@ export const carRoutes = new Hono()
         ? c.json({ ordinal, name })
         : c.json({ error: "Car not found" }, 404);
     }
-    if (gameIdResult.data === "ams2") {
-      const name = await getDiscoveredCarName("ams2", ordinal);
+    if ((gameIdResult.data === "ams2" || gameIdResult.data === "pmr")) {
+      const name = await getDiscoveredCarName(gameIdResult.data, ordinal);
       return name ? c.json({ ordinal, name }) : c.json({ error: "Car not found" }, 404);
     }
     if (gameIdResult.data === "iracing") {

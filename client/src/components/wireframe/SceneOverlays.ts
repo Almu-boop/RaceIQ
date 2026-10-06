@@ -205,7 +205,7 @@ export class SceneOverlays {
       } else if (this.springs[index]) { this.springs[index].spring.group.visible = false; this.springs[index].rod.group.visible = false; }
     }
     if (this.previousSample !== frame) { this.previousSample = frame; this.previousTimestamp = semanticNumber(frame, "diagnostics.timestamp-ms") ?? 0; }
-    if (config.toggles.springs) {
+    if (config.toggles.springs && analysis.suspensionCompressionBias.source !== "unavailable") {
       const s0 = Number(suspension[0]), s1 = Number(suspension[1]), s2 = Number(suspension[2]), s3 = Number(suspension[3]);
       const base = Math.min(s0, s1, s2, s3), maximum = Math.max(s0, s1, s2, s3);
       const o0 = s0 - base, o1 = s1 - base, o2 = s2 - base, o3 = s3 - base;

@@ -26,6 +26,7 @@ const GAME_LABELS: Record<GameId, string> = {
   "ac-evo": "AC Evo (ac-evo)",
   iracing: "iRacing (iracing)",
   lmu: "Le Mans Ultimate (lmu)",
+  pmr: "Project Motor Racing (pmr)",
   ams2: "Automobilista 2 (ams2)",
 };
 

@@ -115,3 +115,13 @@ Validation: 28 focused tests passed across native AMS2 capture, WebSocket public
 - The commit hook had blocked Shawn's first commit because the old AMS2 command omitted this setup. A separate Windows tooling failure occurred while probing `node --version`; Node installation/PATH diagnosis is pending, with no hook bypass or tooling-source workaround added.
 
 Validation: all seven AMS2 tests passed through the corrected package integration command, all 88 tooling tests passed locally, shard coverage passed and full typecheck passed. The broader unit run had one unrelated diagnostics test failure because this environment denied OS interface enumeration (`getifaddrs`); the failure is recorded rather than treated as a clean full-suite pass. Shawn's Windows commit checks must be rerun after applying this fix and resolving Node detection.
+
+
+## 2026-10-04 — Prepare upstream review
+
+- The first uploaded preview commit, 494d8de9, was based on c774b305 and included upstream updates as ordinary file changes. Its direct pull-request comparison therefore included unrelated changes and reported conflicts.
+- Resolve the changelog and generated telemetry-catalog conflicts against upstream main 31984af2. Retain upstream release history, bundled offline iRacing maps and release workflows; regenerate the catalog with AMS2 included.
+- Prepare the review patch against 31984af2 so a new branch starts from the actual upstream revision and contains only preview changes. The original ams2-native-preview branch remains the Windows-tested checkpoint.
+- Scope still includes shared UI/Live/LAN fixes alongside AMS2. Submit as a draft and offer to split these into separate pull requests if the maintainer prefers.
+
+Validation: 57 focused native, WebSocket, LAN, sector, catalog and changelog tests passed; full typecheck and Linux production build passed. The resulting patch requires a fresh branch at upstream 31984af2. No pull request or remote branch was published by Codex during preparation.

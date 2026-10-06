@@ -170,7 +170,7 @@ export class WebSocketManager {
   }
 
   addClient(ws: ServerWebSocket<WSData>): void {
-    this.expireAMS2Frame();
+    this.expireNativeFrame();
     this.clients.add(ws);
     let sendFailed = false;
     if (this.lastSchemaJson) { try { ws.send(this.lastSchemaJson); } catch { sendFailed = true; } }
@@ -252,7 +252,7 @@ export class WebSocketManager {
       trackId: number | string;
     } | null;
   }): void {
-    this.expireAMS2Frame();
+    this.expireNativeFrame();
     if (this.clients.size === 0) return;
     const json = JSON.stringify({ type: "status", ...status });
     for (const client of this.clients) {
@@ -296,10 +296,10 @@ export class WebSocketManager {
     }
   }
 
-  private expireAMS2Frame(): void {
-    // AMS2 stops updating shared memory after leaving a session. Keep the
+  private expireNativeFrame(): void {
+    // AMS2 and PMR stop producing active frames after leaving a session. Keep the
     // schema so the projector can resume without emitting it again.
-    if (this.liveSimulator !== "ams2" || !this.lastFrame || Date.now() - this.lastProjectionAt < 5000) return;
+    if ((this.liveSimulator !== "ams2" && this.liveSimulator !== "pmr") || !this.lastFrame || Date.now() - this.lastProjectionAt < 5000) return;
     this.lastFrame = null;
     this.lastFrameJson = null;
     this.lastDevPacketJson = null;
@@ -400,7 +400,7 @@ export class WebSocketManager {
   }
 
   private _pushToClients(): void {
-    this.expireAMS2Frame();
+    this.expireNativeFrame();
     if (this.clients.size === 0) return;
     const frameJson = this.serializeLatestFrame();
     const schemaJson = this.pendingSchemaJson;

@@ -229,13 +229,13 @@ test("Raw telemetry is opt-in and releases demand after closing the page", () =>
 });
 
 
-test("AMS2 idle frames expire for existing and reconnecting clients and resume with the same schema", () => {
+test.each(["ams2","pmr"] as const)("%s idle frames expire for existing and reconnecting clients and resume with the same schema", simulator => {
   const clock = spyOn(Date, "now");
   const manager = new WebSocketManager();
   const existing = socket(); const reconnecting = socket();
   try {
     clock.mockReturnValue(10000);
-    const ams2Schema = { ...schema, simulator: "ams2" as const };
+    const ams2Schema = { ...schema, simulator };
     manager.setSessionLapsProvider(() => [{ id: 42 }] as unknown as import("@raceiq/shared/racing/sessions/types").LapMeta[]);
     manager.publishTelemetry({ schema: ams2Schema, frame });
     manager.addClient(existing);

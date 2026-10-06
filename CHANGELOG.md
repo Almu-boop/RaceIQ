@@ -2,10 +2,26 @@
 
 ### Features
 
+- Show the G-force meter in the 2D Analyse view.
+
+- Add a Project Motor Racing preview with direct UDP telemetry, live car data, recorded laps and replay. Enable UDP telemetry in the game’s Settings → Preferences.
+
 - Add native Windows AMS2 telemetry capture through Project CARS 2 shared memory, with game-specific car and track identity.
 - Add UI scaling and separate Driver profiles for AMS2 and iRacing.
 
 ### Fixes
+
+- Keep session Overview maps complete when an unfinished lap follows completed invalid laps.
+
+- Restore the G-force dot in Analyse, center the AMS2 suspension indicator and explain unavailable PMR compression data.
+
+- Keep session Overview maps compact on wide screens and fit the lap line without letting hidden track edges shrink it.
+
+- Restore PMR live telemetry when session and car packets use different protocol versions.
+
+- Receive Project Motor Racing protocol v2 telemetry, use its native lap timing and validity, and explain malformed-packet failures in the log.
+
+- Correct the reversed AMS2 track arrow and label the suspension indicator as compression balance rather than measured wheel load.
 
 - Return AMS2 Live to connection instructions after telemetry stops, and clear live readings when the server disconnects.
 
@@ -16,6 +32,8 @@
 - Build remote HUD QR links from usable LAN addresses, allow choosing between adapters, and keep game links visible on Live pages.
 
 ### Internal
+
+- Validate PMR packet decoding, player selection, session resets, UDP reception and lossless recording with protocol fixtures.
 - Run AMS2 capture tests through the isolated integration test runner.
 - Complete AMS2 telemetry catalog provenance, native units, extension coverage and supported fuel projections.
 - Skip build, test, browser, snapshot, and benchmark PR jobs for automated release version bump branches.

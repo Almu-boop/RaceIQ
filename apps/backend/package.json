@@ -61,6 +61,8 @@
     "@raceiq/analysis-core": "workspace:*",
     "@raceiq/telemetry-core": "workspace:*",
     "@raceiq/game-ams2": "workspace:*",
-    "@raceiq/game-ams2-metadata": "workspace:*"
+    "@raceiq/game-ams2-metadata": "workspace:*",
+    "@raceiq/game-pmr": "workspace:*",
+    "@raceiq/game-pmr-metadata": "workspace:*"
   }
 }

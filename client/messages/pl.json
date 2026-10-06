@@ -2383,5 +2383,11 @@
   "setupguide_ams2_same_pc": "Uruchom Automobilista 2 i RaceIQ na tym samym komputerze z systemem Windows.",
   "setupguide_ams2_shared_memory": "W AMS2 otwórz Opcje → System i ustaw pamięć współdzieloną na Project CARS 2.",
   "setupguide_ams2_driving": "Rozpocznij trening lub wyścig, wsiądź do samochodu i jedź, aby odbierać telemetrię.",
-  "setupguide_ams2_direct_note": "RaceIQ odczytuje dane AMS2 bezpośrednio. Połączenie z SimHub ani osobne narzędzie telemetryczne nie jest wymagane."
+  "setupguide_ams2_direct_note": "RaceIQ odczytuje dane AMS2 bezpośrednio. Połączenie z SimHub ani osobne narzędzie telemetryczne nie jest wymagane.",
+  "setupguide_pmr_same_pc": "Uruchom Project Motor Racing na tym komputerze.",
+  "setupguide_pmr_udp": "Włącz telemetrię UDP w Ustawienia → Preferencje. RaceIQ nasłuchuje na porcie 7576.",
+  "setupguide_pmr_driving": "Wejdź do sesji jazdy i opuść menu.",
+  "setupguide_pmr_direct_note": "RaceIQ odbiera telemetrię PMR bezpośrednio, bez aplikacji pośredniczącej. Obsługiwane są protokoły UDP v1 i v2. V2 korzysta z dostępnych czasów okrążeń z gry; czasy v1 są szacowane.",
+  "weightshiftradar_lateral_suspension": "Zawieszenie lewo/prawo",
+  "weightshiftradar_lateral_suspension_note": "Tylko równowaga skoku zawieszenia; nie jest to zmierzone obciążenie kół."
 }

@@ -14,6 +14,7 @@ export interface TelemetryPacket {
   acc?: KunosExtendedData;
   iracing?: IRacingExtendedData;
   lmu?: LMUExtendedData;
+  pmr?: {protocolVersion?: 1 | 2; lastLapTime?: number; lastSectorTimes?: number[]; lapValid?: boolean; inPitLane?: boolean; tyreCompoundFront?: string; tyreCompoundRear?: string;carName: string; trackName: string; trackLengthM: number; lapFraction: number; sessionType: string; currentSector: number; currentSectorTimes: number[]; bestSectorTimes: number[]; inPits: boolean; disqualified: boolean; brakeBias: number; absLevel: number; tcsLevel: number};
   ams2?: {carName: string; trackName: string; trackLengthM: number; lapDistanceM: number; sessionType: string; lapInvalidated: boolean; inPits: boolean};
   extendedRaceIQ?: RaceIQExtendedData;
 

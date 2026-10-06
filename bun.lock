@@ -91,6 +91,8 @@
         "@raceiq/game-iracing-metadata": "workspace:*",
         "@raceiq/game-lmu": "workspace:*",
         "@raceiq/game-lmu-metadata": "workspace:*",
+        "@raceiq/game-pmr": "workspace:*",
+        "@raceiq/game-pmr-metadata": "workspace:*",
         "@raceiq/shared": "workspace:*",
         "@raceiq/telemetry-core": "workspace:*",
         "@raceiq/tooling-catalog": "workspace:*",
@@ -275,6 +277,7 @@
         "@raceiq/game-fm-2023-metadata": "workspace:*",
         "@raceiq/game-iracing-metadata": "workspace:*",
         "@raceiq/game-lmu-metadata": "workspace:*",
+        "@raceiq/game-pmr-metadata": "workspace:*",
         "@raceiq/shared": "workspace:*",
       },
     },
@@ -340,6 +343,24 @@
     },
     "packages/game-lmu-metadata": {
       "name": "@raceiq/game-lmu-metadata",
+      "dependencies": {
+        "@raceiq/shared": "workspace:*",
+      },
+    },
+    "packages/game-pmr": {
+      "name": "@raceiq/game-pmr",
+      "dependencies": {
+        "@raceiq/analysis-core": "workspace:*",
+        "@raceiq/backend-core": "workspace:*",
+        "@raceiq/game-pmr-metadata": "workspace:*",
+        "@raceiq/shared": "workspace:*",
+      },
+      "devDependencies": {
+        "@raceiq/telemetry-core": "workspace:*",
+      },
+    },
+    "packages/game-pmr-metadata": {
+      "name": "@raceiq/game-pmr-metadata",
       "dependencies": {
         "@raceiq/shared": "workspace:*",
       },
@@ -1161,6 +1182,10 @@
     "@raceiq/game-lmu": ["@raceiq/game-lmu@workspace:packages/game-lmu"],
 
     "@raceiq/game-lmu-metadata": ["@raceiq/game-lmu-metadata@workspace:packages/game-lmu-metadata"],
+
+    "@raceiq/game-pmr": ["@raceiq/game-pmr@workspace:packages/game-pmr"],
+
+    "@raceiq/game-pmr-metadata": ["@raceiq/game-pmr-metadata@workspace:packages/game-pmr-metadata"],
 
     "@raceiq/shared": ["@raceiq/shared@workspace:shared"],
 

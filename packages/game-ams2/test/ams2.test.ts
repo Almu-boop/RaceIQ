@@ -105,3 +105,12 @@ test("does not dispatch retained car readings from AMS2 menus and resumes on tra
     expect(decodeAMS2Frame(frames[1])!.epoch).toBeGreaterThan(decodeAMS2Frame(frames[0])!.epoch);
   } finally { await source.stop(); }
 });
+
+test("rotates AMS2 heading so the arrow follows the car's forward world direction",()=>{
+  const memory=fixture();memory.writeFloatLE(0,L.mOrientation+4);
+  const p=packet(memory);const direction=ams2ServerAdapter.carForwardOffset(p.Yaw);
+  expect(direction[0]).toBeCloseTo(0,6);expect(direction[1]).toBeCloseTo(-1,6);
+  memory.writeFloatLE(Math.PI/2,L.mOrientation+4);
+  const turned=ams2ServerAdapter.carForwardOffset(packet(memory).Yaw);
+  expect(turned[0]).toBeCloseTo(-1,6);expect(turned[1]).toBeCloseTo(0,6);
+});

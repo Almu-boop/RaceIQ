@@ -55,7 +55,7 @@ type GameKey = keyof GameStats;
 const BRAND_CARDS: ReadonlyArray<{
   key: GameKey;
   gameId: string;
-  route: "/fm23" | "/f125" | "/acc" | "/ac-evo" | "/iracing" | "/lmu" | "/ams2";
+  route: "/fm23" | "/f125" | "/acc" | "/ac-evo" | "/iracing" | "/lmu" | "/ams2" | "/pmr";
   name: string;
   linePositions: [string, string, string];
 }> = [
@@ -65,6 +65,7 @@ const BRAND_CARDS: ReadonlyArray<{
   { key: "acEvo", gameId: "ac-evo", route: "/ac-evo", name: "Assetto Corsa Evo", linePositions: ["top-[20%]", "top-[50%]", "top-[75%]"] },
   { key: "iracing", gameId: "iracing", route: "/iracing", name: "iRacing", linePositions: ["top-[20%]", "top-[50%]", "top-[75%]"] },
   { key: "lmu", gameId: "lmu", route: "/lmu", name: "Le Mans Ultimate", linePositions: ["top-[20%]", "top-[50%]", "top-[75%]"] },
+  {key: "pmr", gameId: "pmr", route: "/pmr", name: "Project Motor Racing", linePositions: ["top-[20%]", "top-[50%]", "top-[75%]"]},
   { key: "ams2", gameId: "ams2", route: "/ams2", name: "Automobilista 2", linePositions: ["top-[20%]", "top-[50%]", "top-[75%]"] },
 ];
 

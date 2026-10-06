@@ -38,7 +38,7 @@ function categoryLabel(category: string): string {
   }
 }
 
-export function IRacingCars({ gameId = "iracing" }: { gameId?: "iracing" | "ams2" }) {
+export function IRacingCars({ gameId = "iracing" }: { gameId?: "iracing" | "ams2" | "pmr" }) {
   const [search, setSearch] = useState("");
   const [filterCategory, setFilterCategory] = useState<string | null>(null);
   const { data: cars = [], isLoading } = useQuery<IRacingCatalogCar[]>({

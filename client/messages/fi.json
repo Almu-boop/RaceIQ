@@ -2383,5 +2383,11 @@
   "setupguide_ams2_same_pc": "Käynnistä Automobilista 2 ja RaceIQ samalla Windows-tietokoneella.",
   "setupguide_ams2_shared_memory": "Avaa AMS2:ssa Asetukset → Järjestelmä ja valitse jaetun muistin asetukseksi Project CARS 2.",
   "setupguide_ams2_driving": "Aloita harjoitus tai kilpailu, siirry autoon ja aja, jotta telemetrian vastaanotto alkaa.",
-  "setupguide_ams2_direct_note": "RaceIQ lukee AMS2:n tietoja suoraan. SimHub-yhteyttä tai erillistä telemetriatyökalua ei tarvita."
+  "setupguide_ams2_direct_note": "RaceIQ lukee AMS2:n tietoja suoraan. SimHub-yhteyttä tai erillistä telemetriatyökalua ei tarvita.",
+  "setupguide_pmr_same_pc": "Käynnistä Project Motor Racing tällä tietokoneella.",
+  "setupguide_pmr_udp": "Ota UDP-telemetria käyttöön kohdassa Asetukset → Valinnat. RaceIQ kuuntelee porttia 7576.",
+  "setupguide_pmr_driving": "Siirry ajosessioon ja poistu valikoista.",
+  "setupguide_pmr_direct_note": "RaceIQ vastaanottaa PMR-telemetrian suoraan ilman välityssovellusta. UDP-protokollia v1 ja v2 tuetaan. V2 käyttää saatavilla olevia pelin kierrosaikoja; v1:n kierrosajat arvioidaan.",
+  "weightshiftradar_lateral_suspension": "Jousitus vasen/oikea",
+  "weightshiftradar_lateral_suspension_note": "Vain jousitusliikkeen tasapaino; ei mitattu pyöräkuorma."
 }

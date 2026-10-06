@@ -96,6 +96,11 @@ export const AnalyseVizPanel = memo(function AnalyseVizPanel({
 
       <TabsContent value="2d" className="flex min-h-0 w-full flex-1 flex-col items-center gap-2 overflow-y-auto p-2">
         {visualFrame && gameId && <TireDiagram frame={visualFrame} gameId={gameId} />}
+        {visualFrame && (
+          <div className="mt-auto flex w-full shrink-0 flex-wrap items-end gap-3 pt-2">
+            <GForceCircle frame={visualFrame} />
+          </div>
+        )}
       </TabsContent>
 
       <TabsContent value="3d" className="flex min-h-0 w-full flex-1 flex-col items-center gap-2 overflow-y-auto p-2">

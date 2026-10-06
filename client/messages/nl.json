@@ -2383,5 +2383,11 @@
   "setupguide_ams2_same_pc": "Start Automobilista 2 en RaceIQ op dezelfde Windows-pc.",
   "setupguide_ams2_shared_memory": "Open in AMS2 Opties → Systeem en stel gedeeld geheugen in op Project CARS 2.",
   "setupguide_ams2_driving": "Start een training of race, stap in de auto en rijd om telemetrie te ontvangen.",
-  "setupguide_ams2_direct_note": "RaceIQ leest AMS2 rechtstreeks uit. Een SimHub-verbinding of afzonderlijk telemetrieprogramma is niet nodig."
+  "setupguide_ams2_direct_note": "RaceIQ leest AMS2 rechtstreeks uit. Een SimHub-verbinding of afzonderlijk telemetrieprogramma is niet nodig.",
+  "setupguide_pmr_same_pc": "Start Project Motor Racing op deze pc.",
+  "setupguide_pmr_udp": "Schakel UDP-telemetrie in via Instellingen → Voorkeuren. RaceIQ luistert op poort 7576.",
+  "setupguide_pmr_driving": "Ga naar een rijsessie en verlaat de menu’s.",
+  "setupguide_pmr_direct_note": "RaceIQ ontvangt PMR-telemetrie rechtstreeks; een tussenliggende app is niet nodig. UDP-protocollen v1 en v2 worden ondersteund. V2 gebruikt beschikbare native rondetijden; v1-rondetijden worden geschat.",
+  "weightshiftradar_lateral_suspension": "Vering links/rechts",
+  "weightshiftradar_lateral_suspension_note": "Alleen de balans van de veerweg; geen gemeten wiellast."
 }

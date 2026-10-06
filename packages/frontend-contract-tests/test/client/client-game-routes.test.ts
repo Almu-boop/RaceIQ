@@ -33,6 +33,12 @@ describe("game route helpers", () => {
     expect(gameIdForRoutePrefix("ac-evo")).toBe("ac-evo");
     expect(gameIdForRoutePrefix("iracing")).toBe("iracing");
     expect(gameIdForRoutePrefix("lmu")).toBe("lmu");
+    expect(gameIdForRoutePrefix("pmr")).toBe("pmr");
+    expect(routePrefixForGameId("pmr")).toBe("pmr");
+    expect(supportsGameFeature("pmr","driver")).toBe(true);
+    expect(supportsGameFeature("pmr","raw")).toBe(true);
+    expect(supportsGameFeature("pmr","setups")).toBe(false);
+    expect(supportsGameFeature("pmr","experiments")).toBe(false);
     expect(routePrefixForGameId("f1-2025")).toBe("f125");
     expect(routePrefixForGameId("unknown")).toBeUndefined();
     expect(gameIdForRoutePrefix("unknown")).toBeUndefined();

@@ -2384,5 +2384,11 @@
   "setupguide_ams2_same_pc": "同じWindows PCでAutomobilista 2とRaceIQを起動してください。",
   "setupguide_ams2_shared_memory": "AMS2で「オプション → システム」を開き、共有メモリを「Project CARS 2」に設定してください。",
   "setupguide_ams2_driving": "練習またはレースセッションに入り、車に乗って走行するとテレメトリの受信が始まります。",
-  "setupguide_ams2_direct_note": "RaceIQはAMS2のデータを直接読み取ります。SimHubへの接続や別のテレメトリツールは不要です。"
+  "setupguide_ams2_direct_note": "RaceIQはAMS2のデータを直接読み取ります。SimHubへの接続や別のテレメトリツールは不要です。",
+  "setupguide_pmr_same_pc": "このPCでProject Motor Racingを起動してください。",
+  "setupguide_pmr_udp": "設定 → 環境設定でUDPテレメトリを有効にしてください。RaceIQはポート7576で受信します。",
+  "setupguide_pmr_driving": "走行セッションに入り、メニューを閉じてください。",
+  "setupguide_pmr_direct_note": "RaceIQはPMRのテレメトリを直接受信します。中継アプリは不要です。UDPプロトコルv1とv2に対応しています。v2は取得できるゲームのラップタイムを使用し、v1のラップタイムは推定します。",
+  "weightshiftradar_lateral_suspension": "左右のサスペンション",
+  "weightshiftradar_lateral_suspension_note": "サスペンションストロークのバランスのみを表示します。計測されたホイール荷重ではありません。"
 }

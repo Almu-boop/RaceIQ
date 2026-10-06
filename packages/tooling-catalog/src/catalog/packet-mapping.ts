@@ -18,6 +18,7 @@ import type {
   ParserOutput,
 } from "./model";
 import { SETUP_GROUP_DEFINITIONS } from "@raceiq/shared/racing/setups/catalog/groups";
+import pmrSources from "../../../game-pmr/src/packet-sources.json";
 import ams2Sources from "../../../game-ams2/src/packet-sources.json";
 const SOURCE_ROOTS: Partial<Record<GameId, Record<string, string>>> = {
   "f1-2025": {
@@ -65,6 +66,7 @@ const PACKET_SOURCE_OVERRIDES: Partial<
   Record<GameId, Record<string, string[]>>
 > = {
   ams2: AMS2_PACKET_SOURCES,
+  pmr: pmrSources,
   "f1-2025": {
     CarOrdinal: ["F1.Participants.player.teamId"],
     NumCylinders: ["RaceIQ.ParserConstant.NumCylinders"],
@@ -479,7 +481,13 @@ function packetNativeMetadata(
   key: string,
   canonicalUnit: string,
 ): { nativeUnit: string; normalization?: string } {
+  if (gameId === "pmr") {
+    if (key === "TirePressure") return {nativeUnit: "Pa", normalization: "pascals / 6894.757293"};
+    if (["Accel","Brake","Clutch","HandBrake","Steer"].includes(key)) return {nativeUnit: "ratio", normalization: key === "Steer" ? "clamp to -1..1, multiply by 127 and round" : "clamp to 0..1, multiply by 255 and round"};
+    if (key === "CarOrdinal" || key === "TrackOrdinal") return {nativeUnit: "text", normalization: "stable ordinal hash of native car or circuit name"};
+  }
   if (gameId === "ams2") {
+    if (key === "Yaw") return {nativeUnit: "rad", normalization: "rotate native heading by pi and wrap to -pi..pi to align the car forward axis with world position"};
     if (key === "TirePressure") return { nativeUnit: "kPa", normalization: "kilopascals / 6.894757" };
     if (["Accel", "Brake", "Clutch", "Steer"].includes(key)) return {
       nativeUnit: "ratio",
