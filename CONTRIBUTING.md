@@ -53,6 +53,7 @@ Drizzle schema definitions do not run production migrations. Update both `server
 - Follow existing architecture and naming conventions.
 - Preserve game capability boundaries and avoid implicit `fm-2023` fallbacks.
 - Keep shared frontend appearance in semantic component variants; keep feature composition in consumers.
+- Back new or changed user-facing UI text with locale messages, including labels, tooltips, errors, empty states, and accessibility text; do not hard-code display strings. Update all supported locale catalogs, preserve interpolation/pluralization, and verify `bun run i18n:check-keys` and `bun run i18n:validate`.
 - Add or update tests only for changed observable behavior.
 - Add a concise entry under `## Unreleased` in `CHANGELOG.md` for each pull request.
 - Complete the [PR checklist](.github/pull_request_template.md), including manual validation of the affected behavior.
