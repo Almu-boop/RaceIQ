@@ -19,6 +19,7 @@ import { Route as Fm23RouteImport } from './routes/fm23'
 import { Route as IracingRouteImport } from './routes/iracing'
 import { Route as LiveRouteImport } from './routes/live'
 import { Route as LmuRouteImport } from './routes/lmu'
+import { Route as PmrRouteImport } from './routes/pmr'
 import { Route as GameidCarsRouteImport } from './routes/$gameid/cars'
 import { Route as GameidChatsRouteImport } from './routes/$gameid/chats'
 import { Route as GameidCompareRouteImport } from './routes/$gameid/compare'
@@ -39,6 +40,7 @@ import { Route as Fm23SetupsRouteImport } from './routes/fm23/setups'
 import { Route as IracingIndexRouteImport } from './routes/iracing/index'
 import { Route as LivePitRouteImport } from './routes/live.pit'
 import { Route as LmuIndexRouteImport } from './routes/lmu/index'
+import { Route as PmrIndexRouteImport } from './routes/pmr/index'
 import { Route as PortableIndexRouteImport } from './routes/portable.index'
 import { Route as PortableCombo1RouteImport } from './routes/portable.combo-1'
 import { Route as PortableCombo2RouteImport } from './routes/portable.combo-2'
@@ -116,6 +118,11 @@ const LiveRoute = LiveRouteImport.update({
 const LmuRoute = LmuRouteImport.update({
   id: '/lmu',
   path: '/lmu',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PmrRoute = PmrRouteImport.update({
+  id: '/pmr',
+  path: '/pmr',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GameidCarsRoute = GameidCarsRouteImport.update({
@@ -217,6 +224,11 @@ const LmuIndexRoute = LmuIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => LmuRoute,
+} as any)
+const PmrIndexRoute = PmrIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => PmrRoute,
 } as any)
 const PortableIndexRoute = PortableIndexRouteImport.update({
   id: '/portable/',
@@ -376,6 +388,7 @@ export interface FileRoutesByFullPath {
   '/iracing': typeof IracingRouteWithChildren
   '/live': typeof LiveRouteWithChildren
   '/lmu': typeof LmuRouteWithChildren
+  '/pmr': typeof PmrRouteWithChildren
   '/$gameid/cars': typeof GameidCarsRoute
   '/$gameid/chats': typeof GameidChatsRoute
   '/$gameid/compare': typeof GameidCompareRoute
@@ -398,6 +411,7 @@ export interface FileRoutesByFullPath {
   '/fm23/': typeof Fm23IndexRoute
   '/iracing/': typeof IracingIndexRoute
   '/lmu/': typeof LmuIndexRoute
+  '/pmr/': typeof PmrIndexRoute
   '/portable/': typeof PortableIndexRoute
   '/$gameid/experiments/$experimentId': typeof GameidExperimentsExperimentIdRoute
   '/$gameid/sessions/analyse': typeof GameidSessionsAnalyseRoute
@@ -444,6 +458,7 @@ export interface FileRoutesByTo {
   '/fm23': typeof Fm23IndexRoute
   '/iracing': typeof IracingIndexRoute
   '/lmu': typeof LmuIndexRoute
+  '/pmr': typeof PmrIndexRoute
   '/portable': typeof PortableIndexRoute
   '/$gameid/experiments/$experimentId': typeof GameidExperimentsExperimentIdRoute
   '/$gameid/sessions/analyse': typeof GameidSessionsAnalyseRoute
@@ -483,6 +498,7 @@ export interface FileRoutesById {
   '/iracing': typeof IracingRouteWithChildren
   '/live': typeof LiveRouteWithChildren
   '/lmu': typeof LmuRouteWithChildren
+  '/pmr': typeof PmrRouteWithChildren
   '/$gameid/cars': typeof GameidCarsRoute
   '/$gameid/chats': typeof GameidChatsRoute
   '/$gameid/compare': typeof GameidCompareRoute
@@ -505,6 +521,7 @@ export interface FileRoutesById {
   '/fm23/': typeof Fm23IndexRoute
   '/iracing/': typeof IracingIndexRoute
   '/lmu/': typeof LmuIndexRoute
+  '/pmr/': typeof PmrIndexRoute
   '/portable/': typeof PortableIndexRoute
   '/$gameid/experiments/$experimentId': typeof GameidExperimentsExperimentIdRoute
   '/$gameid/sessions/analyse': typeof GameidSessionsAnalyseRoute
@@ -545,6 +562,7 @@ export interface FileRouteTypes {
     | '/iracing'
     | '/live'
     | '/lmu'
+    | '/pmr'
     | '/$gameid/cars'
     | '/$gameid/chats'
     | '/$gameid/compare'
@@ -567,6 +585,7 @@ export interface FileRouteTypes {
     | '/fm23/'
     | '/iracing/'
     | '/lmu/'
+    | '/pmr/'
     | '/portable/'
     | '/$gameid/experiments/$experimentId'
     | '/$gameid/sessions/analyse'
@@ -613,6 +632,7 @@ export interface FileRouteTypes {
     | '/fm23'
     | '/iracing'
     | '/lmu'
+    | '/pmr'
     | '/portable'
     | '/$gameid/experiments/$experimentId'
     | '/$gameid/sessions/analyse'
@@ -651,6 +671,7 @@ export interface FileRouteTypes {
     | '/iracing'
     | '/live'
     | '/lmu'
+    | '/pmr'
     | '/$gameid/cars'
     | '/$gameid/chats'
     | '/$gameid/compare'
@@ -673,6 +694,7 @@ export interface FileRouteTypes {
     | '/fm23/'
     | '/iracing/'
     | '/lmu/'
+    | '/pmr/'
     | '/portable/'
     | '/$gameid/experiments/$experimentId'
     | '/$gameid/sessions/analyse'
@@ -712,6 +734,7 @@ export interface RootRouteChildren {
   IracingRoute: typeof IracingRouteWithChildren
   LiveRoute: typeof LiveRouteWithChildren
   LmuRoute: typeof LmuRouteWithChildren
+  PmrRoute: typeof PmrRouteWithChildren
   PortableCombo1Route: typeof PortableCombo1Route
   PortableCombo2Route: typeof PortableCombo2Route
   PortableIndexRoute: typeof PortableIndexRoute
@@ -787,6 +810,13 @@ declare module '@tanstack/react-router' {
       path: '/lmu'
       fullPath: '/lmu'
       preLoaderRoute: typeof LmuRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pmr': {
+      id: '/pmr'
+      path: '/pmr'
+      fullPath: '/pmr'
+      preLoaderRoute: typeof PmrRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/$gameid/cars': {
@@ -928,6 +958,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/lmu/'
       preLoaderRoute: typeof LmuIndexRouteImport
       parentRoute: typeof LmuRoute
+    }
+    '/pmr/': {
+      id: '/pmr/'
+      path: '/'
+      fullPath: '/pmr/'
+      preLoaderRoute: typeof PmrIndexRouteImport
+      parentRoute: typeof PmrRoute
     }
     '/portable/': {
       id: '/portable/'
@@ -1365,6 +1402,16 @@ const LmuRouteChildren: LmuRouteChildren = {
 
 const LmuRouteWithChildren = LmuRoute._addFileChildren(LmuRouteChildren)
 
+interface PmrRouteChildren {
+  PmrIndexRoute: typeof PmrIndexRoute
+}
+
+const PmrRouteChildren: PmrRouteChildren = {
+  PmrIndexRoute: PmrIndexRoute,
+}
+
+const PmrRouteWithChildren = PmrRoute._addFileChildren(PmrRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   GameidRoute: GameidRouteWithChildren,
@@ -1376,6 +1423,7 @@ const rootRouteChildren: RootRouteChildren = {
   IracingRoute: IracingRouteWithChildren,
   LiveRoute: LiveRouteWithChildren,
   LmuRoute: LmuRouteWithChildren,
+  PmrRoute: PmrRouteWithChildren,
   PortableCombo1Route: PortableCombo1Route,
   PortableCombo2Route: PortableCombo2Route,
   PortableIndexRoute: PortableIndexRoute,

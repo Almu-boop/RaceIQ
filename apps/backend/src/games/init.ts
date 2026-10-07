@@ -5,6 +5,7 @@ import { f1ServerAdapter } from "@raceiq/game-f1-2025";
 import { accServerAdapter } from "@raceiq/game-acc";
 import { acEvoServerAdapter } from "@raceiq/game-ac-evo";
 import { iracingServerAdapter } from "@raceiq/game-iracing";
+import {pmrServerAdapter} from "@raceiq/game-pmr";
 import { lmuServerAdapter } from "@raceiq/game-lmu";
 import { releaseFeatureFlags, type ReleaseFeatureFlags } from "@raceiq/shared/platform/runtime/release-feature-flags";
 
@@ -33,7 +34,7 @@ export function serverGameAdaptersForFeatures(
     acEvoServerAdapter,
   ];
   if (flags.iracingAdapter) adapters.push(iracingServerAdapter);
-  adapters.push(lmuServerAdapter);
+  adapters.push(lmuServerAdapter, pmrServerAdapter);
   return adapters;
 }
 

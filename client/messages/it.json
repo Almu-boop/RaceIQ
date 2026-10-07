@@ -2374,5 +2374,9 @@
   "experiment_search_aria": "Cerca esperimenti",
   "experiment_guide": "Guida",
   "experiment_new_button": "+ Nuovo esperimento",
-  "dash_waiting_track": "In attesa del tracciato…"
+  "dash_waiting_track": "In attesa del tracciato…",
+  "setupguide_pmr_same_pc": "Avvia Project Motor Racing su questo PC.",
+  "setupguide_pmr_udp": "Attiva la telemetria UDP in Impostazioni → Preferenze. RaceIQ ascolta sulla porta 7576.",
+  "setupguide_pmr_driving": "Entra in una sessione di guida ed esci dai menu.",
+  "setupguide_pmr_direct_note": "RaceIQ riceve direttamente la telemetria PMR, senza app intermedie. Sono supportati i protocolli UDP v1 e v2. V2 usa i tempi sul giro nativi disponibili; i tempi v1 sono stimati."
 }

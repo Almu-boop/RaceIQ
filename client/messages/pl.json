@@ -2374,5 +2374,9 @@
   "experiment_focus_car_agent_label": "Inżynier wyścigowy",
   "experiment_focus_driver_agent_label": "Trener kierowcy",
   "ob_community_body": "RaceIQ to projekt open source, który rozwija się dzięki społeczności. Każdy może pomóc — rozpowszechniając informacje, zgłaszając pomysły i błędy lub współtworząc kod.",
-  "settings_port_range_error": "Port musi mieścić się w zakresie 1024–65535"
+  "settings_port_range_error": "Port musi mieścić się w zakresie 1024–65535",
+  "setupguide_pmr_same_pc": "Uruchom Project Motor Racing na tym komputerze.",
+  "setupguide_pmr_udp": "Włącz telemetrię UDP w Ustawienia → Preferencje. RaceIQ nasłuchuje na porcie 7576.",
+  "setupguide_pmr_driving": "Wejdź do sesji jazdy i opuść menu.",
+  "setupguide_pmr_direct_note": "RaceIQ odbiera telemetrię PMR bezpośrednio, bez aplikacji pośredniczącej. Obsługiwane są protokoły UDP v1 i v2. V2 korzysta z dostępnych czasów okrążeń z gry; czasy v1 są szacowane."
 }

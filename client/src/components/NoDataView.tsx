@@ -116,6 +116,19 @@ function LMUSetupGuide() {
   );
 }
 
+function PMRSetupGuide() {
+  return (
+    <div className="mt-3 rounded-lg border border-app-border bg-app-surface p-4 text-sm text-app-text-muted">
+      <ol className="list-decimal space-y-2 pl-5">
+        <li>{m.setupguide_pmr_same_pc()}</li>
+        <li>{m.setupguide_pmr_udp()}</li>
+        <li>{m.setupguide_pmr_driving()}</li>
+      </ol>
+      <p className="mt-3 text-xs">{m.setupguide_pmr_direct_note()}</p>
+    </div>
+  );
+}
+
 export function NoDataView() {
   const { displaySettings } = useSettings();
   const settings = displaySettings as { udpPort?: number };
@@ -137,6 +150,7 @@ export function NoDataView() {
               {game.id === "acc" && <AccSetupGuide />}
               {game.id === "iracing" && <IRacingSetupGuide />}
               {game.id === "lmu" && <LMUSetupGuide />}
+              {game.id === "pmr" && <PMRSetupGuide />}
               {game.id === "ac-evo" && <div className="mt-3 rounded-lg border border-app-border bg-app-surface p-4 text-sm text-app-text-muted"><ol className="list-decimal space-y-2 pl-5"><li>Run Assetto Corsa EVO on this Windows PC.</li><li>Enter an active driving session; telemetry is provided through the game’s local shared-memory interface.</li><li>Keep RaceIQ running on the same PC while driving.</li></ol></div>}
             </div>
           </details>

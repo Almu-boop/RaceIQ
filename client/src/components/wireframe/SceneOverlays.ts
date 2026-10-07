@@ -196,7 +196,7 @@ export class SceneOverlays {
         const label = this.labels[index];
         if (label) label.sprite.visible = false;
       }
-      if (config.toggles.springs) {
+      if (config.toggles.springs && analysis.suspensionCompressionBias.source !== "unavailable") {
         if (!this.springs[index]) this.springs[index] = createSuspensionSpringResource(this.scene);
         const inboard = z > 0 ? z - 0.35 : z + 0.35;
         const drop = -(Number(suspension[index]) - 0.5) * stroke;

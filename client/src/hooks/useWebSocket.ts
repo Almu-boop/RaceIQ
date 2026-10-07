@@ -112,6 +112,9 @@ export function useWebSocket() {
           if (data.type === "status") {
             const { type: __ignored, ...status } = data; // eslint-disable-line @typescript-eslint/no-unused-vars
             telemetryStore.actions.setServerStatus(status);
+          } else if (data.type === "telemetry-idle") {
+            telemetryStore.actions.clearTelemetry(true);
+            devTelemetryStore.actions.setPacket(null);
           } else if (data.type === "update-available") {
             telemetryStore.actions.setUpdateAvailable(data.version as string);
             startVersionRequest();

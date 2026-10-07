@@ -2001,8 +2001,8 @@
   "race_result_session_type_unavailable": "Session type unavailable",
   "race_result_start": "Start",
   "race_result_stop_duration": "{duration}s stop",
-"race_result_penalty": "Penalty",
-"race_result_penalty_time": "{duration}s penalty",
+  "race_result_penalty": "Penalty",
+  "race_result_penalty_time": "{duration}s penalty",
   "race_result_summary_title": "Race results",
   "race_result_summary_unavailable": "Recorded results are unavailable right now.",
   "race_result_timeline": "Race timeline",
@@ -2374,5 +2374,9 @@
   "experiment_new_button": "+ New experiment",
   "dash_waiting_track": "Waiting for track…",
   "experiment_focus_car_agent_label": "Race engineer",
-  "experiment_focus_driver_agent_label": "Driver coach"
+  "experiment_focus_driver_agent_label": "Driver coach",
+  "setupguide_pmr_same_pc": "Start Project Motor Racing on this PC.",
+  "setupguide_pmr_udp": "Enable UDP telemetry in Settings → Preferences. RaceIQ listens on port 7576.",
+  "setupguide_pmr_driving": "Enter a driving session and leave the menus.",
+  "setupguide_pmr_direct_note": "RaceIQ receives PMR telemetry directly; no bridge app is required. UDP protocols v1 and v2 are supported. V2 uses native lap timing when available; v1 lap times are estimated."
 }

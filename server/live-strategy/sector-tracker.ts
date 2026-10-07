@@ -103,6 +103,8 @@ export class SectorTracker {
 
   /** Process a packet. Returns sector data or null if no sector bounds loaded. */
   feed(packet: TelemetryPacket): LiveSectorData | null {
+    const nativeTiming = this.currentGame?.getNativeSectorTiming?.(packet);
+    if (nativeTiming) return this.feedNativeTiming(packet,nativeTiming);
     const nativeLayout = this.currentGame?.getNativeSectorLayout?.(packet);
     if (this.currentGame?.nativeSectors) {
       const starts = nativeLayout?.starts;
@@ -259,6 +261,33 @@ export class SectorTracker {
     };
   }
 
+  private feedNativeTiming(packet: TelemetryPacket, timing: NonNullable<ReturnType<NonNullable<GameAdapter["getNativeSectorTiming"]>>>): LiveSectorData | null {
+    const count = Math.max(timing.currentTimes.length,timing.bestTimes.length);
+    if (count < 1 || count > 16 || timing.currentSector < 0 || timing.currentSector >= count) return null;
+    this.sectorCount = count;
+    this.lapDistTotal = timing.trackLengthM;
+    this.lapDistStart = packet.DistanceTraveled-timing.lapFraction*timing.trackLengthM;
+    if (this.initialized && packet.LapNumber !== this.lastLap) {
+      // These are observed splits, not official last-sector values from PMR.
+      this.lastTimes = [...this.currentTimes];
+      this.lastLapTime = this.lastTimes.every(t => t > 0) ? this.lastTimes.reduce((a,b) => a+b,0) : 0;
+    }
+    if (timing.lastTimes) this.lastTimes = Array.from({length: count}, (_, i) => Math.max(0, timing.lastTimes![i] ?? 0));
+    if (timing.lastLapTime !== undefined) this.lastLapTime = Math.max(0, timing.lastLapTime);
+    this.initialized = true; this.lastLap = packet.LapNumber;
+    this.currentSector = timing.currentSector;
+    this.bestTimes = Array.from({length:count},(_,i)=>timing.bestTimes[i] ?? 0);
+    this.currentTimes = Array.from({length:count},(_,i)=>i<timing.currentSector ? Math.max(0,timing.currentTimes[i] ?? 0) : 0);
+    const completed = this.currentTimes.slice(0,timing.currentSector);
+    const hasPriorTimes = completed.every(t => t > 0);
+    const running = hasPriorTimes ? Math.max(0,packet.CurrentLap-completed.reduce((a,b)=>a+b,0)) : 0;
+    this.currentTimes[timing.currentSector] = running;
+    return {sectorCount:count,currentSector:timing.currentSector,currentSectorTime:running,
+      currentTimes:[...this.currentTimes],lastTimes:Array.from({length:count},(_,i)=>this.lastTimes[i] ?? 0),
+      bestTimes:[...this.bestTimes],lastLapTime:this.lastLapTime,bestLapTime:packet.BestLap,
+      estimatedLap:0,deltaToBest:0,deltaToLast:0};
+  }
+
   /** Build a reference lap structure from packet data. */
   private buildRefLapFromPackets(packets: TelemetryPacket[], lapTime: number): ReferenceLap {
     const lapDistStart = packets[0].DistanceTraveled;
@@ -340,7 +369,7 @@ export class SectorTracker {
 
   /** Expose track length to telemetry consumers. */
   getTrackLength(): number {
-    return this.bounds?.trackLength ?? 0;
+    return this.bounds?.trackLength ?? this.lapDistTotal;
   }
 
   /** Expose lap distance start for PitTracker curve interpolation. */

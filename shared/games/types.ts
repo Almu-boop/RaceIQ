@@ -97,7 +97,7 @@ export interface GameAdapter {
   /** Coordinate system used for track maps */
   coordSystem: string;
 
-  /** Sector boundaries and lap fraction are supplied authoritatively by telemetry. */
+  /** Sector boundaries or sector indices are supplied authoritatively by telemetry. */
   nativeSectors: boolean;
 
   /** Read the source-defined sector layout from a normalized telemetry frame. */
@@ -108,6 +108,17 @@ export interface GameAdapter {
         trackLengthM?: number;
       }
     | undefined;
+
+  /** Native zero-based sector index and per-sector duration arrays, when no layout fractions are supplied. */
+  getNativeSectorTiming?(packet: TelemetryPacket): {
+    lastTimes?: readonly number[];
+    lastLapTime?: number;
+    currentSector: number;
+    currentTimes: readonly number[];
+    bestTimes: readonly number[];
+    trackLengthM: number;
+    lapFraction: number;
+  } | undefined;
 
   /** Raw-lap replay should synthesize a finish sample from the following frame. */
   appendsDelayedFinishFrame: boolean;

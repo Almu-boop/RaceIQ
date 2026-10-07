@@ -84,6 +84,8 @@ export class WebSocketManager {
   /** Owned projection; packet-handler context must not mutate before publication. */
   private lastFrame: LiveProjection["frame"] | null = null;
   private lastFrameJson: string | null = null;
+  private liveSimulator: string | null = null;
+  private lastProjectionAt = 0;
   private lastDevPacketJson: string | null = null;
   private readonly allowDevTelemetry = IS_DEV || IS_E2E;
   /** Injected getter for session laps — avoids circular import with pipeline */
@@ -171,6 +173,7 @@ export class WebSocketManager {
   }
 
   addClient(ws: ServerWebSocket<WSData>): void {
+    this.expirePMRFrame();
     this.clients.add(ws);
     let sendFailed = false;
     if (this.lastSchemaJson) { try { ws.send(this.lastSchemaJson); } catch { sendFailed = true; } }
@@ -280,6 +283,7 @@ export class WebSocketManager {
 
   publishTelemetry(projection: LiveProjection): void {
     if (projection.schema) {
+      this.liveSimulator = projection.schema.simulator;
       this.lastSchemaJson = JSON.stringify(projection.schema);
       this.pendingSchemaJson = this.clients.size > 0 ? this.lastSchemaJson : null;
       if (this.lastFrame?.schemaId !== projection.schema.schemaId) {
@@ -288,9 +292,18 @@ export class WebSocketManager {
       }
     }
     if (projection.frame) {
+      this.lastProjectionAt = Date.now();
       this.lastFrame = { ...projection.frame, context: structuredClone(projection.frame.context) };
       this.lastFrameJson = null;
     }
+  }
+
+  private expirePMRFrame(): void {
+    if (this.liveSimulator !== "pmr" || !this.lastFrame || Date.now() - this.lastProjectionAt < 5000) return;
+    this.lastFrame = null;
+    this.lastFrameJson = null;
+    this.lastDevPacketJson = null;
+    this.broadcastNotification({ type: "telemetry-idle" });
   }
 
   private serializeLatestFrame(): string | null {
@@ -390,6 +403,7 @@ export class WebSocketManager {
   }
 
   private _pushToClients(): void {
+    this.expirePMRFrame();
     if (this.clients.size === 0) return;
     const frameJson = this.serializeLatestFrame();
     const schemaJson = this.pendingSchemaJson;

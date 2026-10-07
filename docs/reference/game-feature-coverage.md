@@ -57,6 +57,14 @@ Canonical sources:
 - Tyre temperature and health are pit snapshots; tyre pressure is a static cold setup value.
 - RaceIQ reads setup and session identity but does not write garage setup values back to iRacing.
 
+### Project Motor Racing preview
+
+- Direct native UDP capture, game-specific car/track discovery, Live, Sessions, Analyse and Compare.
+- Native v2 lap timing and validity when supplied; v1 completed times are estimates. Packet types may use different supported versions.
+- No full editable setup library, Setup Engineer experiments, suspension compression/travel, tire wear or native orientation.
+- Native sector indices and durations are available; geometric sector boundaries and curated corner segments are not supplied by the adapter.
+- Raw Data follows the existing development telemetry subscription policy.
+
 ## Cross-game source differences
 
 - iRacing is the only adapter with authoritative native sector starts. Other adapters use RaceIQ sector and track-curation paths.

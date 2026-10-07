@@ -2374,5 +2374,9 @@
   "experiment_new_button": "+ Nouvelle expérience",
   "dash_waiting_track": "En attente du circuit…",
   "experiment_focus_car_agent_label": "Ingénieur de course",
-  "experiment_focus_driver_agent_label": "Coach de pilotage"
+  "experiment_focus_driver_agent_label": "Coach de pilotage",
+  "setupguide_pmr_same_pc": "Lancez Project Motor Racing sur ce PC.",
+  "setupguide_pmr_udp": "Activez la télémétrie UDP dans Paramètres → Préférences. RaceIQ écoute le port 7576.",
+  "setupguide_pmr_driving": "Entrez dans une session de conduite et quittez les menus.",
+  "setupguide_pmr_direct_note": "RaceIQ reçoit directement la télémétrie PMR, sans application intermédiaire. Les protocoles UDP v1 et v2 sont pris en charge. V2 utilise les temps de tour natifs disponibles ; les temps v1 sont estimés."
 }

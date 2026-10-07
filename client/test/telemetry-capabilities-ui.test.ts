@@ -1,3 +1,6 @@
+import { analyseSemanticIds } from "@raceiq/shared/games/metric-contracts";
+import { getGame } from "@raceiq/shared/games/registry";
+import { GForceCircle } from "../src/components/telemetry/GForceCircle";
 import { describe, expect, test } from "bun:test";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createElement } from "react";
@@ -614,7 +617,8 @@ describe("telemetry capability UI", () => {
     expect(markup).toContain("100.0");
     expect(markup).toContain("90.0%");
     expect(markup).toContain("500°C");
-    expect(markup).toContain("24.0 psi");
+    expect(markup).toContain(">24.0</span>");
+    expect(markup).toContain("psi");
     expect(markup).toContain("20mm");
     expect(markup.match(/>—</g) ?? []).toHaveLength(2);
   });
@@ -645,7 +649,8 @@ describe("telemetry capability UI", () => {
       expect(markup, gameId).toContain("Rotation /s");
       if (gameId === "ac-evo") expect(markup, gameId).toContain("Wear /s");
       expect(markup, gameId).toContain("500°C");
-      expect(markup, gameId).toContain("24.0 psi");
+      expect(markup, gameId).toContain(">24.0</span>");
+      expect(markup, gameId).toContain("psi");
       expect(markup, gameId).not.toContain("Unavailable in Analyse");
       expect(markup, gameId).toContain("aria-label=\"Unavailable features in Analyse\"");
       expect(markup.match(/>—</g) ?? [], gameId).toHaveLength(gameId === "acc" ? 12 : 0);
@@ -770,4 +775,26 @@ describe("telemetry capability UI", () => {
     expect(available).toContain("1:33.500");
     expect(available).toContain("-0.523");
   });
+});
+
+for (const adapter of [getGame("pmr")]) {
+  test(`${adapter.id} Analyse requests and resolves both G-force axes`, () => {
+    const ids = analyseSemanticIds(adapter);
+    expect(ids).toContain("motion.acceleration-x");
+    expect(ids).toContain("motion.acceleration-z");
+    const values = Object.fromEntries(ids.map(id => [id,
+      id === "motion.acceleration-x" ? 4.905 : id === "motion.acceleration-z" ? -9.81 : null]));
+    const markup = renderToStaticMarkup(createElement(GForceCircle, { frame: semanticFrame(values) }));
+    expect(markup).toContain("-0.5");
+    expect(markup).toContain("1.0");
+    expect(markup).not.toContain("—");
+  });
+}
+
+test("PMR explains unavailable suspension compression without inventing a dot", () => {
+  const markup = renderToStaticMarkup(createElement(QueryClientProvider, { client: new QueryClient() },
+    createElement(TireDiagram, { view: liveView("pmr", {}) })));
+  expect(markup).toContain("Compression bias");
+  expect(markup).toContain("Unavailable");
+  expect(markup).not.toContain("<canvas");
 });

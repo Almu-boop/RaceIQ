@@ -9,6 +9,7 @@ export const LIVE_CORE_SEMANTIC_IDS = [
 
 export const LIVE_GAME_SEMANTIC_IDS = {
   "fm-2023": [],
+  pmr: ["race.pit-status", "session.session-type", "timing.track-length", "timing.lap-fraction", "tire.temperature.surface.inner", "tire.temperature.surface.middle", "tire.temperature.surface.outer"],
   acc: ["damage.brake-pad-wear", "race.pit-status", "tires.tire-compound-name", "tires.tire-radius"],
   "ac-evo": ["damage.brake-pad-wear", "race.pit-status", "tires.tire-compound-name", "tires.tire-radius", "tire.temperature.surface.inner", "tire.temperature.surface.middle", "tire.temperature.surface.outer"],
   iracing: ["race.on-pit-road", "timing.lap-fraction", "tire.temperature.carcass.left", "tire.temperature.carcass.middle", "tire.temperature.carcass.right"],

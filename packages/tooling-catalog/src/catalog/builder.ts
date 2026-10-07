@@ -139,7 +139,7 @@ export async function buildTelemetryCatalog(): Promise<BuiltTelemetryCatalog> {
     typesSource,
     typesTree,
     "TelemetryPacket",
-  ).filter((field) => !["gameId", "f1", "acc", "iracing", "lmu"].includes(field.name));
+  ).filter((field) => !["gameId", "f1", "acc", "iracing", "lmu", "pmr"].includes(field.name));
   const packetFieldNames = packetFields.map((field) => field.name);
   const packetSets = wheelFieldSets(packetFieldNames);
 
@@ -160,6 +160,7 @@ export async function buildTelemetryCatalog(): Promise<BuiltTelemetryCatalog> {
     "ac-evo": [],
     iracing: [],
     lmu: [],
+    pmr: [],
   };
   for (const set of packetSets) {
     const semantic = normalizedSemantic(set);
@@ -557,6 +558,22 @@ export async function buildTelemetryCatalog(): Promise<BuiltTelemetryCatalog> {
   addCrossSourceProjections(variables, groups);
   addSectorDerivedVariables(variables, groups);
 
+  for (const variable of variables.values()) {
+    variable.games.pmr ??= {kind: "unavailable", reason: "source-not-provided", description: "PMR native UDP does not provide this semantic."};
+  }
+  for (const [semantic,path,unit] of [
+    ["timing.last-lap","pmr.lastLapTime","s"],
+    ["timing.track-length","pmr.trackLengthM","m"],
+    ["timing.lap-fraction","pmr.lapFraction","ratio"],
+    ["race.pit-status","pmr.inPits","boolean"],
+    ["session.session-type","pmr.sessionType","text"],
+  ] as const) {
+    const variable = variables.get(semantic);
+    if (variable) {
+      variable.games.pmr = {kind: "direct", nativeUnit: unit, sources: [path], freshness: "continuous", description: "Recorded PMR native UDP value; v2-only fields are absent in v1 captures"};
+      addSource(inventories,"pmr",{path,label: path,semanticId: semantic,unit,dataType: unit === "boolean" ? "boolean" : unit === "text" ? "string" : "number",description: "PMR recorded native UDP extension",sourceKind: "extension",recordedByRaceIQ: true,retention: "exact"});
+    }
+  }
   for (const group of groups.values()) {
     if (group.parentId) attachChild(groups, group.parentId, group.id);
     group.children.sort();

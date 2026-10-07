@@ -2374,5 +2374,9 @@
   "experiment_focus_car_agent_label": "Engenheiro de corrida",
   "experiment_focus_driver_agent_label": "Treinador de pilotagem",
   "analyse_ai_analysis": "Análise de IA",
-  "insight_category_suspension": "Suspensão"
+  "insight_category_suspension": "Suspensão",
+  "setupguide_pmr_same_pc": "Inicie Project Motor Racing neste PC.",
+  "setupguide_pmr_udp": "Ative a telemetria UDP em Configurações → Preferências. O RaceIQ escuta na porta 7576.",
+  "setupguide_pmr_driving": "Entre em uma sessão de pilotagem e saia dos menus.",
+  "setupguide_pmr_direct_note": "O RaceIQ recebe a telemetria do PMR diretamente, sem aplicativo intermediário. Os protocolos UDP v1 e v2 são compatíveis. V2 usa os tempos de volta nativos disponíveis; os tempos v1 são estimados."
 }

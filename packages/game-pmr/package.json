@@ -1,0 +1,27 @@
+{
+  "name": "@raceiq/game-pmr",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./source": "./src/source.ts",
+    "./frame": "./src/frame.ts",
+    "./protocol": "./src/protocol.ts",
+    "./normalizer": "./src/normalizer.ts",
+    "./accumulator": "./src/accumulator.ts"
+  },
+  "scripts": {
+    "typecheck": "bunx tsc --project tsconfig.json --noEmit",
+    "test": "bun ../../scripts/test/run-suite.ts all --package @raceiq/game-pmr",
+    "test:integration": "bun ../../scripts/test/run-suite.ts integration --package @raceiq/game-pmr"
+  },
+  "dependencies": {
+    "@raceiq/analysis-core": "workspace:*",
+    "@raceiq/backend-core": "workspace:*",
+    "@raceiq/game-pmr-metadata": "workspace:*",
+    "@raceiq/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@raceiq/telemetry-core": "workspace:*"
+  }
+}

@@ -206,3 +206,32 @@ describe("WebSocketManager controls", () => {
     }
   });
 });
+
+test.each(["pmr"] as const)("%s idle frames expire for existing and reconnecting clients and resume with the same schema", simulator => {
+  const clock = spyOn(Date, "now");
+  const manager = new WebSocketManager();
+  const existing = socket(); const reconnecting = socket();
+  try {
+    clock.mockReturnValue(10000);
+    const pmrSchema = { ...schema, simulator };
+    manager.setSessionLapsProvider(() => [{ id: 42 }] as unknown as import("@raceiq/shared/racing/sessions/types").LapMeta[]);
+    manager.publishTelemetry({ schema: pmrSchema, frame });
+    manager.addClient(existing);
+    existing.sent.length = 0;
+    clock.mockReturnValue(14999);
+    manager.flushLatest();
+    expect(JSON.parse(existing.sent.at(-1)!).type).toBe("telemetry-frame");
+    existing.sent.length = 0;
+    clock.mockReturnValue(15000);
+    manager.flushLatest();
+    expect(existing.sent.map(value => JSON.parse(value).type)).toEqual(["telemetry-idle"]);
+    manager.addClient(reconnecting);
+    expect(reconnecting.sent.map(value => JSON.parse(value).type)).toEqual(["telemetry-schema", "session-laps"]);
+    manager.publishTelemetry({ frame: { ...frame, sequence: 2 } });
+    manager.flushLatest();
+    expect(JSON.parse(existing.sent.at(-1)!).sequence).toBe(2);
+    expect(JSON.parse(reconnecting.sent.at(-1)!).sequence).toBe(2);
+  } finally {
+    clock.mockRestore(); manager.removeClient(existing); manager.removeClient(reconnecting);
+  }
+});

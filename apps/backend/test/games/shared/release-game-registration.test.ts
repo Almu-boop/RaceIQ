@@ -19,10 +19,10 @@ describe("release game registration", () => {
   test("includes iRacing and LMU in development registries", () => {
     const flags = releaseFeatureFlags(developmentEnv);
     expect(ids(gameAdaptersForFeatures(flags))).toEqual(
-      expect.arrayContaining(["iracing", "lmu"]),
+      expect.arrayContaining(["iracing", "lmu", "pmr"]),
     );
     expect(ids(serverGameAdaptersForFeatures(flags))).toEqual(
-      expect.arrayContaining(["iracing", "lmu"]),
+      expect.arrayContaining(["iracing", "lmu", "pmr"]),
     );
   });
 
@@ -38,8 +38,10 @@ describe("release game registration", () => {
     const flags = releaseFeatureFlags(productionEnv);
     expect(ids(gameAdaptersForFeatures(flags))).not.toContain("iracing");
     expect(ids(gameAdaptersForFeatures(flags))).toContain("lmu");
+    expect(ids(gameAdaptersForFeatures(flags))).toContain("pmr");
     expect(ids(serverGameAdaptersForFeatures(flags))).not.toContain("iracing");
     expect(ids(serverGameAdaptersForFeatures(flags))).toContain("lmu");
+    expect(ids(serverGameAdaptersForFeatures(flags))).toContain("pmr");
     expect(ids(gameAdaptersForFeatures(flags))).toContain("f1-2025");
     expect(ids(serverGameAdaptersForFeatures(flags))).toContain("f1-2025");
   });

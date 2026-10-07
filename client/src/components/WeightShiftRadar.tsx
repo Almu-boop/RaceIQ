@@ -1,5 +1,7 @@
 import { useEffect, useRef } from "react";
 import { severityRangeColor } from "@/lib/colors";
+import { getGame } from "@raceiq/shared/games/registry";
+import { resolveAnalysisTelemetry } from "@raceiq/shared/racing/analysis/telemetry-capabilities";
 import { normalizeSuspensionTravel } from "@/lib/suspension";
 import { syncCanvasSize } from "@/lib/rendering/canvas-size";
 import { getSemanticCanvasContext } from "@/lib/rendering/css-canvas";
@@ -11,13 +13,14 @@ import type { SemanticAnalysisFrame } from "./analyse/track-map/types";
  * where weight is concentrated. More compression = more load on that corner.
  * Dot position is the weighted centroid of the four corners.
  */
-export function WeightShiftRadar({ frame }: { frame: SemanticAnalysisFrame }) {
+export function WeightShiftRadar({ frame, gameId }: { frame: SemanticAnalysisFrame; gameId: Parameters<typeof getGame>[0] }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const size = 85;
 
   const suspension = frame.values["suspension.norm-suspension-travel"];
   const normalizedMeters = frame.values["suspension.suspension-travel-m"];
-  const semanticLoads =
+  const supported = resolveAnalysisTelemetry(getGame(gameId)).suspensionCompressionBias.source !== "unavailable";
+  const semanticLoads = !supported ? null :
     Array.isArray(suspension) && suspension.length >= 4 && suspension.slice(0, 4).every((value) => typeof value === "number" && Number.isFinite(value))
       ? (suspension.slice(0, 4) as number[])
       : Array.isArray(normalizedMeters)
@@ -120,7 +123,12 @@ export function WeightShiftRadar({ frame }: { frame: SemanticAnalysisFrame }) {
     ctx.globalAlpha = 1;
   }, [semanticLoads]);
 
-  if (!semanticLoads || semanticLoads.length < 4) return null;
+  if (!semanticLoads || semanticLoads.length < 4) return gameId === "pmr" ? (
+    <div className="flex w-[85px] flex-col items-center gap-1 text-center text-app-micro font-mono text-app-text-muted">
+      <span>{m.analyse_suspension_compression_bias()}</span>
+      <span>{m.analyse_unavailable()}</span>
+    </div>
+  ) : null;
   return (
     <div className="relative flex flex-col items-center">
       <canvas ref={canvasRef} style={{ width: size, height: size }} className="rounded" />

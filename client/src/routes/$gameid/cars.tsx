@@ -11,7 +11,7 @@ type CarsSearch = { compare?: string };
 function CarsRoute() {
   const { gameid } = useParams({ from: "/$gameid/cars" });
   const page =
-    gameid === "ac-evo" ? <AcEvoCars /> : gameid === "acc" ? <AccCars /> : gameid === "f125" ? <F1Cars /> : gameid === "iracing" ? <IRacingCars /> : gameid === "lmu" ? <LMUCars /> : <CarsPage />;
+    gameid === "ac-evo" ? <AcEvoCars /> : gameid === "acc" ? <AccCars /> : gameid === "f125" ? <F1Cars /> : gameid === "iracing" ? <IRacingCars /> : gameid === "lmu" ? <LMUCars /> : gameid === "pmr" ? <IRacingCars gameId="pmr" /> : <CarsPage />;
   return page;
 }
 

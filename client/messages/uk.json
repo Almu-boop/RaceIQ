@@ -2374,5 +2374,9 @@
   "experiment_new_button": "+ Новий експеримент",
   "dash_waiting_track": "Очікування траси…",
   "experiment_focus_car_agent_label": "Гоночний інженер",
-  "experiment_focus_driver_agent_label": "Тренер пілота"
+  "experiment_focus_driver_agent_label": "Тренер пілота",
+  "setupguide_pmr_same_pc": "Запустіть Project Motor Racing на цьому ПК.",
+  "setupguide_pmr_udp": "Увімкніть UDP-телеметрію в Налаштування → Параметри. RaceIQ слухає порт 7576.",
+  "setupguide_pmr_driving": "Почніть заїзд і вийдіть із меню.",
+  "setupguide_pmr_direct_note": "RaceIQ отримує телеметрію PMR безпосередньо, без проміжного застосунку. Підтримуються протоколи UDP v1 і v2. V2 використовує доступний час кола з гри; час кола v1 оцінюється."
 }

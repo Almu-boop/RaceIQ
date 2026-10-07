@@ -4,6 +4,8 @@ import { initGameAdapters } from "@raceiq/game-catalogs/games/init";
 import { serverReleaseFeatures } from "@raceiq/backend-core/runtime/config/release-features";
 import { injectDiscoveredAcEvoCars } from "@raceiq/game-ac-evo-metadata/racing/cars/ac-evo";
 import { injectDiscoveredIRacingIdentity } from "@raceiq/game-iracing-metadata/index";
+import {injectDiscoveredPMRIdentity} from "@raceiq/game-pmr-metadata/index";
+import {PMRTelemetrySource} from "@raceiq/game-pmr/source";
 import { injectDiscoveredLMUIdentity } from "@raceiq/game-lmu-metadata/index";
 import app from "../routes/index";
 import { initServerGameAdapters } from "../games/init";
@@ -90,6 +92,8 @@ export async function bootServer(options: BootOptions = {}): Promise<RunningServ
   ]);
   injectDiscoveredLMUIdentity(lmuCars, lmuTracks);
 
+  injectDiscoveredPMRIdentity(await listDiscoveredCars("pmr"),await listDiscoveredTracks("pmr"));
+
   const firstRun = IS_COMPILED && isFirstRun();
   const settings = loadSettings();
   if (settings.wsRefreshRate) {
@@ -139,8 +143,9 @@ export async function bootServer(options: BootOptions = {}): Promise<RunningServ
   }
 
   let nativeSources: NativeSourceSupervisor | null = null;
+  const pmrSource = new PMRTelemetrySource();
   installShutdown({
-    getNativeSources: () => nativeSources,
+    getNativeSources: () => ({stop: async () => {await pmrSource.stop(); await nativeSources?.stop();}}),
   });
 
   const udpPort = options.udpPort
@@ -150,6 +155,7 @@ export async function bootServer(options: BootOptions = {}): Promise<RunningServ
   startSyncAndStaleSessionJobs();
 
   nativeSources = startNativeSourceSupervisor(recordingGameId);
+  pmrSource.start();
   startTray(httpPort);
 
   if (firstRun) {

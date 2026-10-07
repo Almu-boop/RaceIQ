@@ -85,7 +85,7 @@ function SemanticTireDiagram({ frame, gameId }: { frame: SemanticAnalysisFrame; 
   return (
     <div className={`relative flex w-full ${hasSurfaceTemperatureProfile(frame) ? "max-w-88" : "max-w-xs"} flex-col gap-3 mx-auto`}>
       <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
-        <WeightShiftRadar frame={frame} />
+        <WeightShiftRadar frame={frame} gameId={gameId} />
       </div>
       <div className="flex items-center justify-between w-full">
         <div className="flex items-center gap-1">

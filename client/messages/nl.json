@@ -2374,5 +2374,9 @@
   "experiment_new_button": "+ Nieuw experiment",
   "dash_waiting_track": "Wachten op circuit…",
   "experiment_focus_car_agent_label": "Race-engineer",
-  "experiment_focus_driver_agent_label": "Rijcoach"
+  "experiment_focus_driver_agent_label": "Rijcoach",
+  "setupguide_pmr_same_pc": "Start Project Motor Racing op deze pc.",
+  "setupguide_pmr_udp": "Schakel UDP-telemetrie in via Instellingen → Voorkeuren. RaceIQ luistert op poort 7576.",
+  "setupguide_pmr_driving": "Ga naar een rijsessie en verlaat de menu’s.",
+  "setupguide_pmr_direct_note": "RaceIQ ontvangt PMR-telemetrie rechtstreeks; een tussenliggende app is niet nodig. UDP-protocollen v1 en v2 worden ondersteund. V2 gebruikt beschikbare native rondetijden; v1-rondetijden worden geschat."
 }

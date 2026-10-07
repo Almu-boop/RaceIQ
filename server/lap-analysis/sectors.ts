@@ -128,6 +128,13 @@ export async function computeLapSectors(
   if (packets.length < 50) return null;
 
   const game = getGame(gameId);
+  if (game.getNativeSectorTiming) {
+    const timing = packets.map(game.getNativeSectorTiming).findLast(t => t !== undefined);
+    if (!timing || timing.currentTimes.length < 2 || timing.currentSector !== timing.currentTimes.length-1) return null;
+    const completed = timing.currentTimes.slice(0,-1);
+    const final = lapTime-completed.reduce((a,b)=>a+b,0);
+    return completed.every(t => Number.isFinite(t) && t > 0) && Number.isFinite(final) && final > 0 ? [...completed,final] : null;
+  }
   if (game.nativeSectors) {
     if (!game.getNativeSectorLayout) return null;
     const timeline = computeNativeSectorTimeline(

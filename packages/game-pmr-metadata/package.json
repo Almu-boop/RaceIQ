@@ -1,0 +1,14 @@
+{
+  "name": "@raceiq/game-pmr-metadata",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./index": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "bunx tsc --project tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@raceiq/shared": "workspace:*"
+  }
+}
