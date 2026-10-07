@@ -8,6 +8,11 @@
 
 ### Fixes
 
+- Keep session Overview maps complete when an unfinished lap follows completed invalid laps.
+- Keep session Overview maps compact on wide screens and fit the driven lap line without hidden track edges shrinking it.
+- Correct the reversed AMS2 track direction arrow.
+- Restore the Analyse G-force dot and center the AMS2 suspension indicator, labelled as compression balance rather than measured wheel load.
+
 - Return AMS2 Live to connection instructions after telemetry stops, and clear live readings when the server disconnects.
 
 - Show AMS2 connection instructions when waiting for telemetry, including the required shared-memory setting and driving-session steps.

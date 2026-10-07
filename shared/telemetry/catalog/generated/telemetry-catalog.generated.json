@@ -11,7 +11,7 @@
     "sourceHashes": {
       "packages/game-ac-evo/src/parser.ts": "a3d22f183f9b53aa02063408c4ce569b007122b1f39900551b2c437da6ac29bf",
       "packages/game-acc/src/parser.ts": "44e7a44e5e3531068aeaa197e2127fd206532dc634707fb0d898d94d7791a89e",
-      "packages/game-ams2/src/normalizer.ts": "b8914fd9a4aab1f703a108b7c5bd6bdc72e9b49cca4296c58fbf0a41a9f53c1c",
+      "packages/game-ams2/src/normalizer.ts": "e44c61844b678ae3117237604bd4520d2f1548cfa3afcef9420940c9fef1d3ea",
       "packages/game-f1-2025/src/f1-state.ts": "c407d282745a3ac5cd1856f26d8467eaca6be0f4c73aa6d4f624ff7a2af1bea0",
       "packages/game-fm-2023/src/parser.ts": "dd476256f50870123ab00bf486d4ed998069f3ff1f368b7b36a368a0254f4463",
       "packages/game-iracing-metadata/src/session-info/catalog.ts": "4d39b51587bf71a519991ff91a7781efd01190cd633c8e8ef3f4234fa6affb98",
@@ -21,7 +21,7 @@
       "server/session-capture/frame-time.ts": "55c44a6cede5e2c5fb1e1c45568fe44b4a9a8b156f260f69bb5d89f9c24935a2",
       "shared/racing/setups/schema.ts": "11040a6a0d84ebdf7c9367303a563bb04e17891237b1a3e8d1fde58047419265"
     },
-    "contentHash": "2d1d377f634d2fae743339f39ee723706c496435d55278e89696b7d1f643365d"
+    "contentHash": "8aec24d5df6a73d68ae0e9e93221934019521617ec04a7e15b190171a427c1ff"
   },
   "generatedFrom": [
     "packages/tooling-catalog/src/root.ts",
@@ -25654,7 +25654,7 @@
             "AMS2.mOrientation.yaw"
           ],
           "freshness": "continuous",
-          "normalization": "f(L.mOrientation + 4)",
+          "normalization": "Math.atan2(-Math.sin(f(L.mOrientation + 4)), -Math.cos(f(L.mOrientation + 4)))",
           "description": "ams2 maps 1 native source channel into this value.",
           "provenance": {
             "origin": "parser",
@@ -25670,7 +25670,7 @@
               "AMS2.mOrientation.yaw"
             ],
             "missingDataPolicy": "require-all",
-            "codeHash": "79c08fe7ae011ee7a472bfd9bbea2be297260cdf842d4417250965d17fa8640a"
+            "codeHash": "ef913796a15f15e9db00ba7c93d6c7efe8564e4bcc2956225883d94a6bfa5b51"
           }
         }
       },

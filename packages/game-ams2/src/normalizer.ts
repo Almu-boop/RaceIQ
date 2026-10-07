@@ -58,7 +58,7 @@ export function normalizeAMS2Frame(raw: Buffer): TelemetryPacket | null {
     AngularVelocityX: f(L.mAngularVelocity + 0),
     AngularVelocityY: f(L.mAngularVelocity + 4),
     AngularVelocityZ: f(L.mAngularVelocity + 8),
-    Yaw: f(L.mOrientation + 4),
+    Yaw: Math.atan2(-Math.sin(f(L.mOrientation + 4)), -Math.cos(f(L.mOrientation + 4))),
     Pitch: f(L.mOrientation + 0),
     Roll: f(L.mOrientation + 8),
     NormSuspensionTravelFL: 0,

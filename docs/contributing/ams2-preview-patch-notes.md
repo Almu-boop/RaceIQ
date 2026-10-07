@@ -125,3 +125,11 @@ Validation: all seven AMS2 tests passed through the corrected package integratio
 - Scope still includes shared UI/Live/LAN fixes alongside AMS2. Submit as a draft and offer to split these into separate pull requests if the maintainer prefers.
 
 Validation: 57 focused native, WebSocket, LAN, sector, catalog and changelog tests passed; full typecheck and Linux production build passed. The resulting patch requires a fresh branch at upstream 31984af2. No pull request or remote branch was published by Codex during preparation.
+
+## 2026-10-06 — Map and display follow-up
+
+- Prefer completed laps for shared session-map alignment, including completed invalid laps ahead of unfinished tails.
+- Fit Overview maps to visible driven positions and keep their size compact on wide screens.
+- Correct AMS2 direction arrows, restore the shared Analyse G-force axis, and center the suspension compression-balance display.
+- Carry focused alignment, geometry, heading, G-force, and suspension regression coverage. PMR support is excluded from this PR update.
+- Validation: 25 AMS2/alignment/changelog tests and 40 client telemetry/geometry tests passed before the repository commit checks.
