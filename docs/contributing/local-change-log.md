@@ -65,3 +65,13 @@ Record date, user-visible problem, final behavior, important scope/limitations, 
 - Proposed scope: existing PMR/AMS2 source changes, shared UI/map fixes, related tests, generated catalogs, documentation, and Playwright build dependency configuration.
 - Exclude personal ams2-test-data, executables/build output, and the unreferenced iRacing SVG asset directory. Preserve these files locally.
 - No files were staged, committed, or pushed during preparation. Shawn subsequently approved creating and pushing this checkpoint to origin/pmr-support.
+
+## 2026-10-06 — Synchronize with upstream RaceIQ
+
+- Updated fork/local main to upstream 3d29e798 and local ams2-pr-review to the GitHub conflict-resolution commit debc4da9.
+- Preserved combined checkpoint 5f56ddc8 in backup/pmr-before-upstream-2026-10-06 before merging upstream into pmr-support.
+- Backed up untracked iRacing map assets under the chat workspace work/iracing-maps-before-sync-2026-10-06 before accepting upstream's tracked maps.
+- Retained upstream ignore entries and regenerated telemetry catalogs from merged source to resolve conflicts. No manual AMS2/PMR capture-code conflict resolution was needed.
+- Personal ams2-test-data remains excluded. Existing executable has not been rebuilt as part of this source synchronization.
+- Validation before merge commit: 29 AMS2/PMR/alignment tests, 32 client telemetry UI tests, and 36 changelog/race-result/session tests passed. Repository commit hooks also run before the merge is saved.
+- Initial commit hook typecheck encountered the known backend TS2589 incremental-cache failure. Backed up and removed only apps/backend/dist/tsconfig.tsbuildinfo before rerunning the checks.
