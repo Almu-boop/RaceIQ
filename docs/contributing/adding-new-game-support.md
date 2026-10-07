@@ -62,15 +62,17 @@ bun run telemetry:catalog:check
 - Preserve stable frame identity/version/length checks, full checkpoints at session/context boundaries and at most every 128 frames, and raw-frame fallback when a delta is not smaller. Sparse encoding must restore source bytes exactly; do not discard unparsed fields or downsample to reduce storage.
 - Integrate recording readers, import/reprocess, lap-offset seeks, and standalone lap export with existing sparse decoding. Verify byte-for-byte frame restoration and preservation of acquisition timestamps, including seeks and exported lap windows.
 - Provide a game-specific raw-dump command in root `package.json`, following existing `dev:dump:*` commands and the backend's `--record=<game-id>` wiring. Document the command and output directory. Implement session saving, `.bin.gz` import, and replay. Development dump containers and production canonical recordings are distinct; use the matching reader rather than decoding either ad hoc.
+- For AMS2 support, add `dev:dump:ams2` in root `package.json`, following `dev:dump:lmu` with `--record=ams2`. The PR must implement the corresponding raw source recorder and reader; adding a command without working capture support is insufficient.
 
 ## Record a fixture — human required
 
-Record the fixture by driving the game on a supported platform. Replay alone does not prove real source acquisition.
+**Use dump mode to record this fixture—not normal RaceIQ session recording.** Start the game's `bun run dev:dump:<suffix>` command before entering a session, drive the required laps, and leave the session before stopping the dump recorder. This captures the raw source transitions needed to test session detection and finalisation. Replay alone does not prove real source acquisition.
 
 1. Enable game telemetry and configure the UDP destination or native source permissions required by the integration.
-2. Run the new game's documented raw-dump command. Drive and record a real session, then stop capture cleanly with `Ctrl+C` so the recorder can flush; avoid hard kills.
+2. Start RaceIQ in **dump mode before starting the game session**, using the new game's documented `bun run dev:dump:<suffix>` command, which launches the backend with `--record=<game-id>`. Use the actual script name registered in root `package.json` (`bun run dev:dump:ams2` for AMS2 once implemented). Confirm the dump recorder starts before session entry and writes to the documented output directory. Ordinary `bun run dev` session recordings are not acceptable substitutes: fixture capture must include the source frames preceding session detection.
 3. Record **no more than 6 laps total**, including **at least one inlap, one outlap, one unclean lap, and one clean lap**. Start from the pits with an outlap if possible. If the session starts on track and cannot start from the pits, pit at the first opportunity to capture an inlap, then exit the pits to capture the following outlap. **The final lap does not need to be an inlap.**
 4. Supply the raw dump and capture notes: game build/settings, car/track, lap numbers, validity, sector splits, lap times, and delta-to-best values observed in the game. These are the independent expected values for fixture tests.
+5. End or leave the game session while dump mode remains running. Capture the source's session-end/menu transition and final timing updates before stopping with `Ctrl+C` so the dump recorder flushes. Supply notes identifying session start and end. This fixture must prove session detection and finalisation from real source transitions, not only forced finalisation when a replay reader reaches EOF.
 
 ## Fixture preparation
 
@@ -146,8 +148,9 @@ Fixture tests can use `parseDump` from `@raceiq/backend-core/test-support/record
 
 ### End-to-end tests
 
-- [ ] Add real-fixture recording tests under `packages/game-<id>/test/e2e/` and register them in the owning package's E2E manifest/task. Required missing fixtures fail rather than silently skip.
+- [ ] Include fixture tests in the PR under `packages/game-<id>/test/e2e/`, using real raw dumps captured in **dump mode before session start through session end**, not recordings saved by normal RaceIQ operation. Register tests in the owning package's E2E manifest/task. Required missing fixtures fail rather than silently skip.
 - [ ] Replay the capture through production parser, pipeline, lap detector, and persistence; verify the lap/timing/validity/pit/sector/delta outcomes listed in the recording fixture checklist below.
+- [ ] **Session lifecycle:** replay pre-session, session-entry, driving, and session-end frames through production parsing and pipeline processing. Assert the session starts at the correct source transition, laps belong to that session, and the end transition finalises it with correct final lap/timing results and no duplicate saves. Verify finalisation before replay EOF or forced test cleanup; an explicit EOF flush alone does not prove session-end detection.
 - [ ] Verify recording import/reprocessing and exported-lap replay preserve identity, source bytes, timestamps, and saved lap results.
 - [ ] Add browser coverage through the existing `playwright/` suite for game selection, populated Tracks/Cars pages, correctly mapped facts/guides, saved sessions, Analyse, Compare, and supported live telemetry. Use comparable fixture laps; unavailable data is not proof a feature is unsupported.
 - [ ] **Page reachability:** navigate to the new game's pages through application links and open their URLs directly, then reload. Cover game landing, Tracks, Cars, saved sessions, and fixture-backed lap/detail, Analyse, and Compare routes where supported. Verify the intended game/content loads—not a 404, error screen, redirect to another game, or empty shell.
@@ -204,6 +207,7 @@ Benchmark setup, scopes, and smoke commands: [performance benchmarks](performanc
 
 - [ ] **Human required:** real raw dump captured with **no more than 6 laps total**, covering **inlap, outlap, unclean lap, and clean lap**. Start from pits when possible; otherwise pit at the first opportunity, then capture the following outlap. Final lap need not be inlap.
   - **Identity and session:** record expected game, car, track/layout, and session association; laps from one uninterrupted session must not split into unrelated sessions.
+  - **Session lifecycle:** retain pre-session and post-session source frames in the dump; document observed entry/end transitions and verify detection and finalisation without relying solely on EOF cleanup.
   - **Lap boundaries and numbering:** record expected lap count and number sequence; test no duplicate or invented completed laps and no duplicate lap-saved events.
   - **Validity and pit transitions:** test the valid-lap channel and saved classification for clean, unclean, inlap, and outlap; distinguish pit-only opening segments and incomplete tails when present. Do not save a partial final lap as a valid completed lap.
   - **Lap timing:** compare saved times with observed/native times using documented precision; elapsed time resets at the physical lap boundary. Delayed previous-lap timing must attach to the correct lap, not the next one.
