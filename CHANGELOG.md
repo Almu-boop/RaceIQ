@@ -4,7 +4,7 @@
 - Reduce F1 race-result processing time from 4,851 ms to 567 ms (88.3% less time) in a matched benchmark; this does not measure end-to-end recording performance.
 
 - Add native Windows AMS2 telemetry capture through Project CARS 2 shared memory, with game-specific car and track identity.
-- Add UI scaling and separate Driver profiles for AMS2 and iRacing.
+- Add separate Driver profiles for AMS2 and iRacing.
 
 ### Fixes
 
@@ -19,7 +19,7 @@
 
 - Make date controls visibly interactive and restore Live child-page routing, production Raw Data updates and AMS2 game navigation.
 - Restore AMS2 live sector progression using telemetry track length and lap position; show available live tire pressures, use percentages in replay pedal charts, and exclude invalid laps from recorded PBs.
-- Build remote HUD QR links from usable LAN addresses, allow choosing between adapters, and keep game links visible on Live pages.
+- Keep game links visible on Live pages.
 
 ### Internal
 - Run AMS2 capture tests through the isolated integration test runner.

@@ -7,7 +7,6 @@ import type { LiveTelemetryFrameMessageV1, LiveTelemetrySchemaMessageV1 } from "
 import type { LiveTelemetryView } from "../lib/live-telemetry-view";
 import { buildLiveTelemetryView } from "../lib/live-telemetry-view";
 export interface DisplaySettings {
-  uiScale: number;
   unit: "metric" | "imperial";
   temperatureUnit: "C" | "F";
   aiProvider: "gemini" | "openai" | "openai-compatible";
@@ -52,7 +51,6 @@ export interface DisplaySettings {
 }
 
 export const DEFAULT_DISPLAY_SETTINGS: DisplaySettings = {
-  uiScale: 100,
   unit: "metric",
   temperatureUnit: "C",
   aiProvider: "gemini",

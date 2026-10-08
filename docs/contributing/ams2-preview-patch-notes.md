@@ -133,3 +133,11 @@ Validation: 57 focused native, WebSocket, LAN, sector, catalog and changelog tes
 - Correct AMS2 direction arrows, restore the shared Analyse G-force axis, and center the suspension compression-balance display.
 - Carry focused alignment, geometry, heading, G-force, and suspension regression coverage. PMR support is excluded from this PR update.
 - Validation: 25 AMS2/alignment/changelog tests and 40 client telemetry/geometry tests passed before the repository commit checks.
+
+
+## 2026-10-07 — Separate UI scaling and network review
+
+- Move the saved interface scaling feature to the independent ui-scaling-pr branch.
+- Move remote HUD address filtering, adapter selection, and its Portable page implementation to the independent network-hud-pr branch.
+- Earlier entries describe the combined preview history; those two features are no longer part of this AMS2 review branch. The combined pmr-support branch retains them.
+- AMS2 dump fixtures, catalog extraction, browser verification, and performance acceptance remain separate follow-up work.
