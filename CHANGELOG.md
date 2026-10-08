@@ -4,6 +4,7 @@
 - Reduce F1 race-result processing time from 4,851 ms to 567 ms (88.3% less time) in a matched benchmark; this does not measure end-to-end recording performance.
 
 ### Fixes
+- Make session dates and times visibly clickable, with link styling and keyboard controls for expanding laps.
 - Preserve incomplete-lap eligibility and LMU first-outlap classification across ordinal detector transitions.
 
 ### Internal
