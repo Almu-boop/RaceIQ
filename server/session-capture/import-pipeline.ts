@@ -392,6 +392,10 @@ export function importSessionFrames(
       }
       expectsSessionContext = false;
       completeLapStart = false;
+      if (serverGame.isSessionEndFrame?.(frame)) {
+        await pipeline.finalizeCurrentSession();
+        return false;
+      }
       const packet = serverGame.tryParseLapIndex(frame, state);
       if (!packet) return false;
       applyFrameTime(packet, frameTimeMs);

@@ -2,6 +2,7 @@ import { KNOWN_GAME_IDS, type GameId } from "@raceiq/shared/games/ids";
 import { getAllServerGames } from "../games/registry";
 import { hasLMUDumpMagic, readLMUFramesFromBuffer } from "@raceiq/capture-formats/lmu/dump";
 import { IRACING_DUMP_MAGIC, readIRacingFramesFromBuffer } from "@raceiq/capture-formats/iracing/dump";
+import { hasAMS2DumpMagic, readAMS2DumpFramesFromBuffer } from "@raceiq/capture-formats/ams2/dump";
 import {
   decompressIfGzipSync,
   iterateSessionFrames,
@@ -29,7 +30,7 @@ export function detectGameIdFromBuffer(bytes: Buffer): GameId | null {
   const buf = decompressIfGzipSync(bytes);
   const games = getAllServerGames();
   let checked = 0;
-  const frames = hasLMUDumpMagic(buf) ? readLMUFramesFromBuffer(buf)
+  const frames = hasAMS2DumpMagic(buf) ? readAMS2DumpFramesFromBuffer(buf) : hasLMUDumpMagic(buf) ? readLMUFramesFromBuffer(buf)
     : buf.subarray(0, IRACING_DUMP_MAGIC.length).equals(IRACING_DUMP_MAGIC)
       ? readIRacingFramesFromBuffer(buf, 20) : iterateSessionFrames(buf);
   for (const frame of frames) {
@@ -50,6 +51,12 @@ function* canonicalImportFrames(bytes: Buffer) {
   }
 }
 
+function* ams2ImportFrames(bytes: Buffer) {
+  for (const frame of readAMS2DumpFramesFromBuffer(bytes)) {
+    yield {frame, frameTimeMs: frame.readDoubleLE(8)};
+  }
+}
+
 
 /** Replay a canonical session capture through parser, detector, and persistence pipeline. */
 export async function importSessionBin(
@@ -58,7 +65,9 @@ export async function importSessionBin(
   options: ImportSessionOptions = {},
 ): Promise<{ packetCount: number; laps: ImportedLap[] }> {
   const buf = decompressIfGzipSync(bytes);
-  const frames = gameId === "lmu" && hasLMUDumpMagic(buf)
+  const frames = gameId === "ams2" && hasAMS2DumpMagic(buf)
+    ? ams2ImportFrames(buf)
+    : gameId === "lmu" && hasLMUDumpMagic(buf)
     ? readLMUFramesFromBuffer(buf)
     : gameId === "iracing" && buf.subarray(0, IRACING_DUMP_MAGIC.length).equals(IRACING_DUMP_MAGIC)
       ? readIRacingFramesFromBuffer(buf) : canonicalImportFrames(buf);

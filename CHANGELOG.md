@@ -22,6 +22,7 @@
 - Keep game links visible on Live pages.
 
 ### Internal
+- Add AMS2 development dump recording and replay, preserving raw menu/session transitions and undecoded mapped data for fixture testing.
 - Run AMS2 capture tests through the isolated integration test runner.
 - Complete AMS2 telemetry catalog provenance, native units, extension coverage and supported fuel projections.
 - Avoid per-packet serialization and hashing during race-result reconciliation while retaining raw capture identity and processing provenance.

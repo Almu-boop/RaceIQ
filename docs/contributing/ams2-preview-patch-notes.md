@@ -141,3 +141,12 @@ Validation: 57 focused native, WebSocket, LAN, sector, catalog and changelog tes
 - Move remote HUD address filtering, adapter selection, and its Portable page implementation to the independent network-hud-pr branch.
 - Earlier entries describe the combined preview history; those two features are no longer part of this AMS2 review branch. The combined pmr-support branch retains them.
 - AMS2 dump fixtures, catalog extraction, browser verification, and performance acceptance remain separate follow-up work.
+
+
+## 2026-10-07 — Add AMS2 raw dump capture
+
+- Add dev:dump:ams2 and start capture before the AMS2 process/session appears. Preserve menu, pause/replay, driving and post-session snapshots in a separate development dump container.
+- Preserve acquisition UTC and the complete readable Windows mapped region, including undecoded extensions. Keep old prefix-only recordings readable and extend existing lossless sparse recording to variable-sized frames.
+- Add raw/gzip readers, developer dump import, canonical import/reprocessing and replay support. Finalise an active AMS2 session on its native menu/exit frame before recording EOF; replay states do not end it.
+- Add controlled native Windows mapping, synthetic lifecycle, malformed dump and exact restoration checks. These do not replace the maintainer-required real driving fixture.
+- Document the capture command, six-lap maximum, independent timing/validity/sector/delta observations, output path, shutdown and compression workflow. Real-game acquisition, timing acceptance, extracted catalogs, browser E2E and benchmarks remain pending.

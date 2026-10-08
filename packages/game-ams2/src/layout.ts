@@ -1,6 +1,7 @@
-// AMS2 PCars2 shared-memory ABI, versions 8–13. Offsets checked with C++ offsetof
+// AMS2 PCars2 shared-memory ABI, versions 8–14. Offsets checked with C++ offsetof
 // against Simulator Controller's SharedMemory.h (default four-byte field alignment).
-// Only the stable prefix through air pressure is captured; later additions are not read.
+// Only the stable prefix through air pressure is decoded. Capture preserves the
+// full readable Windows mapped region, including currently undecoded extensions.
 export const AMS2_MAPPING_NAME = "$pcars2$";
 export const AMS2_MEMORY_SIZE = 7388;
 export const PARTICIPANT_SIZE = 100;

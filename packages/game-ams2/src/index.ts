@@ -4,14 +4,20 @@ import type { ServerGameAdapter } from "@raceiq/backend-core/games/types";
 import { renderAnalystSchemaForPrompt } from "@raceiq/backend-core/ai/schemas";
 import { classifyPitCycleLap } from "@raceiq/analysis-core/racing/laps/pit-cycle";
 import { normalizeAMS2Frame } from "./normalizer";
-import { decodeAMS2Frame } from "./frame";
+import { decodeAMS2Frame, isAMS2SessionEndFrame } from "./frame";
+function parseDrivingFrame(buffer: Buffer) {
+  const frame = decodeAMS2Frame(buffer);
+  if (!frame || ![2, 3, 4].includes(frame.memory.readUInt32LE(8))) return null;
+  return normalizeAMS2Frame(buffer);
+}
 export const ams2ServerAdapter: ServerGameAdapter = {
   ...ams2Adapter,
   runtime: {pit: {seedFuelFromHistory: true, seedTireWearFromHistory: true, useDistanceBasedWearCurves: true}, bestLapFromSession: false, requiresTrackCalibration: false, normSuspensionTravelMm: {min: 0, max: 100}},
   processNames: ["AMS2AVX.exe", "AMS2.exe"],
   canHandle: buffer => decodeAMS2Frame(buffer) !== null,
-  tryParse: buffer => normalizeAMS2Frame(buffer),
-  tryParseLapIndex: buffer => normalizeAMS2Frame(buffer),
+  isSessionEndFrame: isAMS2SessionEndFrame,
+  tryParse: parseDrivingFrame,
+  tryParseLapIndex: parseDrivingFrame,
   primeParserState: () => {}, createParserState: () => null,
   createLapDetector: options => new LapDetector({...options, bypassPacketRateFilter: true, policy: {
     resolveLapTime: (_packets, next) => next.LastLap > 0 ? next.LastLap : 0,

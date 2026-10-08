@@ -252,6 +252,7 @@
       "dependencies": {
         "@raceiq/analysis-core": "workspace:*",
         "@raceiq/backend-core": "workspace:*",
+        "@raceiq/capture-formats": "workspace:*",
         "@raceiq/game-ams2-metadata": "workspace:*",
         "@raceiq/shared": "workspace:*",
       },

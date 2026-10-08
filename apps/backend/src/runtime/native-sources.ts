@@ -69,7 +69,11 @@ export function startNativeSourceSupervisor(
       getIracingSource,
       setIracingSource,
     ));
-    trackStop(superviseSource(isGameRunning("ams2"), "AMS2", () => new AMS2TelemetrySource(), getAms2Source, setAms2Source));
+    trackStop(superviseSource(
+      isGameRunning("ams2") || recordingGameId === "ams2", "AMS2",
+      () => new AMS2TelemetrySource({ recordingEnabled: recordingGameId === "ams2" }),
+      getAms2Source, setAms2Source,
+    ));
     trackStop(superviseSource(
       isGameRunning("lmu") || recordingGameId === "lmu",
       recordingGameId === "lmu" && !isGameRunning("lmu") ? "LMU recording" : "LMU",

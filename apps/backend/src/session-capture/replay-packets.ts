@@ -1,3 +1,4 @@
+import { hasAMS2DumpMagic, readAMS2DumpFramesFromBuffer } from "@raceiq/capture-formats/ams2/dump";
 import { readFileSync } from "node:fs";
 import type { GameId } from "@raceiq/shared/games/ids";
 import { getAccCarByModel } from "@raceiq/game-acc-metadata/racing/cars/acc";
@@ -29,7 +30,10 @@ function readFramedPackets(gameId: GameId, recordingPath: string): TelemetryPack
   const bytes = decompressIfGzipSync(readFileSync(recordingPath));
   const packets: TelemetryPacket[] = [];
   let inContext = false;
-  for (const record of iterateSessionCaptureRecords(bytes)) {
+  const records = hasAMS2DumpMagic(bytes)
+    ? Array.from(readAMS2DumpFramesFromBuffer(bytes), frame => ({kind: "frame" as const, frame, frameTimeMs: frame.readDoubleLE(8)}))
+    : iterateSessionCaptureRecords(bytes);
+  for (const record of records) {
     if (record.kind === "segment-boundary") {
       parserState = game.createParserState?.() ?? null;
       inContext = false;

@@ -24,6 +24,9 @@ Use Bun 1.4.2 (the repository's pinned version). Run the build on Windows; the n
 
 ## First live test
 
+For the required raw fixture, follow [AMS2 dump recording](ams2-dump-recording.md).
+Normal session recordings are not substitutes for pre-session through post-session dumps.
+
 1. In AMS2's System settings, set **Shared Memory** to **Project CARS 2**. UDP is not required.
 2. Start the modified RaceIQ and AMS2. Select AMS2 in RaceIQ, enter a practice session and leave the pits.
 3. Verify the log progresses from `[AMS2] Waiting for telemetry` to `[AMS2] Connected to PCars2 shared memory` and `[AMS2] Receiving telemetry: <car> at <track>`.
@@ -37,6 +40,6 @@ If connection never appears, verify the shared-memory setting and process detect
 
 Linux validation covers malformed frames, ABI rejection, pause/replay states, input/fuel/pressure normalization, immutable snapshots, duplicate/odd sequence rejection, exact replay across sparse checkpoints, an outlap followed by two valid synthetic laps, and game registration. The client build and catalog consistency check also run. This does not verify Windows FFI or actual AMS2 telemetry.
 
-Only the stable PCars2 shared-memory prefix is read, accepting ABI versions 8–13. Later fields such as full compound/sector/extended participant data are not decoded. Unsupported analysis channels are marked unavailable. Track names are discovered immediately; outlines depend on existing RaceIQ recording-based track generation and are not prebundled for AMS2. PMR and a UI redesign are outside this preview.
+The stable PCars2 prefix is decoded, accepting ABI versions 8–14. Windows x64 capture preserves the full readable mapped region, including page padding and undecoded extensions; replay also accepts older prefix-only frames. Later fields such as full compound/sector/extended participant data are not decoded. Unsupported analysis channels are marked unavailable. Track names are discovered immediately; outlines depend on existing RaceIQ recording-based track generation and are not prebundled for AMS2. PMR and a UI redesign are outside this preview.
 
 Reference for checked shared-memory layout: Simulator Controller's Sources/Special/AMS2 SHM Connector/AMS2 SHM Connector/SharedMemory.h and AMS2 SHM Connector.cpp (https://github.com/SeriousOldMan/Simulator-Controller).
