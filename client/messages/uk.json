@@ -2374,5 +2374,7 @@
   "experiment_new_button": "+ Новий експеримент",
   "dash_waiting_track": "Очікування траси…",
   "experiment_focus_car_agent_label": "Гоночний інженер",
-  "experiment_focus_driver_agent_label": "Тренер пілота"
+  "experiment_focus_driver_agent_label": "Тренер пілота",
+  "settings_ui_scale": "Масштаб інтерфейсу",
+  "settings_ui_scale_desc": "Збільште текст і елементи керування. На великому моніторі спробуйте 125% або 150%."
 }

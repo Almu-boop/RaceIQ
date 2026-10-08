@@ -2374,5 +2374,7 @@
   "experiment_search_aria": "Cerca esperimenti",
   "experiment_guide": "Guida",
   "experiment_new_button": "+ Nuovo esperimento",
-  "dash_waiting_track": "In attesa del tracciato…"
+  "dash_waiting_track": "In attesa del tracciato…",
+  "settings_ui_scale": "Scala dell’interfaccia",
+  "settings_ui_scale_desc": "Ingrandisci testo e controlli. Prova 125% o 150% su un monitor grande."
 }

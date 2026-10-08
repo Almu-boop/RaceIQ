@@ -2374,5 +2374,7 @@
   "dash_waiting_track": "Esperando el circuito…",
   "experiment_focus_car_agent_label": "Ingeniero de carrera",
   "experiment_focus_driver_agent_label": "Entrenador de conducción",
-  "tune_confirm": "Confirmar"
+  "tune_confirm": "Confirmar",
+  "settings_ui_scale": "Escala de la interfaz",
+  "settings_ui_scale_desc": "Amplía el texto y los controles. Prueba 125% o 150% en un monitor grande."
 }

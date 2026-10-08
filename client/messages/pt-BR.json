@@ -2374,5 +2374,7 @@
   "experiment_focus_car_agent_label": "Engenheiro de corrida",
   "experiment_focus_driver_agent_label": "Treinador de pilotagem",
   "analyse_ai_analysis": "Análise de IA",
-  "insight_category_suspension": "Suspensão"
+  "insight_category_suspension": "Suspensão",
+  "settings_ui_scale": "Escala da interface",
+  "settings_ui_scale_desc": "Amplie o texto e os controles. Experimente 125% ou 150% em um monitor grande."
 }

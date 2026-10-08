@@ -44,6 +44,20 @@ export function GeneralSection() {
           </p>
         )}
       </div>
+      <div className="max-w-xs mb-6">
+        <Label htmlFor="settings-ui-scale" className="text-app-text-secondary">{m.settings_ui_scale()}</Label>
+        <div className="mt-1.5">
+          <SearchSelect
+            id="settings-ui-scale"
+            ariaLabel={m.settings_ui_scale()}
+            value={String(displaySettings.uiScale ?? 100)}
+            onChange={(value) => saveSettings.mutate({ uiScale: Number(value) })}
+            options={[100, 115, 125, 150, 175, 200].map(scale => ({ value: String(scale), label: `${scale}%` }))}
+          />
+        </div>
+        <p className="text-app-text-muted text-xs mt-1">{m.settings_ui_scale_desc()}</p>
+        {saveSettings.isError && <p className="text-status-danger text-xs mt-1" role="alert">{m.label_failed_to_save()}</p>}
+      </div>
       <div className="max-w-xs">
         <Label htmlFor="launch-on-login" className={`${displaySettings.isCompiled ? "text-app-text-secondary" : "text-app-text-muted"}`}>
           {m.label_launch_on_login()}

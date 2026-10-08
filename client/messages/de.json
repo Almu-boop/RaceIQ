@@ -2398,5 +2398,7 @@
   "experiment_new_button": "+ Neues Experiment",
   "dash_waiting_track": "Warte auf Strecke…",
   "experiment_focus_car_agent_label": "Renningenieur",
-  "experiment_focus_driver_agent_label": "Fahrercoach"
+  "experiment_focus_driver_agent_label": "Fahrercoach",
+  "settings_ui_scale": "Oberflächenskalierung",
+  "settings_ui_scale_desc": "Text und Bedienelemente vergrößern. Auf einem großen Monitor 125% oder 150% ausprobieren."
 }
