@@ -2375,5 +2375,8 @@
   "experiment_guide": "Guida",
   "experiment_new_button": "+ Nuovo esperimento",
   "dash_waiting_track": "In attesa del tracciato…",
-  "dash_lan_address": "Indirizzo di rete locale"
+  "dash_lan_address": "Indirizzo di rete locale",
+  "dash_hostname_label": "Nome host personalizzato (facoltativo)",
+  "dash_hostname_help": "Usa un nome host, ad esempio un FQDN Tailscale, per link HUD e codici QR. Lascia vuoto per usare un IP locale. Il dispositivo deve poter raggiungere il nome host.",
+  "dash_hostname_invalid": "Inserisci solo un nome host, senza http://, porta o percorso."
 }

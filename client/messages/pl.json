@@ -2375,5 +2375,8 @@
   "experiment_focus_driver_agent_label": "Trener kierowcy",
   "ob_community_body": "RaceIQ to projekt open source, który rozwija się dzięki społeczności. Każdy może pomóc — rozpowszechniając informacje, zgłaszając pomysły i błędy lub współtworząc kod.",
   "settings_port_range_error": "Port musi mieścić się w zakresie 1024–65535",
-  "dash_lan_address": "Adres sieci lokalnej"
+  "dash_lan_address": "Adres sieci lokalnej",
+  "dash_hostname_label": "Własna nazwa hosta (opcjonalnie)",
+  "dash_hostname_help": "Użyj nazwy hosta, np. FQDN Tailscale, w linkach HUD i kodach QR. Pozostaw puste, aby użyć lokalnego IP. Urządzenie musi mieć dostęp do tego hosta.",
+  "dash_hostname_invalid": "Wpisz tylko nazwę hosta, bez http://, portu ani ścieżki."
 }

@@ -2,6 +2,11 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { QRCodeSVG } from "qrcode.react";
 import { useState, type ReactNode } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useSettings, useSaveSettings } from "@/hooks/settings";
+import { normalizeHudHostname, hudUrl } from "@raceiq/shared/platform/network/hud-hostname";
 import { SearchSelect } from "@/components/ui/SearchSelect";
 import { client } from "@/lib/rpc";
 import { rpcJson } from "@/lib/rpc-json";
@@ -39,14 +44,32 @@ function useNetworkInfo() {
 
 export function DashCatalogue() {
   const { data, isPending, isError } = useNetworkInfo();
+  const {displaySettings, settingsLoaded} = useSettings();
+  const saveSettings = useSaveSettings();
+  const [hostnameDraft, setHostnameDraft] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const hostname = displaySettings.hudHostname ?? "";
+  const draft = hostnameDraft ?? hostname;
+  const normalized = normalizeHudHostname(draft);
+  async function saveHostname() {
+    if (normalized === null) return;
+    setSaveError(false);
+    try {
+      await saveSettings.mutateAsync({hudHostname: normalized});
+      setHostnameDraft(null);
+      setSaved(true);
+    } catch { setSaveError(true); }
+  }
   const [selectedIp, setSelectedIp] = useState<string | null>(null);
   const lanIps = data?.lanIps ?? [];
   const currentHost = typeof window === "undefined" ? undefined : window.location.hostname;
   const lanIp = selectedIp && lanIps.includes(selectedIp) ? selectedIp : lanIps.find((ip) => ip === currentHost) ?? lanIps[0];
-  const port = typeof window !== "undefined" ? window.location.port || data?.port : data?.port;
+  const host = hostname || lanIp;
+  const port = hostname ? data?.port : typeof window !== "undefined" ? window.location.port || data?.port : data?.port;
 
-  const networkStatusKind = isPending ? "loading" : isError ? "error" : !lanIp || !port ? "no-data" : null;
-  const networkStatus = isPending || isError || !lanIp || !port ? (isPending ? m.common_loading() : m.dash_lan_unavailable()) : null;
+  const networkStatusKind = isPending ? "loading" : isError ? "error" : !host || !port ? "no-data" : null;
+  const networkStatus = isPending || isError || !host || !port ? (isPending ? m.common_loading() : m.dash_lan_unavailable()) : null;
 
   const previewFor = (slug: DashMeta["slug"]): ReactNode => {
     if (slug === "combo-1") {
@@ -66,12 +89,30 @@ export function DashCatalogue() {
             </p>
           ) : (
             <p className="mt-2 text-xs text-app-text/40 font-mono" role="status" aria-live="polite" data-network-state="ready">
-              {m.dash_serving_at()} http://{lanIp}:{port}
+              {m.dash_serving_at()} {hudUrl(host, port)}
             </p>
           )}
         </div>
 
-        {lanIps.length > 1 && (
+        <div className="mb-6 max-w-lg space-y-2">
+          <Label htmlFor="hud-hostname">{m.dash_hostname_label()}</Label>
+          <div className="flex items-center gap-3">
+            <Input id="hud-hostname" value={draft} placeholder="race-pc.example.ts.net"
+              disabled={!settingsLoaded || saveSettings.isPending}
+              aria-invalid={normalized === null}
+              aria-describedby="hud-hostname-help hud-hostname-status"
+              onChange={event => {setHostnameDraft(event.target.value); setSaved(false); setSaveError(false);}}
+              onKeyDown={event => {if (event.key === "Enter" && normalized !== null && settingsLoaded && !saveSettings.isPending) void saveHostname();}} />
+            <Button onClick={saveHostname} disabled={!settingsLoaded || saveSettings.isPending || normalized === null || normalized === hostname}>
+              {saveSettings.isPending ? m.common_saving() : saved ? m.common_saved() : m.common_save()}
+            </Button>
+          </div>
+          <p id="hud-hostname-help" className="text-xs text-app-text-muted">{m.dash_hostname_help()}</p>
+          <p id="hud-hostname-status" role="status" aria-live="polite" className="text-xs text-status-danger">
+            {normalized === null ? m.dash_hostname_invalid() : saveError ? m.label_failed_to_save() : ""}
+          </p>
+        </div>
+        {!hostname && lanIps.length > 1 && (
           <div className="mb-6 flex items-center gap-3 text-sm">
             <label htmlFor="hud-lan-address">{m.dash_lan_address()}</label>
             <SearchSelect id="hud-lan-address" value={lanIp ?? ""} onChange={setSelectedIp}
@@ -80,7 +121,7 @@ export function DashCatalogue() {
         )}
         <ul className="grid grid-cols-1 gap-6 @5xl/workspace:grid-cols-2">
           {DASH_META.map((d) => {
-            const url = lanIp && port ? `http://${lanIp}:${port}${d.href}` : null;
+            const url = hudUrl(host, port, d.href);
             return (
               <li key={d.slug} className="rounded-lg border border-app-text/10 bg-app-text/[0.03] overflow-hidden">
                 <Link to={d.href} className="block group">

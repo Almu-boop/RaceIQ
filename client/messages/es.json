@@ -2375,5 +2375,8 @@
   "experiment_focus_car_agent_label": "Ingeniero de carrera",
   "experiment_focus_driver_agent_label": "Entrenador de conducción",
   "tune_confirm": "Confirmar",
-  "dash_lan_address": "Dirección de red local"
+  "dash_lan_address": "Dirección de red local",
+  "dash_hostname_label": "Nombre de host alternativo (opcional)",
+  "dash_hostname_help": "Usa un nombre de host, como un FQDN de Tailscale, para enlaces HUD y códigos QR. Déjalo vacío para usar una IP local. El dispositivo debe poder acceder al nombre de host.",
+  "dash_hostname_invalid": "Introduce solo un nombre de host, sin http://, puerto ni ruta."
 }
