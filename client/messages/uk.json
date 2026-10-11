@@ -64,7 +64,7 @@
   "settings_port_range_error": "Порт має бути в діапазоні 1024–65535",
   "settings_launch_installed_only": "Доступно лише у встановленому застосунку",
   "settings_launch_on_login_desc": "Автоматично запускати RaceIQ під час входу у Windows.",
-  "settings_connection_title": "Підключення Forza",
+  "settings_connection_title": "Підключення гри",
   "settings_connection_desc": "Укажіть UDP-порт для прослуховування. У Forza перейдіть у Settings > Gameplay > Data Out, задайте IP-адресу цього пристрою та вкажіть порт нижче.",
   "settings_listening_on": "Прослуховується порт",
   "settings_live_refresh_rate": "Частота оновлення наживо",
@@ -2389,5 +2389,9 @@
   "setupguide_pmr_driving": "Почніть заїзд і вийдіть із меню.",
   "setupguide_pmr_direct_note": "RaceIQ отримує телеметрію PMR безпосередньо, без проміжного застосунку. Підтримуються протоколи UDP v1 і v2. V2 використовує доступний час кола з гри; час кола v1 оцінюється.",
   "weightshiftradar_lateral_suspension": "Підвіска ліворуч/праворуч",
-  "weightshiftradar_lateral_suspension_note": "Лише баланс ходу підвіски; це не виміряне навантаження на колеса."
+  "weightshiftradar_lateral_suspension_note": "Лише баланс ходу підвіски; це не виміряне навантаження на колеса.",
+  "settings_udp_game": "Порт приймання гри",
+  "settings_udp_restart": "Перезапустіть RaceIQ після збереження. Порт має збігатися з портом гри або програми пересилання.",
+  "settings_udp_conflict": "PMR має використовувати інший порт, ніж Forza, F1 і спільний порт UDP.",
+  "settings_udp_pmr_help": "Увімкніть телеметрію UDP у PMR. Якщо інша програма пересилає телеметрію до RaceIQ, укажіть нижче її порт призначення."
 }

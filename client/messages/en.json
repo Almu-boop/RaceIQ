@@ -64,7 +64,7 @@
   "settings_language_search_placeholder": "Search language...",
   "settings_launch_installed_only": "Only available in installed app",
   "settings_launch_on_login_desc": "Automatically start RaceIQ when you log into Windows.",
-  "settings_connection_title": "Forza Connection",
+  "settings_connection_title": "Game connection",
   "settings_connection_desc": "Set the UDP port to listen on. In Forza: Settings > Gameplay > Data Out > set IP to this machine's address and the port below.",
   "settings_listening_on": "Listening on",
   "settings_live_refresh_rate": "Live Refresh Rate",
@@ -2389,5 +2389,9 @@
   "setupguide_pmr_driving": "Enter a driving session and leave the menus.",
   "setupguide_pmr_direct_note": "RaceIQ receives PMR telemetry directly; no bridge app is required. UDP protocols v1 and v2 are supported. V2 uses native lap timing when available; v1 lap times are estimated.",
   "weightshiftradar_lateral_suspension": "Left/right suspension",
-  "weightshiftradar_lateral_suspension_note": "Suspension travel balance only; this is not measured wheel load."
+  "weightshiftradar_lateral_suspension_note": "Suspension travel balance only; this is not measured wheel load.",
+  "settings_udp_game": "Game listening port",
+  "settings_udp_restart": "Restart RaceIQ after saving. Match this port to the game or forwarding application.",
+  "settings_udp_conflict": "PMR must use a different port from Forza, F1 and the shared UDP port.",
+  "settings_udp_pmr_help": "Enable UDP telemetry in PMR. If another app forwards telemetry to RaceIQ, use its forwarding destination port below."
 }

@@ -64,7 +64,7 @@
   "settings_port_range_error": "Poort moet tussen 1024 en 65535 liggen",
   "settings_launch_installed_only": "Alleen beschikbaar in de geïnstalleerde app",
   "settings_launch_on_login_desc": "RaceIQ automatisch starten wanneer je je aanmeldt bij Windows.",
-  "settings_connection_title": "Forza-verbinding",
+  "settings_connection_title": "Spelverbinding",
   "settings_connection_desc": "Stel de UDP-poort in waarop geluisterd wordt. Ga in Forza naar Settings > Gameplay > Data Out > stel het IP-adres in op dat van deze machine en gebruik de onderstaande poort.",
   "settings_listening_on": "Luistert op",
   "settings_live_refresh_rate": "Verversingssnelheid live",
@@ -2389,5 +2389,9 @@
   "setupguide_pmr_driving": "Ga naar een rijsessie en verlaat de menu’s.",
   "setupguide_pmr_direct_note": "RaceIQ ontvangt PMR-telemetrie rechtstreeks; een tussenliggende app is niet nodig. UDP-protocollen v1 en v2 worden ondersteund. V2 gebruikt beschikbare native rondetijden; v1-rondetijden worden geschat.",
   "weightshiftradar_lateral_suspension": "Vering links/rechts",
-  "weightshiftradar_lateral_suspension_note": "Alleen de balans van de veerweg; geen gemeten wiellast."
+  "weightshiftradar_lateral_suspension_note": "Alleen de balans van de veerweg; geen gemeten wiellast.",
+  "settings_udp_game": "Luisterpoort voor het spel",
+  "settings_udp_restart": "Herstart RaceIQ na het opslaan. Gebruik dezelfde poort als het spel of de doorstuurtoepassing.",
+  "settings_udp_conflict": "PMR moet een andere poort gebruiken dan Forza, F1 en de gedeelde UDP-poort.",
+  "settings_udp_pmr_help": "Schakel UDP-telemetrie in PMR in. Stuurt een andere app telemetrie door naar RaceIQ, gebruik dan hieronder de doelpoort."
 }

@@ -62,7 +62,7 @@
   "settings_language_search_placeholder": "Hae kieltä...",
   "settings_launch_installed_only": "Saatavilla vain asennetussa sovelluksessa",
   "settings_launch_on_login_desc": "Käynnistä RaceIQ automaattisesti, kun kirjaudut Windowsiin.",
-  "settings_connection_title": "Forza-yhteys",
+  "settings_connection_title": "Peliyhteys",
   "settings_connection_desc": "Aseta kuunneltava UDP-portti. Forzassa: Asetukset > Pelattavuus > Data Out > aseta IP-osoitteeksi tämän laitteen osoite ja portiksi alla oleva portti.",
   "settings_listening_on": "Kuunnellaan portissa",
   "settings_live_refresh_rate": "Live-päivitystaajuus",
@@ -2389,5 +2389,9 @@
   "setupguide_pmr_driving": "Siirry ajosessioon ja poistu valikoista.",
   "setupguide_pmr_direct_note": "RaceIQ vastaanottaa PMR-telemetrian suoraan ilman välityssovellusta. UDP-protokollia v1 ja v2 tuetaan. V2 käyttää saatavilla olevia pelin kierrosaikoja; v1:n kierrosajat arvioidaan.",
   "weightshiftradar_lateral_suspension": "Jousitus vasen/oikea",
-  "weightshiftradar_lateral_suspension_note": "Vain jousitusliikkeen tasapaino; ei mitattu pyöräkuorma."
+  "weightshiftradar_lateral_suspension_note": "Vain jousitusliikkeen tasapaino; ei mitattu pyöräkuorma.",
+  "settings_udp_game": "Pelin kuunteluportti",
+  "settings_udp_restart": "Käynnistä RaceIQ uudelleen tallennuksen jälkeen. Portin on vastattava pelin tai välityssovelluksen porttia.",
+  "settings_udp_conflict": "PMR:n portin on oltava eri kuin Forzan, F1:n ja yhteisen UDP-portin.",
+  "settings_udp_pmr_help": "Ota UDP-telemetria käyttöön PMR:ssä. Jos toinen sovellus välittää telemetriaa RaceIQ:lle, käytä alla sen kohdeporttia."
 }

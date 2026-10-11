@@ -145,14 +145,15 @@ export async function bootServer(options: BootOptions = {}): Promise<RunningServ
   }
 
   let nativeSources: NativeSourceSupervisor | null = null;
-  const pmrSource = new PMRTelemetrySource();
+  const pmrSource = new PMRTelemetrySource({port: settings.gameUdpPorts.pmr});
   installShutdown({
     getNativeSources: () => ({stop: async () => {await pmrSource.stop(); await nativeSources?.stop();}}),
   });
 
   const udpPort = options.udpPort
     ?? (Number(process.env.RACEIQ_DEV_UDP_PORT) || settings.udpPort || Number(process.env.UDP_PORT) || 5301);
-  void udpListener.start(udpPort);
+  udpListener.setGamePorts(settings.gameUdpPorts);
+  void udpListener.start(udpPort).catch(error => console.error("[UDP] Could not start configured receivers:", error));
 
   startSyncAndStaleSessionJobs();
 

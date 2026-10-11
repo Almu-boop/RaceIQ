@@ -62,7 +62,7 @@
   "settings_language_search_placeholder": "Szukaj języka...",
   "settings_launch_installed_only": "Dostępne tylko w zainstalowanej aplikacji",
   "settings_launch_on_login_desc": "Uruchamiaj RaceIQ automatycznie po zalogowaniu do systemu Windows.",
-  "settings_connection_title": "Połączenie z Forza",
+  "settings_connection_title": "Połączenie z grą",
   "settings_connection_desc": "Ustaw port UDP nasłuchu. W Forza: Ustawienia > Rozgrywka > Wyjście danych > ustaw adres IP tego komputera i port poniżej.",
   "settings_listening_on": "Nasłuchiwanie na",
   "settings_live_refresh_rate": "Częstotliwość odświeżania na żywo",
@@ -2389,5 +2389,9 @@
   "setupguide_pmr_driving": "Wejdź do sesji jazdy i opuść menu.",
   "setupguide_pmr_direct_note": "RaceIQ odbiera telemetrię PMR bezpośrednio, bez aplikacji pośredniczącej. Obsługiwane są protokoły UDP v1 i v2. V2 korzysta z dostępnych czasów okrążeń z gry; czasy v1 są szacowane.",
   "weightshiftradar_lateral_suspension": "Zawieszenie lewo/prawo",
-  "weightshiftradar_lateral_suspension_note": "Tylko równowaga skoku zawieszenia; nie jest to zmierzone obciążenie kół."
+  "weightshiftradar_lateral_suspension_note": "Tylko równowaga skoku zawieszenia; nie jest to zmierzone obciążenie kół.",
+  "settings_udp_game": "Port odbioru gry",
+  "settings_udp_restart": "Po zapisaniu uruchom ponownie RaceIQ. Port musi odpowiadać portowi gry lub aplikacji przekazującej dane.",
+  "settings_udp_conflict": "PMR musi używać innego portu niż Forza, F1 i wspólny port UDP.",
+  "settings_udp_pmr_help": "Włącz telemetrię UDP w PMR. Jeśli inna aplikacja przekazuje telemetrię do RaceIQ, użyj poniżej jej portu docelowego."
 }

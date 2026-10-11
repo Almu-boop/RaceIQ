@@ -12,9 +12,16 @@ const SETTINGS_PATH = `${SETTINGS_DIR}/settings.json`;
 // explicitly pick a provider in Settings before any AI feature runs.
 const AiProviderSchema = z.enum(["", "gemini", "openai", "openai-compatible"]).default("");
 
+export const GameUdpPortsSchema = z.object({
+  "fm-2023": z.number().int().min(1024).max(65535).optional(),
+  "f1-2025": z.number().int().min(1024).max(65535).optional(),
+  pmr: z.number().int().min(1024).max(65535).optional(),
+}).strict();
+
 const AppSettingsSchema = z.object({
   onboardingComplete: z.boolean().default(false),
   driverName: z.string().default(""),
+  gameUdpPorts: GameUdpPortsSchema.default({}),
   udpPort: z.number().int().min(1024).max(65535).default(5301),
   unit: z.enum(["metric", "imperial"]).default("metric"),
   temperatureUnit: z.enum(["C", "F"]).default("C"),
@@ -61,6 +68,11 @@ const AppSettingsSchema = z.object({
   communityTunesVersion: z.string().nullable().default(null),
   communityTunesSyncedAt: z.string().nullable().default(null),
 });
+
+export function validateGameUdpPorts(ports: z.infer<typeof GameUdpPortsSchema>, fallback: number): boolean {
+  const pmr = ports.pmr ?? 7576;
+  return ![fallback, ports["fm-2023"] ?? fallback, ports["f1-2025"] ?? fallback].includes(pmr);
+}
 
 export type AppSettings = z.infer<typeof AppSettingsSchema>;
 
