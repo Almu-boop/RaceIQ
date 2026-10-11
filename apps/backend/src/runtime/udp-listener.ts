@@ -30,6 +30,10 @@ class UdpListener {
   private _packetsInWindow = 0;
   private _packetsPerSec = 0;
   private _socket: { stop(): void } | null = null;
+  private _gamePorts: { "fm-2023"?: number; "f1-2025"?: number } = {};
+  setGamePorts(ports: { "fm-2023"?: number; "f1-2025"?: number }): void {
+    this._gamePorts = ports;
+  }
   private _port = 5301;
   private _hostname = "0.0.0.0";
   private _recorder: SessionRecorder | null = null;
@@ -60,7 +64,7 @@ class UdpListener {
   /**
    * Pin a recording gameId. When set, `start()` opens a timestamped .bin file
    * under test/artifacts/sessions/ and every incoming datagram is appended to it
-   * (in addition to the normal parse → pipeline → DB/WS flow). Mirrors how the
+   * (in addition to the normal parse â†’ pipeline â†’ DB/WS flow). Mirrors how the
    * AccSharedMemoryReader/AcEvoSharedMemoryReader constructors create their
    * .bin files when `recordingEnabled=true`. Used by `dev:dump:fm` / `dev:dump:f1`.
    */
@@ -84,7 +88,7 @@ class UdpListener {
     // Use dgram for socket buffer tuning — Bun.udpSocket doesn't expose setsockopt
     const dgram = require("node:dgram");
     const sock = dgram.createSocket("udp4");
-    sock.on("message", (sourceFrame: Buffer) => this.handlePacket(sourceFrame));
+    sock.on("message", (sourceFrame: Buffer) => this.handlePacket(sourceFrame, port));
     await new Promise<void>((resolve, reject) => {
       sock.bind(port, hostname, () => {
         try {
@@ -96,9 +100,26 @@ class UdpListener {
         } catch {}
         resolve();
       });
-      sock.on("error", reject);
+      sock.once("error", (error: Error) => { sock.close(); reject(error); });
     });
-    this._socket = { stop: () => sock.close() };
+    const sockets = [sock];
+    this._socket = { stop: () => { for (const socket of sockets) socket.close(); } };
+    const extraPorts = new Set(Object.values(this._gamePorts).filter(value => value !== port));
+    try {
+      for (const extraPort of extraPorts) {
+        const extra = dgram.createSocket("udp4");
+        sockets.push(extra);
+        extra.on("message", (frame: Buffer) => this.handlePacket(frame, extraPort));
+        await new Promise<void>((resolve, reject) => {
+          extra.once("error", reject);
+          extra.bind(extraPort, hostname, resolve);
+        });
+        console.log(`[UDP] Listening on ${hostname}:${extraPort}`);
+      }
+    } catch (error) {
+      await this.stop();
+      throw error;
+    }
 
     console.log(`[UDP] Listening on ${hostname}:${port}`);
 
@@ -188,7 +209,7 @@ class UdpListener {
     }, PACKETS_PER_SEC_WINDOW);
   }
 
-  private async handlePacket(sourceFrame: Buffer): Promise<void> {
+  private async handlePacket(sourceFrame: Buffer, sourcePort: number = this._port): Promise<void> {
     const frameTimeMs = Date.now();
     this._totalPackets++;
     this._packetsInWindow++;
@@ -203,7 +224,7 @@ class UdpListener {
     this._recorder?.writeRecord(sourceFrame, frameTimeMs);
 
     const runningGame = getRunningGame();
-    if (runningGame?.id === "fm-2023" && isForzaRaceOffPacket(sourceFrame)) {
+    if (sourcePort === (this._gamePorts["fm-2023"] ?? this._port) && runningGame?.id === "fm-2023" && isForzaRaceOffPacket(sourceFrame)) {
       // FM emits the same zeroed packet during pit service and after the race.
       // Keep live ownership; a resumed race replaces this provisional snapshot.
       if (this._forzaRaceActive) await lapDetector.snapshotIncompleteLap();
@@ -213,6 +234,9 @@ class UdpListener {
     // Returns null when another game is paused/in menus.
     const packet = parsePacket(sourceFrame);
     if (!packet) return;
+    const gamePort = packet.gameId === "fm-2023" || packet.gameId === "f1-2025"
+      ? this._gamePorts[packet.gameId] ?? this._port : this._port;
+    if (sourcePort !== gamePort) return;
 
     this._receiving = true;
     if (packet.gameId === "fm-2023") this._forzaRaceActive = true;

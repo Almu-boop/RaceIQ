@@ -3,6 +3,7 @@
 ### Features
 
 - Add a Project Motor Racing preview with direct UDP telemetry, game-specific car and track discovery, live data, lap recording and replay.
+- Add saved UDP listening ports for PMR, Forza Motorsport and F1, applied after restarting RaceIQ.
 - Reduce F1 race-result processing time from 4,851 ms to 567 ms (88.3% less time) in a matched benchmark; this does not measure end-to-end recording performance.
 
 ### Fixes

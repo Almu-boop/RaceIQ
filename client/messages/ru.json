@@ -62,7 +62,7 @@
   "settings_language_search_placeholder": "Поиск языка...",
   "settings_launch_installed_only": "Доступно только в установленном приложении",
   "settings_launch_on_login_desc": "Автоматически запускать RaceIQ при входе в Windows.",
-  "settings_connection_title": "Подключение Forza",
+  "settings_connection_title": "Подключение игры",
   "settings_connection_desc": "Укажите UDP-порт для прослушивания. В Forza откройте Settings > Gameplay > Data Out, укажите IP-адрес этого компьютера и порт ниже.",
   "settings_listening_on": "Прослушивание порта",
   "settings_live_refresh_rate": "Частота обновления в реальном времени",
@@ -2378,5 +2378,9 @@
   "setupguide_pmr_same_pc": "Запустите Project Motor Racing на этом ПК.",
   "setupguide_pmr_udp": "Включите UDP-телеметрию в Настройки → Предпочтения. RaceIQ слушает порт 7576.",
   "setupguide_pmr_driving": "Начните заезд и выйдите из меню.",
-  "setupguide_pmr_direct_note": "RaceIQ получает телеметрию PMR напрямую, без приложения-посредника. Поддерживаются протоколы UDP v1 и v2. V2 использует доступное время круга из игры; время круга v1 рассчитывается приблизительно."
+  "setupguide_pmr_direct_note": "RaceIQ получает телеметрию PMR напрямую, без приложения-посредника. Поддерживаются протоколы UDP v1 и v2. V2 использует доступное время круга из игры; время круга v1 рассчитывается приблизительно.",
+  "settings_udp_game": "Порт приёма игры",
+  "settings_udp_restart": "Перезапустите RaceIQ после сохранения. Порт должен совпадать с портом игры или приложения пересылки.",
+  "settings_udp_conflict": "PMR должен использовать порт, отличный от Forza, F1 и общего порта UDP.",
+  "settings_udp_pmr_help": "Включите телеметрию UDP в PMR. Если другое приложение пересылает телеметрию в RaceIQ, укажите ниже его порт назначения."
 }

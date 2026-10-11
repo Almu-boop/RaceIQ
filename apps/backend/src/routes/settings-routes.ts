@@ -8,7 +8,7 @@ import { GameIdQuerySchema } from "@raceiq/shared/platform/http/route-schemas";
 import { udpListener } from "../runtime/udp-listener";
 import { wsManager } from "@raceiq/backend-core/runtime/websocket-manager";
 import { lapDetector } from "@raceiq/backend-core/telemetry/live-pipeline";
-import { loadSettings, saveSettings, PartialSettingsSchema } from "@raceiq/backend-core/runtime/config/settings";
+import { loadSettings, saveSettings, PartialSettingsSchema, validateGameUdpPorts } from "@raceiq/backend-core/runtime/config/settings";
 import { getSecret, setSecret } from "@raceiq/backend-core/runtime/platform/keystore";
 import { enableLaunchOnLogin, disableLaunchOnLogin, getLaunchOnLoginExeDir } from "@raceiq/backend-core/runtime/platform/launch-on-login";
 import { getLapStats } from "@raceiq/backend-core/db/lap-read-queries";
@@ -244,7 +244,9 @@ export const settingsRoutes = new Hono()
   // PUT /api/settings
   .put("/api/settings", async (c) => {
     const body = await c.req.json();
-    const parseResult = PartialSettingsSchema.parse(body);
+    const parsed = PartialSettingsSchema.safeParse(body);
+    if (!parsed.success) return c.json({error: parsed.error.message}, 400);
+    const parseResult = parsed.data;
     const current = loadSettings();
     // Only merge keys explicitly sent in the request body (Zod partial applies defaults for missing fields)
     const provided: Record<string, unknown> = {};
@@ -252,6 +254,9 @@ export const settingsRoutes = new Hono()
       if (key in parseResult) provided[key] = (parseResult as Record<string, unknown>)[key];
     }
     const merged = { ...current, ...provided };
+    if (!validateGameUdpPorts(merged.gameUdpPorts, merged.udpPort)) {
+      return c.json({ error: "udp_port_conflict" }, 400);
+    }
     const startedAt = performance.now();
 
     try {

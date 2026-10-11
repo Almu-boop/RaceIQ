@@ -64,7 +64,7 @@
   "settings_language_search_placeholder": "言語を検索...",
   "settings_launch_installed_only": "インストール版アプリでのみ利用可能",
   "settings_launch_on_login_desc": "Windowsへのログイン時にRaceIQを自動起動します。",
-  "settings_connection_title": "Forza接続",
+  "settings_connection_title": "ゲーム接続",
   "settings_connection_desc": "待ち受けるUDPポートを設定します。Forzaで「設定」>「ゲームプレイ」>「データ出力」を開き、IPをこのマシンのアドレス、ポートを下記の値に設定してください。",
   "settings_listening_on": "待ち受け中：",
   "settings_live_refresh_rate": "ライブ更新頻度",
@@ -2378,5 +2378,9 @@
   "setupguide_pmr_same_pc": "このPCでProject Motor Racingを起動してください。",
   "setupguide_pmr_udp": "設定 → 環境設定でUDPテレメトリを有効にしてください。RaceIQはポート7576で受信します。",
   "setupguide_pmr_driving": "走行セッションに入り、メニューを閉じてください。",
-  "setupguide_pmr_direct_note": "RaceIQはPMRのテレメトリを直接受信します。中継アプリは不要です。UDPプロトコルv1とv2に対応しています。v2は取得できるゲームのラップタイムを使用し、v1のラップタイムは推定します。"
+  "setupguide_pmr_direct_note": "RaceIQはPMRのテレメトリを直接受信します。中継アプリは不要です。UDPプロトコルv1とv2に対応しています。v2は取得できるゲームのラップタイムを使用し、v1のラップタイムは推定します。",
+  "settings_udp_game": "ゲームの受信ポート",
+  "settings_udp_restart": "保存後にRaceIQを再起動してください。ゲームまたは転送アプリと同じポートを指定してください。",
+  "settings_udp_conflict": "PMRにはForza、F1、共通UDPポートとは異なるポートを指定してください。",
+  "settings_udp_pmr_help": "PMRでUDPテレメトリを有効にしてください。別のアプリからRaceIQへ転送する場合は、下にその転送先ポートを指定してください。"
 }
