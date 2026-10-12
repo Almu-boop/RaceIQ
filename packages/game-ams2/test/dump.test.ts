@@ -38,6 +38,50 @@ function memoryFixture(): Buffer {
 }
 
 describe("AMS2 dump-mode capture", () => {
+  test("retains stale qualifying-to-race bytes without creating an extra live session", async () => {
+    let memory = memoryFixture();
+    const dumped: Buffer[] = [];
+    const db = new CapturingDbAdapter();
+    const detector = ams2ServerAdapter.createLapDetector({ db });
+    const source = new AMS2TelemetrySource({
+      recordingEnabled: true,
+      recorder: {
+        recording: true, start: () => "unused", flush() {}, async stop() {},
+        writeFrame: raw => { dumped.push(Buffer.from(raw)); },
+      },
+      reader: { start() {}, async stop() {}, readLatest: () => memory },
+      registerIdentity: async () => {},
+      dispatchRawFrame: async raw => { await detector.feed(ams2ServerAdapter.tryParse(raw, null)!); },
+    });
+    try {
+      memory.writeUInt32LE(3, L.mSessionState);
+      memory.writeUInt32LE(3, L.mRaceState);
+      memory.writeUInt32LE(5, P + 92);
+      memory.writeFloatLE(64, L.mLastLapTime);
+      expect(await source.pollOnce()).toBe(true);
+      expect(db.sessions).toHaveLength(1);
+      memory.writeUInt32LE(5, L.mSessionState);
+      memory.writeUInt32LE(2, L.mSequenceNumber);
+      expect(await source.pollOnce()).toBe(false);
+      expect(db.sessions).toHaveLength(1);
+      expect(source.getDiagnostics().staleTransition).toBe(1);
+      expect(decodeAMS2Frame(dumped[1])!.memory.equals(memory)).toBe(true);
+      memory = memoryFixture();
+      memory.writeUInt32LE(1, L.mRaceState);
+      memory.writeUInt32LE(4, L.mSequenceNumber);
+      expect(await source.pollOnce()).toBe(true);
+      expect(db.sessions).toHaveLength(2);
+      expect(db.sessions.map(session => session.sessionType)).toEqual(["qualifying", "race"]);
+      // Finishing the current race is still accepted.
+      memory.writeUInt32LE(3, L.mRaceState);
+      memory.writeUInt32LE(6, L.mSequenceNumber);
+      expect(await source.pollOnce()).toBe(true);
+      expect(dumped).toHaveLength(4);
+    } finally {
+      await source.stop();
+      await detector.finalizeCurrentSession?.();
+    }
+  });
   test("opens before session entry and restores full source bytes from raw and gzip streams", async () => {
     const directory = mkdtempSync(join(tmpdir(), "ams2-dump-"));
     const recorder = new AMS2DumpRecorder();
@@ -208,6 +252,10 @@ describe("AMS2 dump-mode capture", () => {
       reader.start();
       expect(reader.connected).toBe(true);
       expect(reader.readLatest()).toEqual(memory);
+      memory.writeUInt32LE(3, L.mSequenceNumber);
+      lib.symbols.RtlCopyMemory(view, ptr(memory), memory.length);
+      expect(reader.readLatest()).toBeNull();
+      expect(reader.getDiagnostics()).toMatchObject({ accepted: 1, writerBusy: 1 });
     } finally {
       await reader.stop();
       if (view) lib.symbols.UnmapViewOfFile(view);

@@ -28,6 +28,34 @@ function fixture(): Buffer {
 }
 const packet = (b:Buffer,t=1800000000000) => normalizeAMS2Frame(encodeAMS2Frame(b,t,1))!;
 describe("AMS2 native capture",()=>{
+  test("capture diagnostics distinguish busy processing, empty reads, duplicates and rejected frames", async () => {
+    let memory: Buffer | null = fixture();
+    let release!: () => void;
+    const source = new AMS2TelemetrySource({
+      reader: { start() {}, async stop() {}, readLatest: () => memory },
+      registerIdentity: async () => {},
+      dispatchRawFrame: async () => new Promise<void>(resolve => { release = resolve; }),
+    });
+    const first = source.pollOnce();
+    // Identity registration yields before dispatch begins.
+    await Promise.resolve();
+    expect(await source.pollOnce()).toBe(false);
+    release();
+    expect(await first).toBe(true);
+    expect(await source.pollOnce()).toBe(false);
+    memory!.writeUInt32LE(3, L.mSequenceNumber);
+    expect(await source.pollOnce()).toBe(false);
+    memory!.writeUInt32LE(4, L.mSequenceNumber);
+    memory!.writeUInt32LE(15, L.mVersion);
+    expect(await source.pollOnce()).toBe(false);
+    memory = null;
+    expect(await source.pollOnce()).toBe(false);
+    expect(source.getDiagnostics()).toMatchObject({
+      polls: 6, processingBusy: 1, noSnapshot: 1, duplicates: 1,
+      writerBusy: 1, malformed: 1, dispatched: 1, errors: 0,
+    });
+    await source.stop();
+  });
   test("decodes native units and rejects malformed or unsupported frames",()=>{
     const b=fixture(); const p=packet(b);
     expect(p).toMatchObject({gameId:"ams2",Speed:50,Fuel:40,Accel:191,Gear:3,IsRaceOn:1});

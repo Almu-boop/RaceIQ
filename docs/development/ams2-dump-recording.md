@@ -73,6 +73,23 @@ Polling is requested every 10 ms with serial dispatch; actual accepted update
 rate depends on the game and storage. This does not claim verified native 100 Hz
 or persisted benchmark acceptance. No samples are fabricated to raise the rate.
 
+Dump mode prints `[AMS2] Capture totals` every ten seconds and when stopped.
+These are cumulative counters for the source instance. `processingBusy` counts
+polls skipped while an earlier packet is still processing; `noSnapshot` counts
+empty reader results. Reader counters distinguish an absent mapping
+(`disconnected`), an odd writer sequence (`writerBusy`), a sequence changed
+between copies (`sequenceChanged`), and differing bytes with the same sequence
+(`bytesChanged`). `duplicates`, `malformed`, `dispatched`, and `errors` describe
+later source processing. Keep the console log with the dump when investigating
+missing samples; dumps contain accepted snapshots and cannot recover rejected
+reads. These counters do not relax the existing snapshot consistency checks.
+
+`staleTransition` counts snapshots whose session type changes while the native
+race state still says finished. They remain in the raw dump but are withheld
+from live processing until the new session publishes a non-finished state.
+This guard applies to live capture; importing an existing raw dump does not
+apply the source's transition guard.
+
 An active session's menu/exit transition finalises production persistence before
 EOF, without publishing retained menu readings as live driving telemetry. Pausing
 and replay are not treated as proof of a session end. Native delayed timing,

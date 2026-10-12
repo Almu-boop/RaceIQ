@@ -8,6 +8,8 @@
 
 ### Fixes
 
+- Prevent retained qualifying timing from creating a spurious AMS2 race session during live recording transitions.
+
 - Keep AMS2 lap exports readable when exporting later laps or multiple laps from a compressed recording.
 
 - Keep session Overview maps complete when an unfinished lap follows completed invalid laps.
@@ -24,6 +26,7 @@
 - Keep game links visible on Live pages.
 
 ### Internal
+- Report AMS2 dump-mode capture counters for rejected memory reads and busy processing.
 - Add AMS2 development dump recording and replay, preserving raw menu/session transitions and undecoded mapped data for fixture testing.
 - Run AMS2 capture tests through the isolated integration test runner.
 - Complete AMS2 telemetry catalog provenance, native units, extension coverage and supported fuel projections.

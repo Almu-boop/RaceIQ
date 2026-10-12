@@ -2,7 +2,7 @@ import { registerDiscoveredCar } from "@raceiq/backend-core/db/discovered-cars";
 import { registerDiscoveredTrack } from "@raceiq/backend-core/db/discovered-tracks";
 import { processPacket, lapDetector } from "@raceiq/backend-core/telemetry/live-pipeline";
 import { parsePacket } from "@raceiq/backend-core/games/packet-dispatch";
-import { AMS2SharedMemoryReader } from "./memory-reader";
+import { AMS2SharedMemoryReader, type AMS2ReadDiagnostics } from "./memory-reader";
 import { AMS2_LAYOUT as L } from "./layout";
 import { encodeAMS2Frame, isAMS2SessionEndFrame } from "./frame";
 import { normalizeAMS2Frame } from "./normalizer";
@@ -12,6 +12,7 @@ interface FrameReader {
   start(): void;
   stop(): Promise<void>;
   readLatest(): Buffer | null;
+  getDiagnostics?(): AMS2ReadDiagnostics;
 }
 export interface AMS2SourceOptions {
   reader?: FrameReader;
@@ -42,6 +43,22 @@ export class AMS2TelemetrySource {
   private readonly options: AMS2SourceOptions;
   private readonly onSessionEnd: () => Promise<void>;
   private lastFlushAt = 0;
+  private sessionState: number | null = null;
+  private lastDiagnosticAt = 0;
+  private readonly diagnostics = {
+    polls: 0, processingBusy: 0, noSnapshot: 0, duplicates: 0, writerBusy: 0,
+    malformed: 0, staleTransition: 0, dispatched: 0, errors: 0,
+  };
+
+  getDiagnostics() { return { ...this.diagnostics, reader: this.reader.getDiagnostics?.() }; }
+
+  private logDiagnostics(force = false): void {
+    if (!this.options.recordingEnabled) return;
+    const now = Date.now();
+    if (!force && now - this.lastDiagnosticAt < 10_000) return;
+    this.lastDiagnosticAt = now;
+    console.log(`[AMS2] Capture totals: ${JSON.stringify(this.getDiagnostics())}`);
+  }
   constructor(options: AMS2SourceOptions = {}) {
     this.options = options;
     this.recorder = options.recorder ?? new AMS2DumpRecorder();
@@ -91,12 +108,19 @@ export class AMS2TelemetrySource {
       this.wasInSession = false;
       this.identityKey = "";
       this.lapTime = 0;
+      this.sessionState = null;
+      this.logDiagnostics(true);
       if (this.options.recordingEnabled) await this.recorder.stop();
     }
   }
   pollOnce(): Promise<boolean> {
     // Serial dispatch prevents unbounded frame queues when persistence slows.
-    if (this.pending) return Promise.resolve(false);
+    this.diagnostics.polls++;
+    this.logDiagnostics();
+    if (this.pending) {
+      this.diagnostics.processingBusy++;
+      return Promise.resolve(false);
+    }
     this.pending = this.poll().finally(() => {
       this.pending = null;
     });
@@ -107,12 +131,17 @@ export class AMS2TelemetrySource {
       const memory = this.reader.readLatest();
       const time = Date.now(); // Acquisition UTC, before parsing, copying, or queues.
       if (!memory) {
+        this.diagnostics.noSnapshot++;
         this.sequence = null;
         this.lastMemory = null;
         return false;
       }
       const sequence = memory.readUInt32LE(L.mSequenceNumber);
-      if (sequence & 1 || (sequence === this.sequence && this.lastMemory && memory.equals(this.lastMemory))) return false;
+      if (sequence & 1) { this.diagnostics.writerBusy++; return false; }
+      if (sequence === this.sequence && this.lastMemory && memory.equals(this.lastMemory)) {
+        this.diagnostics.duplicates++;
+        return false;
+      }
       this.sequence = sequence;
       this.lastMemory = Buffer.from(memory);
       const gameState = memory.readUInt32LE(L.mGameState);
@@ -137,11 +166,13 @@ export class AMS2TelemetrySource {
           this.wasInSession = false;
           this.lapTime = 0;
           this.identityKey = "";
+          this.sessionState = null;
         }
         return false;
       }
       let packet = normalizeAMS2Frame(raw);
       if (!packet) {
+        this.diagnostics.malformed++;
         writeDump();
         if (Date.now() - this.lastErrorAt > 5000) {
           console.warn(
@@ -151,6 +182,15 @@ export class AMS2TelemetrySource {
         }
         return false;
       }
+      const sessionState = memory.readUInt32LE(L.mSessionState);
+      // AMS2 briefly changes session type before clearing the previous session's
+      // finished timing. Keep those bytes in dumps, but do not open a live session.
+      if (this.sessionState !== null && sessionState !== this.sessionState && memory.readUInt32LE(L.mRaceState) === 3) {
+        this.diagnostics.staleTransition++;
+        writeDump();
+        return false;
+      }
+      this.sessionState = sessionState;
       const restarted = this.wasInSession && inSession && packet.LapNumber === 1 && packet.CurrentLap + 1 < this.lapTime && packet.LastLap <= 0;
       if ((!this.wasInSession && inSession) || restarted) {
         this.epoch = (this.epoch + 1) >>> 0;
@@ -167,8 +207,10 @@ export class AMS2TelemetrySource {
         console.log(`[AMS2] Receiving telemetry: ${packet.ams2?.carName} at ${packet.ams2?.trackName}; ABI ${memory.readUInt32LE(L.mVersion)}`);
       }
       await this.dispatch(raw, time);
+      this.diagnostics.dispatched++;
       return true;
     } catch (error) {
+      this.diagnostics.errors++;
       if (Date.now() - this.lastErrorAt > 5000) {
         console.error("[AMS2] Telemetry frame failed:", error);
         this.lastErrorAt = Date.now();

@@ -22,6 +22,14 @@ interface Kernel32Library {
   symbols: Kernel32Symbols;
 }
 
+export interface AMS2ReadDiagnostics {
+  disconnected: number;
+  writerBusy: number;
+  sequenceChanged: number;
+  bytesChanged: number;
+  accepted: number;
+}
+
 /** Bun FFI reader for AMS2's PCars2 mapping. */
 export class AMS2SharedMemoryReader {
   private kernel32: Kernel32Library | null = null;
@@ -36,6 +44,12 @@ export class AMS2SharedMemoryReader {
   constructor(mappingName = AMS2_MAPPING_NAME) {
     this.mappingName = mappingName;
   }
+
+  private readonly diagnostics: AMS2ReadDiagnostics = {
+    disconnected: 0, writerBusy: 0, sequenceChanged: 0, bytesChanged: 0, accepted: 0,
+  };
+
+  getDiagnostics(): AMS2ReadDiagnostics { return { ...this.diagnostics }; }
 
   get connected(): boolean {
     return this.mapped !== null;
@@ -60,15 +74,26 @@ export class AMS2SharedMemoryReader {
 
   readLatest(): Buffer | null {
     const mapped = this.mapped;
-    if (!mapped || !this.kernel32 || !this.ffiPointer) return null;
+    if (!mapped || !this.kernel32 || !this.ffiPointer) {
+      this.diagnostics.disconnected++;
+      return null;
+    }
 
     // Require identical full snapshots with the same even writer sequence.
     const sequence = AMS2_LAYOUT.mSequenceNumber;
     this.copyMappedMemory(this.snapshot, mapped.dataView);
     const before = this.snapshot.readUInt32LE(sequence);
-    if (before & 1) return null;
+    if (before & 1) { this.diagnostics.writerBusy++; return null; }
     this.copyMappedMemory(this.verificationSnapshot, mapped.dataView);
-    if (this.verificationSnapshot.readUInt32LE(sequence) !== before || !this.snapshot.equals(this.verificationSnapshot)) return null;
+    if (this.verificationSnapshot.readUInt32LE(sequence) !== before) {
+      this.diagnostics.sequenceChanged++;
+      return null;
+    }
+    if (!this.snapshot.equals(this.verificationSnapshot)) {
+      this.diagnostics.bytesChanged++;
+      return null;
+    }
+    this.diagnostics.accepted++;
     // The returned buffer is immutable; later polls must not overwrite queued frames.
     return Buffer.from(this.snapshot);
   }
