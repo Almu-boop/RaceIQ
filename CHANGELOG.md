@@ -8,6 +8,8 @@
 
 ### Fixes
 
+- Keep AMS2 lap exports readable when exporting later laps or multiple laps from a compressed recording.
+
 - Keep session Overview maps complete when an unfinished lap follows completed invalid laps.
 - Keep session Overview maps compact on wide screens and fit the driven lap line without hidden track edges shrinking it.
 - Correct the reversed AMS2 track direction arrow.
