@@ -29,6 +29,7 @@
 - Keep game links visible on Live pages.
 
 ### Internal
+- Add compact real AMS2 raw-dump fixtures covering session lifecycle, Time Trial crossings, race-start validity, qualifying and pit stops.
 - Report AMS2 dump-mode capture counters for rejected memory reads and busy processing.
 - Add AMS2 development dump recording and replay, preserving raw menu/session transitions and undecoded mapped data for fixture testing.
 - Run AMS2 capture tests through the isolated integration test runner.
