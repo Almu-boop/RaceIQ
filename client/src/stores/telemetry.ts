@@ -100,10 +100,8 @@ export interface ServerStatus {
   detectedGame: { id: string; name: string } | null;
   currentSession: {
     id: number;
-    carOrdinal: number;
-    trackOrdinal: number;
-    carId: number | string;
-    trackId: number | string;
+    carId: string;
+    trackId: string;
   } | null;
 }
 
