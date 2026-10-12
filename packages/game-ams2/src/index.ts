@@ -2,10 +2,10 @@ import { ams2Adapter } from "@raceiq/game-ams2-metadata/index";
 import { LapDetector } from "@raceiq/backend-core/lap-detection/detector";
 import type { ServerGameAdapter } from "@raceiq/backend-core/games/types";
 import { renderAnalystSchemaForPrompt } from "@raceiq/backend-core/ai/schemas";
-import { classifyPitCycleLap } from "@raceiq/analysis-core/racing/laps/pit-cycle";
 import { normalizeAMS2Frame } from "./normalizer";
 import { decodeAMS2Frame, isAMS2SessionEndFrame } from "./frame";
 import { resolveAMS2LapReset } from "./lap-reset";
+import { classifyAMS2PitCycle, resolveAMS2InvalidReason } from "./lap-validity";
 function parseDrivingFrame(buffer: Buffer) {
   const frame = decodeAMS2Frame(buffer);
   if (!frame || ![2, 3, 4].includes(frame.memory.readUInt32LE(8))) return null;
@@ -23,8 +23,8 @@ export const ams2ServerAdapter: ServerGameAdapter = {
   createLapDetector: options => new LapDetector({...options, bypassPacketRateFilter: true, policy: {
     resolveLapReset: resolveAMS2LapReset,
     resolveLapTime: (_packets, next) => next.LastLap > 0 ? next.LastLap : 0,
-    classifyPitCycle: (packets, count) => classifyPitCycleLap(packets) ?? (count === 0 ? "outlap" : null),
-    invalidReason: packets => packets.some(p => p.ams2?.lapInvalidated) ? "game-invalidated" : null,
+    classifyPitCycle: classifyAMS2PitCycle,
+    invalidReason: resolveAMS2InvalidReason,
   }}),
   aiSystemPrompt: `You are an Automobilista 2 driving coach. Use only the supplied telemetry. Never infer unavailable slip or setup data. Return JSON matching: ${renderAnalystSchemaForPrompt()}`,
 };

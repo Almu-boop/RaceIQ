@@ -39,6 +39,33 @@ function makePackets(
 }
 
 describe("assessLapRecording", () => {
+  const gridPackets = (count = 100, lapDistance = 5000) => makePackets(count, {
+    endX: 200, lapDistance,
+  }).map(p => ({ ...p, gameId: "ams2" as const, LapNumber: 1,
+    ams2: { carName: "Test car", trackName: "Test track", trackLengthM: 5000,
+      lapDistanceM: 0, sessionType: "race", lapInvalidated: false, inPits: false } }));
+
+  test("allows a captured AMS2 grid start to finish away from its starting position", () => {
+    expect(assessLapRecording(gridPackets(), 90)).toEqual({ valid: true, reason: null });
+  });
+
+  test("still checks closure for later laps, mid-race capture, other sessions and games", () => {
+    for (const kind of ["later", "mid-race", "practice", "other-game"] as const) {
+      const packets = gridPackets();
+      if (kind === "later") packets.forEach(p => { p.LapNumber = 2; });
+      if (kind === "mid-race") packets[0].CurrentLap = 10;
+      if (kind === "practice") packets.forEach(p => { p.ams2.sessionType = "practice"; });
+      const input: TelemetryPacket[] = packets;
+      if (kind === "other-game") input.forEach(p => { p.gameId = "fm-2023"; });
+      expect(assessLapRecording(input, 90).reason).toBe("start/end positions too far apart");
+    }
+  });
+
+  test("grid-start exception retains packet count, distance and timing checks", () => {
+    expect(assessLapRecording(gridPackets(10), 90).reason).toBe("too few telemetry packets");
+    expect(assessLapRecording(gridPackets(100, 50), 90).reason).toBe("telemetry distance too short");
+    expect(assessLapRecording(gridPackets(), 95).reason).toBe("telemetry lap time mismatch");
+  });
   test("valid lap passes all checks", () => {
     const packets = makePackets(100, { lapTime: 90 });
     const result = assessLapRecording(packets, 90);

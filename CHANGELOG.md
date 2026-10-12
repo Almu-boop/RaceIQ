@@ -7,6 +7,7 @@
 - Add separate Driver profiles for AMS2 and iRacing.
 
 ### Fixes
+- Accept captured AMS2 first race laps from the starting grid when the initial invalid flag clears, while preserving later invalidations, pit exclusions, and recording-quality checks.
 
 - Avoid false AMS2 restart detection when untimed start-line crossings wrap lap distance without advancing the lap counter.
 

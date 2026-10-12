@@ -8,6 +8,7 @@ import { encodeAMS2Frame, decodeAMS2Frame } from "../src/frame";
 import { normalizeAMS2Frame } from "../src/normalizer";
 import { AMS2TelemetrySource } from "../src/source";
 import { ams2ServerAdapter } from "../src/index";
+import { classifyAMS2PitCycle, resolveAMS2InvalidReason } from "../src/lap-validity";
 import { CapturingDbAdapter } from "@raceiq/backend-core/telemetry/pipeline-ports";
 import { SparseSessionRecorder } from "@raceiq/backend-core/session-capture/sparse-recorder";
 import { iterateSessionFrames } from "@raceiq/backend-core/session-capture/framing";
@@ -28,6 +29,37 @@ function fixture(): Buffer {
 }
 const packet = (b:Buffer,t=1800000000000) => normalizeAMS2Frame(encodeAMS2Frame(b,t,1))!;
 describe("AMS2 native capture",()=>{
+  test("keeps captured grid starts eligible without losing pit-cycle or partial-start exclusions", () => {
+    const start = packet(fixture());
+    const later = { ...start, CurrentLap: 60 };
+    expect(classifyAMS2PitCycle([start, later], 0)).toBeNull();
+    expect(classifyAMS2PitCycle([{ ...start, CurrentLap: 10 }, later], 0)).toBe("outlap");
+    expect(classifyAMS2PitCycle([{ ...start, LapNumber: 2 }, later], 0)).toBe("outlap");
+    expect(classifyAMS2PitCycle([{ ...start, ams2: { ...start.ams2!, sessionType: "practice" } }, later], 0)).toBe("outlap");
+    const pit = { ...start, ams2: { ...start.ams2!, inPits: true } };
+    expect(classifyAMS2PitCycle([pit, later], 0)).toBe("outlap");
+    expect(classifyAMS2PitCycle([start, pit], 0)).toBe("inlap");
+    expect(classifyAMS2PitCycle([pit, pit], 0)).toBe("pit lap");
+    expect(classifyAMS2PitCycle([pit, later], 1)).toBe("outlap");
+  });
+  test("ignores a cleared first-race-lap grid flag but preserves later invalidations", () => {
+    const sample = (invalid: boolean, time: number, lap = 1, session = 5) => {
+      const b = fixture();
+      b[L.mLapInvalidated] = invalid ? 1 : 0;
+      b.writeFloatLE(time, L.mCurrentTime);
+      b.writeUInt32LE(lap, P + 92);
+      b.writeUInt32LE(session, L.mSessionState);
+      return packet(b);
+    };
+    expect(resolveAMS2InvalidReason([sample(true, -1), sample(true, 10), sample(false, 11)])).toBeNull();
+    expect(resolveAMS2InvalidReason([sample(true, -1), sample(false, 11), sample(true, 30), sample(false, 31)])).toBe("game-invalidated");
+    expect(resolveAMS2InvalidReason([sample(true, -1), sample(true, 60)])).toBe("game-invalidated");
+    expect(resolveAMS2InvalidReason([sample(true, 10), sample(false, 11)])).toBe("game-invalidated");
+    expect(resolveAMS2InvalidReason([sample(false, 0), sample(true, 10), sample(false, 11)])).toBe("game-invalidated");
+    for (const [lap, session] of [[2, 5], [1, 1], [1, 3]]) {
+      expect(resolveAMS2InvalidReason([sample(true, -1, lap, session), sample(false, 11, lap, session)])).toBe("game-invalidated");
+    }
+  });
   test("starts a fresh untimed AMS2 lap without reporting a race restart at the start line", async () => {
     const log = spyOn(console, "log").mockImplementation(() => {});
     try {
@@ -151,6 +183,7 @@ describe("AMS2 native capture",()=>{
     const b=fixture();b.writeUInt32LE(4,P+92);b.writeUInt32LE(3,P+88);b.writeFloatLE(60,L.mLastLapTime);await detector.feed(packet(b,1800000180000));
     expect(db.sessions[0]?.gameId).toBe("ams2");expect(db.sessions[0]?.sessionType).toBe("race");
     expect(db.laps.filter(l=>l.lapTime===60)).toHaveLength(3);
+    expect(db.laps[0]?.isValid).toBe(true);
     expect(db.laps.slice(1).every(l=>l.isValid)).toBe(true);
     await detector.finalizeCurrentSession?.();
   });

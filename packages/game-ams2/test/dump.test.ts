@@ -180,7 +180,7 @@ describe("AMS2 dump-mode capture", () => {
       expect(await source.pollOnce()).toBe(false);
       expect(ended).toBe(1);
       expect(pipeline.lapDetector?.session).toBeNull();
-      expect(db.laps.filter((l) => l.isValid)).toHaveLength(1);
+      expect(db.laps.filter((l) => l.isValid)).toHaveLength(2);
       expect(db.laps.at(-1)?.isValid).toBe(false);
       const saved = db.laps.length;
       memory.writeUInt32LE(memory.readUInt32LE(L.mSequenceNumber) + 2, L.mSequenceNumber);
@@ -198,7 +198,7 @@ describe("AMS2 dump-mode capture", () => {
       const result = await importSessionBin(gzipSync(bytes), "ams2", { notifyDriverProfile: false });
       expect(result.packetCount).toBe(660);
       expect(result.laps).toHaveLength(3);
-      expect(result.laps.filter((l) => l.isValid)).toHaveLength(1);
+      expect(result.laps.filter((l) => l.isValid)).toHaveLength(2);
       expect(new Set(result.laps.map((l) => l.sessionId)).size).toBe(1);
     } finally {
       await source.stop();

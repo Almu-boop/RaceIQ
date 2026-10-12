@@ -50,7 +50,12 @@ export function assessLapRecording(
   // Start and end positions must be within 20m of one another. A relative
   // tolerance lets long laps accept large gaps and misclassify outlaps.
   // Skip for ACC — carCoordinates are in a different scale to DistanceTraveled.
-  if (first.gameId !== "acc") {
+  // A captured AMS2 race start begins on the grid, behind the finish line.
+  // Keep closure checks for later laps and captures that begin mid-race.
+  const capturedAMS2RaceStart = first.gameId === "ams2"
+    && first.ams2?.sessionType === "race" && first.LapNumber === 1
+    && first.CurrentLap <= 0;
+  if (first.gameId !== "acc" && !capturedAMS2RaceStart) {
     const dx = last.PositionX - first.PositionX;
     const dz = last.PositionZ - first.PositionZ;
     const gap = Math.sqrt(dx * dx + dz * dz);
