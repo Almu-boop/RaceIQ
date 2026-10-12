@@ -8,6 +8,8 @@
 
 ### Fixes
 
+- Avoid false AMS2 restart detection when untimed start-line crossings wrap lap distance without advancing the lap counter.
+
 - Prevent retained qualifying timing from creating a spurious AMS2 race session during live recording transitions.
 
 - Keep AMS2 lap exports readable when exporting later laps or multiple laps from a compressed recording.

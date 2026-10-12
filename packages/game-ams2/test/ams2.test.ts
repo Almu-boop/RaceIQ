@@ -1,5 +1,5 @@
 import { getAMS2TrackLength } from "@raceiq/game-ams2-metadata/index";
-import { describe, test, expect } from "bun:test";
+import { describe, test, expect, spyOn } from "bun:test";
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -28,6 +28,53 @@ function fixture(): Buffer {
 }
 const packet = (b:Buffer,t=1800000000000) => normalizeAMS2Frame(encodeAMS2Frame(b,t,1))!;
 describe("AMS2 native capture",()=>{
+  test("starts a fresh untimed AMS2 lap without reporting a race restart at the start line", async () => {
+    const log = spyOn(console, "log").mockImplementation(() => {});
+    try {
+    for (const nextTime of [-1, 0.02]) {
+      const db = new CapturingDbAdapter();
+      const detector = ams2ServerAdapter.createLapDetector({ db });
+      for (let i = 0; i < 40; i++) {
+        const b = fixture();
+        b.writeUInt32LE(1, L.mSessionState); // Time Trial reports practice.
+        b.writeFloatLE(-1, L.mCurrentTime);
+        b.writeFloatLE(-1, L.mLastLapTime);
+        b.writeFloatLE(2980 + i / 2, P + 80);
+        await detector.feed(packet(b, 1800000000000 + i * 10));
+      }
+      const b = fixture();
+      b.writeUInt32LE(1, L.mSessionState);
+      b.writeFloatLE(nextTime, L.mCurrentTime);
+      b.writeFloatLE(-1, L.mLastLapTime);
+      b.writeFloatLE(0, P + 80);
+      await detector.feed(packet(b, 1800000000400));
+      expect(detector.getDebugState!().lapBufferLength).toBe(1);
+      expect(db.sessions).toHaveLength(1);
+      expect(db.laps).toHaveLength(0);
+    }
+    expect(log.mock.calls.filter(call => String(call[0]).includes("Race restart detected"))).toHaveLength(0);
+    expect(log.mock.calls.filter(call => String(call[0]).includes("Untimed start-line crossing"))).toHaveLength(2);
+    } finally { log.mockRestore(); }
+  });
+
+  test("still discards AMS2 buffers for timed restarts, teleports and ambiguous gaps", async () => {
+    for (const kind of ["timed-restart", "teleport", "gap", "mid-lap"] as const) {
+      const detector = ams2ServerAdapter.createLapDetector({ db: new CapturingDbAdapter() });
+      for (let i = 0; i < 40; i++) {
+        const b = fixture();
+        b.writeFloatLE(kind === "timed-restart" ? 20 : -1, L.mCurrentTime);
+        b.writeFloatLE(-1, L.mLastLapTime);
+        b.writeFloatLE(kind === "mid-lap" ? 1500 : 2999, P + 80);
+        await detector.feed(packet(b, 1800000000000 + i * 10));
+      }
+      const b = fixture();
+      b.writeFloatLE(0, L.mCurrentTime);
+      b.writeFloatLE(-1, L.mLastLapTime);
+      if (kind === "teleport") b.writeFloatLE(200, P + 68);
+      await detector.feed(packet(b, kind === "gap" ? 1800000010000 : 1800000000400));
+      expect(detector.getDebugState!().lapBufferLength).toBe(1);
+    }
+  });
   test("capture diagnostics distinguish busy processing, empty reads, duplicates and rejected frames", async () => {
     let memory: Buffer | null = fixture();
     let release!: () => void;

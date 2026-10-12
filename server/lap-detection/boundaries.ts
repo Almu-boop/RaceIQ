@@ -111,6 +111,7 @@ export function detectLapBoundary(
 export type LapResetResult =
   | { action: "none" }
   | { action: "complete-final-lap" }  // LastLap changed — it was actually a completed lap
+  | { action: "reset-untimed-lap" }   // Native untimed lead-in crossed the start line
   | { action: "reset-restart" };       // Genuine race restart or teleport
 
 /**

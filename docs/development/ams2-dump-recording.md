@@ -96,6 +96,14 @@ and replay are not treated as proof of a session end. Native delayed timing,
 validity, sectors, and source transitions still need the real human fixture;
 synthetic and controlled-memory tests do not replace it.
 
+Untimed lead-in crossings can wrap distance while AMS2 leaves the lap number
+unchanged and reports unavailable lap timing. When adjacent samples cross the
+start line with continuous position and no session change, AMS2's lap policy
+starts a new buffer and logs `Untimed start-line crossing`, rather than reporting
+a race restart. This does not invent lap times for untimed circuits. Timed
+restarts, mid-lap distance resets, position jumps, and long gaps retain the
+existing reset handling.
+
 The dump can be imported through the development dump importer (`.bin`/`.bin.gz`)
 or the registered session import path. Both use the matching dump reader;
 canonical sparse session recordings use their existing reader.

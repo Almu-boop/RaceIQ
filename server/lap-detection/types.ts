@@ -6,6 +6,7 @@
 import type { DbAdapter } from "../telemetry/pipeline-ports";
 import type { PitCycleReason } from "@raceiq/analysis-core/racing/laps/pit-cycle";
 import type { TelemetryPacket } from "@raceiq/shared/telemetry/types";
+import type { LapResetResult } from "./boundaries";
 /**
  * Minimal packet projection consumed by lap detection.  Canonical parsers may
  * return this shape during metadata scans without materializing live-only
@@ -80,6 +81,11 @@ export interface LapDetectorOptions {
 }
 
 export interface LapDetectorPolicy {
+  resolveLapReset?(
+    previous: TelemetryPacket,
+    lastLastLap: number,
+    packet: TelemetryPacket,
+  ): LapResetResult;
   resolveLapTime(
     packets: readonly TelemetryPacket[],
     newLapFirstPacket: TelemetryPacket,

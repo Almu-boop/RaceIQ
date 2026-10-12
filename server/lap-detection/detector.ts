@@ -310,7 +310,7 @@ export class LapDetector implements ILapDetector {
       this.lapBuffer.length > 30 &&
       packet.LapNumber === this.currentLapNumber
     ) {
-      const resetResult = detectLapReset(
+      const resetResult = (this.lapPolicy.resolveLapReset ?? detectLapReset)(
         this.lapBuffer[this.lapBuffer.length - 1],
         this.lastLastLap,
         packet
@@ -318,6 +318,9 @@ export class LapDetector implements ILapDetector {
       if (resetResult.action === "complete-final-lap") {
         console.log(`[Lap] Final lap completed: LastLap ${this.lastLastLap.toFixed(3)} -> ${packet.LastLap.toFixed(3)}`);
         await this.onLapComplete(packet);
+      } else if (resetResult.action === "reset-untimed-lap") {
+        console.log(`[Lap] Untimed start-line crossing — starting lap buffer`);
+        this.resetLapState(packet);
       } else if (resetResult.action === "reset-restart") {
         console.log(`[Lap] Race restart detected — discarding buffer`);
         this.resetLapState(packet);

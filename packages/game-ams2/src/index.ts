@@ -5,6 +5,7 @@ import { renderAnalystSchemaForPrompt } from "@raceiq/backend-core/ai/schemas";
 import { classifyPitCycleLap } from "@raceiq/analysis-core/racing/laps/pit-cycle";
 import { normalizeAMS2Frame } from "./normalizer";
 import { decodeAMS2Frame, isAMS2SessionEndFrame } from "./frame";
+import { resolveAMS2LapReset } from "./lap-reset";
 function parseDrivingFrame(buffer: Buffer) {
   const frame = decodeAMS2Frame(buffer);
   if (!frame || ![2, 3, 4].includes(frame.memory.readUInt32LE(8))) return null;
@@ -20,6 +21,7 @@ export const ams2ServerAdapter: ServerGameAdapter = {
   tryParseLapIndex: parseDrivingFrame,
   primeParserState: () => {}, createParserState: () => null,
   createLapDetector: options => new LapDetector({...options, bypassPacketRateFilter: true, policy: {
+    resolveLapReset: resolveAMS2LapReset,
     resolveLapTime: (_packets, next) => next.LastLap > 0 ? next.LastLap : 0,
     classifyPitCycle: (packets, count) => classifyPitCycleLap(packets) ?? (count === 0 ? "outlap" : null),
     invalidReason: packets => packets.some(p => p.ams2?.lapInvalidated) ? "game-invalidated" : null,
