@@ -1,5 +1,5 @@
 import type { TelemetryPacket } from "@raceiq/shared/telemetry/types";
-import { detectLapReset, type LapResetResult } from "@raceiq/backend-core/lap-detection/boundaries";
+import { detectLapReset, type LapResetResult } from "@raceiq/telemetry-core/processor/boundaries";
 
 export function resolveAMS2LapReset(previous: TelemetryPacket, lastLastLap: number, packet: TelemetryPacket): LapResetResult {
   const result = detectLapReset(previous, lastLastLap, packet);

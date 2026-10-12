@@ -1,32 +1,34 @@
 ## Unreleased
 
 ### Features
-- Reduce F1 race-result processing time from 4,851 ms to 567 ms (88.3% less time) in a matched benchmark; this does not measure end-to-end recording performance.
-
 - Add native Windows AMS2 telemetry capture through Project CARS 2 shared memory, with game-specific car and track identity.
 - Add separate Driver profiles for AMS2 and iRacing.
+- Export complete chat history as JSON for developer debugging, including retained chat generations, stored thinking, tool calls and results, and system prompts.
+- Optionally protect dashboard access with a password and configure trusted browser origins independently, while keeping existing local and remote access working without new settings.
+- Reduce F1 race-result processing time from 4,851 ms to 567 ms (88.3% less time) in a matched benchmark; this does not measure end-to-end recording performance.
+
+- Browse enriched iRacing car, car-class, and track catalogs with official car images, offline pit-road maps, and grouped lap sections.
 
 ### Fixes
 - Accept captured AMS2 first race laps from the starting grid when the initial invalid flag clears, while preserving later invalidations, pit exclusions, and recording-quality checks.
-
 - Avoid false AMS2 restart detection when untimed start-line crossings wrap lap distance without advancing the lap counter.
-
 - Prevent retained qualifying timing from creating a spurious AMS2 race session during live recording transitions.
-
 - Keep AMS2 lap exports readable when exporting later laps or multiple laps from a compressed recording.
-
 - Keep session Overview maps complete when an unfinished lap follows completed invalid laps.
 - Keep session Overview maps compact on wide screens and fit the driven lap line without hidden track edges shrinking it.
 - Correct the reversed AMS2 track direction arrow.
 - Restore the Analyse G-force dot and center the AMS2 suspension indicator, labelled as compression balance rather than measured wheel load.
-
 - Return AMS2 Live to connection instructions after telemetry stops, and clear live readings when the server disconnects.
-
 - Show AMS2 connection instructions when waiting for telemetry, including the required shared-memory setting and driving-session steps.
-
 - Make date controls visibly interactive and restore Live child-page routing, production Raw Data updates and AMS2 game navigation.
 - Restore AMS2 live sector progression using telemetry track length and lap position; show available live tire pressures, use percentages in replay pedal charts, and exclude invalid laps from recorded PBs.
 - Keep game links visible on Live pages.
+- Prevent crafted AI credential requests from running commands on macOS.
+- Reject unrelated browser origins on dashboard and live telemetry requests while preserving same-origin access through reverse proxies.
+- Preserve incomplete-lap eligibility and LMU first-outlap classification across ordinal detector transitions.
+
+- Load LMU track boundaries without long stalls on detailed SVG maps.
+- Show unnamed multi-turn sections once in Analyse and track-detail labels.
 
 ### Internal
 - Add compact real AMS2 raw-dump fixtures covering session lifecycle, Time Trial crossings, race-start validity, qualifying and pit stops.
@@ -34,10 +36,18 @@
 - Add AMS2 development dump recording and replay, preserving raw menu/session transitions and undecoded mapped data for fixture testing.
 - Run AMS2 capture tests through the isolated integration test runner.
 - Complete AMS2 telemetry catalog provenance, native units, extension coverage and supported fuel projections.
+- Remove unused compiled artifact downloads and base production builds from dev-mode dashboard screenshot CI.
+- Split current and base dashboard screenshot renders into four CI shards while retaining the complete screenshot inventory.
+- Document new-game integration, lossless sparse recording, lap correctness checks, and gzip fixture splitting without Git LFS; align capture and architecture guides with current implementation.
 - Avoid per-packet serialization and hashing during race-result reconciliation while retaining raw capture identity and processing provenance.
 - Add Bun-only parser/pipeline, retained-heap, import, and recording benchmarks with isolated workloads and explicit measurement scopes.
+- Move capture formats and parser contracts into reusable packages; place portable lap engines, policies, and sectors in telemetry-core, with batch orchestration and explicit parser routing in telemetry-processor.
+- Expose a complete-payload Bun batch API with caller-supplied capture bytes and explicit segment context/boundary markers.
+- Preserve copied benchmark harness compatibility with pre-extraction base checkouts and retain Forza's required backend dependency.
+- Preserve lap-quality rejection assertions and caller feature flags in relocated tests; keep portable detector constructors compatible with erasable TypeScript and remove unused host-detector remnants.
 - Correct Linux benchmark CPU/RSS sampling and run iRacing parser/import benchmarks independently of production release flags.
 - Skip build, test, browser, snapshot, and benchmark PR jobs for automated release version bump branches.
+- Declare the frontend contract tests' backend-core dependency so clean CI installs resolve setup-import test modules.
 
 ## v0.19.2 - 2026-10-04
 

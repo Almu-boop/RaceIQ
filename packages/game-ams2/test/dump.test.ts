@@ -9,8 +9,8 @@ import { LiveTelemetryPipeline } from "@raceiq/backend-core/telemetry/live-pipel
 import { registerServerGame } from "@raceiq/backend-core/games/registry";
 import { registerGame } from "@raceiq/shared/games/registry";
 import { detectGameIdFromBuffer, importSessionBin } from "@raceiq/backend-core/session-capture/import-capture";
-import { SparseSessionRecorder } from "@raceiq/backend-core/session-capture/sparse-recorder";
-import { iterateSessionFrames } from "@raceiq/backend-core/session-capture/framing";
+import { SparseSessionRecorder } from "@raceiq/capture-formats/session/sparse-recorder";
+import { iterateSessionFrames } from "@raceiq/capture-formats/session/framing";
 import { AMS2TelemetrySource } from "../src/source";
 import { AMS2DumpRecorder } from "../src/recorder";
 import { AMS2SharedMemoryReader } from "../src/memory-reader";
