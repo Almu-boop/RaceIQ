@@ -2431,5 +2431,9 @@
   "dash_waiting_track": "コースを待機中…",
   "experiment_focus_car_agent_label": "レースエンジニア",
   "experiment_focus_driver_agent_label": "ドライビングコーチ",
-  "experiment_focus_driver_hint": "運転技術の向上に集中しましょう。"
+  "experiment_focus_driver_hint": "運転技術の向上に集中しましょう。",
+  "dash_lan_address": "ローカルネットワークアドレス",
+  "dash_hostname_label": "ホスト名の上書き（任意）",
+  "dash_hostname_help": "HUDリンクとQRコードにTailscaleのFQDNなどのホスト名を使用します。空欄の場合はローカルIPアドレスを使用します。表示端末からこのホスト名に接続できる必要があります。",
+  "dash_hostname_invalid": "http://、ポート、パスを含めず、ホスト名のみ入力してください。"
 }

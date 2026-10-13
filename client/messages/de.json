@@ -2454,5 +2454,9 @@
   "experiment_new_button": "+ Neues Experiment",
   "dash_waiting_track": "Warte auf Strecke…",
   "experiment_focus_car_agent_label": "Renningenieur",
-  "experiment_focus_driver_agent_label": "Fahrercoach"
+  "experiment_focus_driver_agent_label": "Fahrercoach",
+  "dash_lan_address": "Lokale Netzwerkadresse",
+  "dash_hostname_label": "Hostname überschreiben (optional)",
+  "dash_hostname_help": "Hostname, etwa einen Tailscale-FQDN, für HUD-Links und QR-Codes verwenden. Leer lassen für eine lokale IP-Adresse. Das Anzeigegerät muss den Hostnamen erreichen können.",
+  "dash_hostname_invalid": "Nur einen Hostnamen ohne http://, Port oder Pfad eingeben."
 }
