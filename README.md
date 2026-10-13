@@ -7,7 +7,7 @@
 <h1 align="center">RaceIQ</h1>
 
 <p align="center">
-  Sim racing companion app, real-time racing telemetry dashboard, lap analysis and iterative experiments for car setup and driving</strong>.
+  Sim racer's companion app, real-time racing telemetry dashboard, lap analysis and iterative experiments for car setup and driving</strong>.
 </p>
 
 <p align="center">
