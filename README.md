@@ -23,6 +23,9 @@
 > **Alpha software** — expect bugs, rough edges, and AI analysis that's still being fine-tuned for accuracy. Some features aren't obvious yet, so poke around and join the [Discord](https://discord.gg/ZNXKyYPumT) if you get stuck.
 
 <p align="center">
+  <img src="assets/screenshots/home.png" width="70%" />
+</p>
+<p align="center">
   <video src="https://github.com/user-attachments/assets/9200c90d-b039-4616-9b27-9c8e7c53a8ca" autoplay loop muted playsinline width="70%"></video>
 </p>
 
