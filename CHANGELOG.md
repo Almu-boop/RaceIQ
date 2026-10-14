@@ -31,6 +31,7 @@
 - Show unnamed multi-turn sections once in Analyse and track-detail labels.
 
 ### Internal
+- Organize AMS2 raw fixtures under shared recording artifacts and add E2E checks for lap numbering, duplicate saves, timestamps and driving-channel variation.
 - Add compact real AMS2 raw-dump fixtures covering session lifecycle, Time Trial crossings, race-start validity, qualifying and pit stops.
 - Report AMS2 dump-mode capture counters for rejected memory reads and busy processing.
 - Add AMS2 development dump recording and replay, preserving raw menu/session transitions and undecoded mapped data for fixture testing.

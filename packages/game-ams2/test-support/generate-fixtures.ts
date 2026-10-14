@@ -26,7 +26,7 @@ function state(raw: Buffer): string {
 }
 
 const sourceDir = resolve(Bun.argv[2] ?? "test/artifacts/sessions");
-const output = resolve(import.meta.dir, "../test/fixtures");
+const output = resolve(import.meta.dir, "../../../test/artifacts/sessions");
 mkdirSync(output, { recursive: true });
 const manifest = [];
 for (const [name, source] of Object.entries(sources)) {
@@ -71,10 +71,10 @@ for (const [name, source] of Object.entries(sources)) {
     parts.push(size, frame);
   }
   const compressed = gzipSync(Buffer.concat(parts), { level: 9 });
-  writeFileSync(resolve(output, `${name}.bin.gz`), compressed);
+  writeFileSync(resolve(output, `ams2-${name}.bin.gz`), compressed);
   manifest.push({ name, source, sourceFrames, sourceFramesSha256: sourceHash.digest("hex"),
     fixtureFrames: frames.length, bytes: compressed.length,
     sha256: createHash("sha256").update(compressed).digest("hex") });
   console.log(name, frames.length, compressed.length);
 }
-writeFileSync(resolve(output, "manifest.json"), JSON.stringify(manifest, null, 2) + "\n");
+writeFileSync(resolve(output, "ams2-fixtures.json"), JSON.stringify(manifest, null, 2) + "\n");

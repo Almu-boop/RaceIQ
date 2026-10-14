@@ -4,6 +4,12 @@ This source change adds Automobilista 2 directly to RaceIQ on Windows: process d
 
 Base: SpeedHQ/RaceIQ commit c774b30560a20c30c4ff6716de87d5c59518d4c6, package version 0.19.1. This is not a patch for the older RaceIQ/Telemetry Tool 4.1 project. No upstream repository was changed.
 
+## Current verification
+
+The base commit and patch instructions below describe the original preview.
+For the current review branch, use [AMS2 verification status](ams2-verification.md)
+for owner-scoped commands, real-fixture coverage, and remaining limitations.
+
 ## Apply and build
 
 Use a fresh checkout so existing project work is preserved:
