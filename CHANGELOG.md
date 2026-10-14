@@ -68,6 +68,7 @@
 - Use suitable local network addresses for remote HUD links and let users choose an address when multiple adapters are available.
 
 ### Internal
+- Wait for dashboard metadata and loading panels to finish before generating the Home marketing screenshot.
 - Include the privacy-safe iRacing SessionInfo path manifest in clean checkouts so CI can validate the telemetry catalog.
 - Add `bun clean` to remove repository-local development data without targeting custom `DATA_DIR` locations.
 - Isolate dashboard-authentication tests in subprocesses so Windows releases database handles before cleanup, and verify password recovery through the command in a separate process.
