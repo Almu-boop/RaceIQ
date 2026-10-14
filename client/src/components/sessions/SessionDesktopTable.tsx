@@ -1,4 +1,3 @@
-import { ChevronRight } from "lucide-react";
 import { Fragment } from "react";
 import type { GameId } from "@raceiq/shared/games/ids";
 import type { LapMeta, SessionMeta } from "@raceiq/shared/racing/sessions/types";
@@ -138,7 +137,7 @@ export function SessionDesktopTable({
               const bestTime = session.bestLapTime || (sessionLaps.length > 0 ? Math.min(...sessionLaps.map((lap) => lap.lapTime)) : 0);
               return (
                 <Fragment key={session.id}>
-                  <TableRow onClick={() => toggleExpand(session.id)} data-state={isExpanded ? "selected" : undefined} className={isExpanded && sessionLaps.length > 0 ? "border-b-0" : undefined}>
+                  <TableRow onClick={() => toggleExpand(session.id)} data-state={isExpanded ? "selected" : undefined} className={`cursor-pointer${isExpanded && sessionLaps.length > 0 ? " border-b-0" : ""}`}>
                     <TableCell className="text-center" onClick={(event) => event.stopPropagation()}>
                       <input type="checkbox" checked={selectedSessions.has(session.id)} onChange={(event) => toggleSessionSelection(session.id, event)} className="accent-app-accent w-4 h-4" />
                     </TableCell>
@@ -149,9 +148,8 @@ export function SessionDesktopTable({
                           aria-expanded={isExpanded}
                           title={isExpanded ? m.sessions_hide_laps() : m.sessions_show_laps()}
                           onClick={(event) => { event.stopPropagation(); toggleExpand(session.id); }}
-                          className="inline-flex cursor-pointer items-center gap-1.5 rounded px-1 py-1 text-app-accent underline decoration-app-accent/40 underline-offset-4 hover:bg-app-accent/10 hover:decoration-app-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-app-accent"
+                          className="cursor-pointer text-left text-inherit focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-app-accent"
                         >
-                          <ChevronRight aria-hidden="true" className={`h-4 w-4 shrink-0 transition-transform ${isExpanded ? "rotate-90" : ""}`} />
                           <span>{parseUtcTimestamp(session.createdAt).toLocaleDateString(getLocale())}{" "}
                             {parseUtcTimestamp(session.createdAt).toLocaleTimeString(getLocale(), { hour: "2-digit", minute: "2-digit" })}
                           </span>
