@@ -1,13 +1,24 @@
 ## Unreleased
 
 ### Features
+- Export complete chat history as JSON for developer debugging, including retained chat generations, stored thinking, tool calls and results, and system prompts.
+- Optionally protect dashboard access with a password and configure trusted browser origins independently, while keeping existing local and remote access working without new settings.
 - Reduce F1 race-result processing time from 4,851 ms to 567 ms (88.3% less time) in a matched benchmark; this does not measure end-to-end recording performance.
+
+- Browse enriched iRacing car, car-class, and track catalogs with official car images, offline pit-road maps, and grouped lap sections.
 
 ### Fixes
 - Show a pointer cursor over clickable session rows while preserving the original date/time appearance, keyboard controls, and separate Recap and Analyse actions.
+- Prevent crafted AI credential requests from running commands on macOS.
+- Reject unrelated browser origins on dashboard and live telemetry requests while preserving same-origin access through reverse proxies.
 - Preserve incomplete-lap eligibility and LMU first-outlap classification across ordinal detector transitions.
 
+- Load LMU track boundaries without long stalls on detailed SVG maps.
+- Show unnamed multi-turn sections once in Analyse and track-detail labels.
+
 ### Internal
+- Remove unused compiled artifact downloads and base production builds from dev-mode dashboard screenshot CI.
+- Split current and base dashboard screenshot renders into four CI shards while retaining the complete screenshot inventory.
 - Document new-game integration, lossless sparse recording, lap correctness checks, and gzip fixture splitting without Git LFS; align capture and architecture guides with current implementation.
 - Avoid per-packet serialization and hashing during race-result reconciliation while retaining raw capture identity and processing provenance.
 - Add Bun-only parser/pipeline, retained-heap, import, and recording benchmarks with isolated workloads and explicit measurement scopes.
