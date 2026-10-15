@@ -130,11 +130,15 @@ test.describe("onboarding recording-layout recovery", () => {
   });
 
   test("Storage step exposes same-destination retry", async ({ page }) => {
+    await page.clock.install();
     const fixture = await startOnboarding(page, false);
     try {
       await reachStorage(page);
       fixture.exposeFailure();
-      await page.getByRole("button", { name: "Refresh", exact: true }).click();
+      // Migration status refreshes when the app regains focus, not via a Storage button.
+      await page.clock.fastForward(5_001);
+      await page.clock.resume();
+      await page.evaluate(() => window.dispatchEvent(new Event("visibilitychange")));
       await expect(page.getByRole("button", { name: /^Retry/ })).toBeVisible();
       await expect(page.getByRole("button", { name: "Back" })).toBeDisabled();
       await expect(page.getByRole("button", { name: "Next", exact: true })).toBeDisabled();

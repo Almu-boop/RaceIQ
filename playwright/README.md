@@ -45,7 +45,7 @@ Fresh-install wizard attempts reset both `settings.json` and the isolated databa
 Specs that validate analyst output import the pure schema from `@raceiq/backend-core/ai/output-schema`. The server's `ai/schemas` module also owns setup-catalog validation and must not be loaded by the Node-based Playwright discovery process.
 
 
-Recording-location migration coverage lives in `tests/fresh-install/recording-location-migration.spec.ts`. It imports a real capture with `bun run apps/backend/scripts/data/seed-db.ts --games=fm-2023 --fixtures=test/artifacts/sessions/fm-2023-2026-04-09T21-55-03-186Z.bin.gz --legacy-recordings`, creating DB-referenced captures in the legacy folder layout. The test verifies initial file/session counts, rejects occupied destinations without touching source files, then retries through the migration API and verifies byte-preserving organization under `<game>/own`, DB/session migration, source removal, and persisted recording-directory settings. It restores settings and removes disposable files and folders afterward.
+Recording-location migration coverage lives in `tests/fresh-install/recording-location-migration.spec.ts`. It converts a real capture in an isolated offline database with `bun run apps/backend/scripts/data/seed-db.ts --games=fm-2023 --fixtures=test/artifacts/sessions/fm-2023-2026-04-09T21-55-03-186Z.bin.gz --legacy-recordings`, imports the sparse capture through the running app's API, then prepares the returned sessions in the legacy folder layout. The test verifies initial file/session counts, required consent, byte-preserving organization under `<game>/own` in a selected folder, preservation of unrelated destination files, source removal, and persisted recording-directory settings. It deletes imported sessions, restores settings, and removes disposable files and folders afterward.
 
 ```sh
 E2E_SERVER_MODE=dev PW_SERVER_SET=fresh bunx playwright test tests/fresh-install/recording-location-migration.spec.ts --project=fresh-install --workers=1
@@ -54,6 +54,8 @@ E2E_SERVER_MODE=dev PW_SERVER_SET=fresh bunx playwright test tests/fresh-install
 ## Known seeded coverage gaps
 
 Confirmed unresolved coverage gaps live in [Test Coverage Gaps](../docs/project-status/test-gaps.md), including AC Evo valid-session telemetry reuse. The seeded AC Evo invalid-session check remains active; no case is skipped for that fixture limitation.
+
+Track catalog checks cover the Debug tab in dev mode and assert its absence in compiled production mode. Cleanup fixtures inspect captures under `<game>/own`; setup deletion teardown removes the setup before deleting its disposable sessions and their laps.
 
 ## Data safety and generated output
 

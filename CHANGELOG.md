@@ -45,9 +45,11 @@
 - Keep AC Evo layouts distinct during import, setup selection, and session repair without losing notes, favorites, or setup links.
 - Replay long Tourist laps without chart crashes or closed-circuit map overlays.
 - Reconcile older recordings with updated car, track, and lap detection, preserving matched lap annotations and reporting captures that cannot be repaired.
+- Recheck all historical AC Evo recordings for Tourist layout identity and rebuild their laps after recording-folder organization completes; keep dependent startup work blocked when an earlier repair is incomplete.
 - Keep racing, throttle, and braking lines sharp when zooming into the replay map.
 
 ### Internal
+- Align setup, track, cleanup, and migration browser tests with current labels, production Debug visibility, and organized capture paths; isolate legacy fixture conversion and delete disposable sessions without redundant parent deletion.
 - Exercise the initial recording-migration prompt, explicit consent, relocation, and no-work reload behavior through the real browser and storage API.
 - Export complete chat debugging data as JSON, including retained generations, thinking, tool activity, and system prompts.
 - Reduce F1 race-result processing from 4,851 ms to 567 ms in a matched benchmark; this is not an end-to-end recording measurement.
