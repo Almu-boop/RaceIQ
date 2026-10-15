@@ -470,7 +470,6 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/$gameid': typeof GameidRouteWithChildren
   '/dev': typeof DevRoute
-  '/live': typeof LiveRouteWithChildren
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
   '/overlay': typeof OverlayRoute
@@ -656,7 +655,6 @@ export interface FileRouteTypes {
     | '/'
     | '/$gameid'
     | '/dev'
-    | '/live'
     | '/login'
     | '/onboarding'
     | '/overlay'

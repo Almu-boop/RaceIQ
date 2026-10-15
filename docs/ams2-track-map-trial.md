@@ -1,5 +1,14 @@
 # AMS2 original road-corridor maps
 
+## Shared names
+
+AMS2's exact `BrandsHatch - BrandsHatch_Indy` identity links to the existing
+`brands-hatch-indy` shared facts and displays as `Brands Hatch Indy` in the
+AMS2 adapter and track catalog. The discovered telemetry name and ID remain
+unchanged for recording and boundary lookup. No other game's SVG, geometry,
+sector fractions or metadata is changed or substituted. Cordoba has no existing
+shared entry in this checkout and retains its native display name.
+
 The bundle contains 235 layouts found in the installed physics archives,
 including installed DLC and mod layouts. A bundled layout is not a claim
 that it is official content or that it has been driven and visually verified.

@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 import { getTrackBoundariesByOrdinal } from "@raceiq/game-catalogs/racing/tracks/geometry/extracted";
-import { injectDiscoveredAMS2Identity, registerAMS2Identity } from "@raceiq/game-ams2-metadata/index";
+import { ams2Adapter, getAMS2DiscoveredTrackName, injectDiscoveredAMS2Identity, registerAMS2Identity } from "@raceiq/game-ams2-metadata/index";
 import { matchAMS2Layout } from "@raceiq/game-ams2-metadata/track-boundaries";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -69,6 +69,20 @@ test("AMS2 map lookup does not substitute Indy for another track", () => {
 test("persisted string track identities restore map lookup after startup", () => {
   injectDiscoveredAMS2Identity([], [{ trackId: "899999997", name: "BrandsHatch - BrandsHatch_Indy" }]);
   expect(getTrackBoundariesByOrdinal(899999997, "ams2")?.leftEdge).toHaveLength(379);
+});
+
+test("AMS2 Indy reuses only the matching shared name and preserves native identity", () => {
+  const id = "165370945";
+  injectDiscoveredAMS2Identity([], [{ trackId: id, name: "BrandsHatch - BrandsHatch_Indy" }, { trackId: "899999996", name: "BrandsHatch - BrandsHatch_GP" }, { trackId: "1250765071", name: "Cordoba - Cordoba_International" }]);
+  expect(ams2Adapter.getTrackName(id)).toBe("Brands Hatch Indy");
+  expect(ams2Adapter.getSharedTrackName?.(id)).toBe("brands-hatch-indy");
+  expect(getAMS2DiscoveredTrackName(id)).toBe("BrandsHatch - BrandsHatch_Indy");
+  expect(ams2Adapter.getTrackIdByName?.("Brands Hatch Indy")).toBe(id);
+  expect(ams2Adapter.getTrackIdByName?.("BrandsHatch - BrandsHatch_Indy")).toBe(id);
+  expect(ams2Adapter.getSharedTrackName?.("899999996")).toBeUndefined();
+  expect(ams2Adapter.getSharedTrackName?.("1250765071")).toBeUndefined();
+  expect(ams2Adapter.getTrackName("1250765071")).toBe("Cordoba - Cordoba_International");
+  expect(getTrackBoundariesByOrdinal(Number(id), "ams2")?.leftEdge).toHaveLength(379);
 });
 
 test("Cordoba International uses the recording-verified standard archive, not GP", () => {
