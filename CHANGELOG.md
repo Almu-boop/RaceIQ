@@ -1,6 +1,7 @@
 ## Unreleased
 
 ### Features
+- Bundle 235 original AMS2 road-corridor maps, selected by exact layout names or recording-verified aliases with track-length checks when available; Brands Hatch Indy alignment has been manually checked.
 - Add native Windows AMS2 telemetry capture through Project CARS 2 shared memory, with game-specific car and track identity.
 - Add separate Driver profiles for AMS2 and iRacing.
 - Export complete chat history as JSON for developer debugging, including retained chat generations, stored thinking, tool calls and results, and system prompts.

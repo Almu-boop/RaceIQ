@@ -5,8 +5,10 @@ import { applyAlignment, computeAlignment } from "@raceiq/shared/racing/tracks/g
 import { getTrackNameByOrdinal, hasBundledBoundaryByOrdinal, loadBoundaryByName } from "./outlines";
 import { loadAccSvgBoundaryByName } from "@raceiq/shared/racing/tracks/geometry/acc-svg";
 import type { Point, TrackBoundary } from "@raceiq/shared/racing/tracks/geometry/types";
+import { getAMS2TrackBoundaries } from "@raceiq/game-ams2-metadata/track-boundaries";
 
 export function getTrackBoundariesByOrdinal(ordinal: number, gameId: string): TrackBoundary | null {
+  if (gameId === "ams2") return getAMS2TrackBoundaries(ordinal);
   if (gameId === "lmu") return null;
   // Try extracted boundaries first (game-specific)
   const extracted = loadExtractedBoundary(ordinal, gameId);

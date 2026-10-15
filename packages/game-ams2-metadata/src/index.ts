@@ -3,6 +3,7 @@ const cars = new Map<number, string>();
 const tracks = new Map<number, string>();
 const trackLengths = new Map<number, number>();
 export function getAMS2TrackLength(ordinal: number): number | undefined { return trackLengths.get(ordinal); }
+export function getAMS2DiscoveredTrackName(ordinal: number): string | undefined { return tracks.get(ordinal); }
 export function registerAMS2Identity(car: number, carName: string, track: number, trackName: string, trackLengthM?: number): void {
   cars.set(car, carName); tracks.set(track, trackName);
   if (trackLengthM != null && Number.isFinite(trackLengthM) && trackLengthM > 0) trackLengths.set(track, trackLengthM);

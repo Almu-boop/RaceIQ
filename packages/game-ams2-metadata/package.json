@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "exports": {
-    "./index": "./src/index.ts"
+    "./index": "./src/index.ts",
+    "./track-boundaries": "./src/track-boundaries.ts"
   },
   "dependencies": {
     "@raceiq/shared": "workspace:*"
