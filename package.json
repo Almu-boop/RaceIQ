@@ -36,6 +36,7 @@
     "test:integration": "bun scripts/test/run-turbo.ts test:integration",
     "test": "bun scripts/test/run-turbo.ts test:unit test:tooling test:integration",
     "test:e2e:recordings": "bun scripts/test/run-turbo.ts test:e2e:recordings",
+    "test:upgrade": "bun scripts/ci/upgrade-smoke.ts",
     "test:all": "bun scripts/test/run-all.ts",
     "test:e2e:all": "bun run test:e2e:recordings && bunx turbo run test --filter=raceiq-e2e",
     "typecheck": "bun run --cwd client i18n:compile && bunx tsc --build client/tsconfig.json --pretty false && bun run typecheck:storybook && bun run --sequential --filter '@raceiq/*' typecheck",

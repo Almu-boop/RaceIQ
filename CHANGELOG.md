@@ -15,6 +15,7 @@
 - Add Hindi, Korean, European Portuguese, and Simplified Chinese interface translations.
 
 ### Fixes
+- Keep converted recordings from older releases readable after updating, including checkpoint-only F1, iRacing, and LMU captures.
 - Stop reopening the recording-organization success dialog after reload when no recordings need migration.
 - Show the track layout after the track name with a hyphen and remove the track-detail header subtitle.
 - Hide the track-detail Debug tab in production builds.
@@ -49,6 +50,9 @@
 - Keep racing, throttle, and braking lines sharp when zooming into the replay map.
 
 ### Internal
+- Add a release-only Ubuntu Docker smoke test that seeds the latest published release, completes migration dialogs, upgrades to freshly fetched main, and streams checkout, seed, server, and phase progress to OrbStack container logs.
+- Add `test:upgrade --replay` to retain successful upgrade recordings and open the local Playwright Trace Viewer after Docker exits, including failed runs with available traces.
+- Seed all six supported games in the Docker upgrade smoke, validate converted recording provenance and framing before checkout, require successful startup reconciliation, and verify each game's session IDs survive the release-to-main transition; extend bounded deadlines for the full dataset.
 - Align setup, track, cleanup, and migration browser tests with current labels, production Debug visibility, and organized capture paths; isolate legacy fixture conversion and delete disposable sessions without redundant parent deletion.
 - Exercise the initial recording-migration prompt, explicit consent, relocation, and no-work reload behavior through the real browser and storage API.
 - Export complete chat debugging data as JSON, including retained generations, thinking, tool activity, and system prompts.
