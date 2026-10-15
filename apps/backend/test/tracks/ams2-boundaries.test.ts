@@ -66,6 +66,11 @@ test("AMS2 map lookup does not substitute Indy for another track", () => {
   expect(getTrackBoundariesByOrdinal(165370945, "lmu")).toBeNull();
 });
 
+test("persisted string track identities restore map lookup after startup", () => {
+  injectDiscoveredAMS2Identity([], [{ trackId: "899999997", name: "BrandsHatch - BrandsHatch_Indy" }]);
+  expect(getTrackBoundariesByOrdinal(899999997, "ams2")?.leftEdge).toHaveLength(379);
+});
+
 test("Cordoba International uses the recording-verified standard archive, not GP", () => {
   const ordinal = 1250765071;
   registerAMS2Identity(1, "Test car", ordinal, "Cordoba - Cordoba_International", 3655.272705078125);

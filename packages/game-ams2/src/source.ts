@@ -73,8 +73,8 @@ export class AMS2TelemetrySource {
       options.registerIdentity ??
       (async (packet) => {
         if (!packet.ams2) return;
-        await registerDiscoveredCar("ams2", packet.CarOrdinal, packet.ams2.carName);
-        await registerDiscoveredTrack("ams2", packet.TrackOrdinal, packet.ams2.trackName);
+        await registerDiscoveredCar("ams2", packet.carId, packet.ams2.carName);
+        await registerDiscoveredTrack("ams2", packet.trackId, packet.ams2.trackName);
       });
     this.dispatch =
       options.dispatchRawFrame ??
@@ -200,7 +200,7 @@ export class AMS2TelemetrySource {
       writeDump();
       this.wasInSession = inSession;
       this.lapTime = packet.CurrentLap;
-      const identityKey = `${packet.CarOrdinal}:${packet.TrackOrdinal}`;
+      const identityKey = `${packet.carId}:${packet.trackId}`;
       if (identityKey !== this.identityKey) {
         await this.registerIdentity(packet);
         this.identityKey = identityKey;

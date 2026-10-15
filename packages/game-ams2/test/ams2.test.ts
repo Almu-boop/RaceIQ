@@ -140,7 +140,9 @@ describe("AMS2 native capture",()=>{
     expect(p).toMatchObject({gameId:"ams2",Speed:50,Fuel:40,Accel:191,Gear:3,IsRaceOn:1});
     expect(p.TirePressureFrontLeft).toBeCloseTo(29.0075,3);expect(p.BrakeTempFrontLeft).toBe(400);
     expect(p.ams2?.trackName).toBe("Interlagos");
-    expect(getAMS2TrackLength(p.TrackOrdinal)).toBe(p.ams2?.trackLengthM);
+    expect(typeof p.carId).toBe("string");
+    expect(typeof p.trackId).toBe("string");
+    expect(getAMS2TrackLength(p.trackId)).toBe(p.ams2?.trackLengthM);
     expect(decodeAMS2Frame(Buffer.alloc(10))).toBeNull();
     b.writeUInt32LE(15,L.mVersion); expect(packet(b)).toBeNull();
     b.writeUInt32LE(14,L.mVersion); b.writeInt32LE(64,L.mViewedParticipantIndex); expect(packet(b)).toBeNull();

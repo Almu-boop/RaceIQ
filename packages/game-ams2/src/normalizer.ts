@@ -127,7 +127,7 @@ export function normalizeAMS2Frame(raw: Buffer): TelemetryPacket | null {
     SuspensionTravelMFR: f(L.mSuspensionTravel + 4),
     SuspensionTravelMRL: f(L.mSuspensionTravel + 8),
     SuspensionTravelMRR: f(L.mSuspensionTravel + 12),
-    CarOrdinal: carOrdinal,
+    carId: String(carOrdinal),
     CarClass: 0,
     CarPerformanceIndex: 0,
     DrivetrainType: 0,
@@ -138,6 +138,6 @@ export function normalizeAMS2Frame(raw: Buffer): TelemetryPacket | null {
     Speed: f(L.mSpeed),
     Power: 0,
     Torque: 0,
-    TrackOrdinal: trackOrdinal,
+    trackId: String(trackOrdinal),
   };
 }

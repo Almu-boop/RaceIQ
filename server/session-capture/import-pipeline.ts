@@ -1,3 +1,4 @@
+import { beginRecordingStorageImport } from "./storage-activity";
 import { existsSync, unlinkSync } from "node:fs";
 import type { GameId } from "@raceiq/shared/games/ids";
 import type { TelemetryPacket } from "@raceiq/shared/telemetry/types";
@@ -9,7 +10,7 @@ import { isIRacingSessionFrame } from "@raceiq/capture-formats/iracing/source-fr
 import { SESSION_SEGMENT_BOUNDARY, SESSION_SEGMENT_CONTEXT, SESSION_SEGMENT_CONTEXT_END } from "@raceiq/capture-formats/session/framing";
 import { applyFrameTime } from "./frame-time";
 import { LiveTelemetryPipeline } from "../telemetry/live-pipeline";
-import { NullWsAdapter, RealDbAdapter, type DbAdapter, type SessionIdentity, type SessionRecorderAdapter } from "../telemetry/pipeline-ports";
+import { NullWsAdapter, RealDbAdapter, SparseSessionRecorderAdapter, type DbAdapter, type SessionRecorderAdapter } from "../telemetry/pipeline-ports";
 import { reconcileSessionResult } from "../race-results/reconcile";
 
 import { countIndexSampleMaterialized, countSourceFrameScanned } from "./test-instrumentation";
@@ -22,10 +23,9 @@ export interface ImportedLap {
   lapNumber: number;
   lapTime: number;
   isValid: boolean;
-  carId: number | string;
-  trackId: number | string;
+  carId: string;
+  trackId: string;
 }
-
 export interface ImportSessionResult {
   packetCount: number;
   laps: ImportedLap[];
@@ -44,10 +44,7 @@ export class ImportCaptureAdapter implements DbAdapter {
   readonly rawFiles = new Set<string>();
   private readonly _pendingLapWrites = new Set<Promise<number>>();
   private _lapWriteFailure: unknown;
-  private readonly _sessionMeta = new Map<
-    number,
-    { carOrdinal: number; trackOrdinal: number; gameId: GameId; identity?: SessionIdentity }
-  >();
+  private readonly _sessionMeta = new Map<number, { carId: string; trackId: string; gameId: GameId }>();
   private _continueSession = false;
   private readonly _sessionSource?: string;
 
@@ -65,13 +62,12 @@ export class ImportCaptureAdapter implements DbAdapter {
 
 
   async insertSession(
-    carOrdinal: number,
-    trackOrdinal: number,
+    carId: string,
+    trackId: string,
     gameId: GameId,
     sessionType?: string,
     versionIdentity?: TelemetryVersionIdentity,
     ownership?: SessionOwnership,
-    identity?: SessionIdentity,
   ): Promise<number> {
     if (this._continueSession) {
       this._continueSession = false;
@@ -83,23 +79,15 @@ export class ImportCaptureAdapter implements DbAdapter {
       if (meta && meta.gameId !== gameId) {
         throw new Error("Import segment game does not match its source session");
       }
-      if (meta && (meta.carOrdinal !== carOrdinal || meta.trackOrdinal !== trackOrdinal)) {
-        await this._inner.updateSessionCarTrack(sessionId, carOrdinal, trackOrdinal, identity);
+      if (meta && (meta.carId !== carId || meta.trackId !== trackId)) {
+        await this._inner.updateSessionCarTrack(sessionId, carId, trackId);
       }
-      this._sessionMeta.set(sessionId, { carOrdinal, trackOrdinal, gameId, identity });
+      this._sessionMeta.set(sessionId, { carId, trackId, gameId });
       return sessionId;
     }
-    const id = await this._inner.insertSession(
-      carOrdinal,
-      trackOrdinal,
-      gameId,
-      sessionType,
-      versionIdentity,
-      ownership,
-      identity,
-    );
+    const id = await this._inner.insertSession(carId, trackId, gameId, sessionType, versionIdentity, ownership);
     this.sessionIds.add(id);
-    this._sessionMeta.set(id, { carOrdinal, trackOrdinal, gameId, identity });
+    this._sessionMeta.set(id, { carId, trackId, gameId });
     if (this._sessionSource) await updateSessionSource(id, this._sessionSource);
     return id;
 
@@ -135,8 +123,8 @@ export class ImportCaptureAdapter implements DbAdapter {
         lapNumber,
         lapTime,
         isValid,
-        carId: meta?.identity?.carId ?? meta?.carOrdinal ?? 0,
-        trackId: meta?.identity?.trackId ?? meta?.trackOrdinal ?? 0,
+        carId: meta?.carId ?? "",
+        trackId: meta?.trackId ?? "",
       });
       return id;
     });
@@ -165,17 +153,17 @@ export class ImportCaptureAdapter implements DbAdapter {
   getLaps(gameId: GameId, limit: number): Promise<LapMeta[]> {
     return this._inner.getLaps(gameId, limit);
   }
-  getTuneAssignment(gameId: GameId, carOrdinal: number, trackOrdinal: number) {
-    return this._inner.getTuneAssignment(gameId, carOrdinal, trackOrdinal);
+  getTuneAssignment(gameId: GameId, carId: string, trackId: string) {
+    return this._inner.getTuneAssignment(gameId, carId, trackId);
   }
   updateSessionRawFile(sessionId: number, rawFile: string, lapDetectorVersion: string, sparseCapture = false): Promise<void> {
     this.rawFiles.add(rawFile);
     return this._inner.updateSessionRawFile(sessionId, rawFile, lapDetectorVersion, sparseCapture);
   }
-  updateSessionCarTrack(sessionId: number, carOrdinal: number, trackOrdinal: number, identity?: SessionIdentity): Promise<void> {
+  updateSessionCarTrack(sessionId: number, carId: string, trackId: string): Promise<void> {
     const existing = this._sessionMeta.get(sessionId);
-    if (existing) this._sessionMeta.set(sessionId, { ...existing, carOrdinal, trackOrdinal, identity });
-    return this._inner.updateSessionCarTrack(sessionId, carOrdinal, trackOrdinal, identity);
+    if (existing) this._sessionMeta.set(sessionId, { ...existing, carId, trackId });
+    return this._inner.updateSessionCarTrack(sessionId, carId, trackId);
   }
   getLapsForExclusionScope(experimentId: number, tuneId: number) {
     return this._inner.getLapsForExclusionScope(experimentId, tuneId);
@@ -283,6 +271,8 @@ async function importTelemetrySource<T>(
   options: ImportSessionOptions,
   processItem: ImportItemHandler<T>,
 ): Promise<ImportSessionResult> {
+  const releaseStorageImport = beginRecordingStorageImport();
+  try {
   const db = new ImportCaptureAdapter({
     notifyDriverProfile: options.notifyDriverProfile,
     ownership: options.ownership,
@@ -291,7 +281,7 @@ async function importTelemetrySource<T>(
   });
   const pipeline = new LiveTelemetryPipeline(db, new NullWsAdapter(), {
     bypassPacketRateFilter: true,
-    recorder: options.recorder,
+    recorder: options.recorder ?? new SparseSessionRecorderAdapter(options.ownership),
   });
 
   let packetCount = 0;
@@ -312,9 +302,9 @@ async function importTelemetrySource<T>(
     }
   }
 
-  if (failure) return rollbackImport(db, failure);
+  if (failure) await rollbackImport(db, failure);
   if (options.requireLaps && db.laps.length === 0) {
-    return rollbackImport(
+    await rollbackImport(
       db,
       new Error("No complete, importable laps were found"),
     );
@@ -325,15 +315,20 @@ async function importTelemetrySource<T>(
     for (const sessionId of db.sessionIds) {
       await reconcileSessionResult(sessionId, gameId);
     }
+    await pipeline.finalizeDashboardCaptureFacts([...db.sessionIds]);
   } catch (error) {
-    return rollbackImport(db, error);
+    await rollbackImport(db, error);
   }
+
 
   return {
     packetCount,
     laps: db.laps,
     sessionIds: [...db.sessionIds],
   };
+  } finally {
+    releaseStorageImport();
+  }
 }
 
 /**

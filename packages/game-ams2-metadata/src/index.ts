@@ -1,16 +1,16 @@
 import type { GameAdapter } from "@raceiq/shared/games/types";
-const cars = new Map<number, string>();
-const tracks = new Map<number, string>();
-const trackLengths = new Map<number, number>();
-export function getAMS2TrackLength(ordinal: number): number | undefined { return trackLengths.get(ordinal); }
-export function getAMS2DiscoveredTrackName(ordinal: number): string | undefined { return tracks.get(ordinal); }
-export function registerAMS2Identity(car: number, carName: string, track: number, trackName: string, trackLengthM?: number): void {
-  cars.set(car, carName); tracks.set(track, trackName);
-  if (trackLengthM != null && Number.isFinite(trackLengthM) && trackLengthM > 0) trackLengths.set(track, trackLengthM);
+const cars = new Map<string, string>();
+const tracks = new Map<string, string>();
+const trackLengths = new Map<string, number>();
+export function getAMS2TrackLength(ordinal: number | string): number | undefined { return trackLengths.get(String(ordinal)); }
+export function getAMS2DiscoveredTrackName(ordinal: number | string): string | undefined { return tracks.get(String(ordinal)); }
+export function registerAMS2Identity(car: number | string, carName: string, track: number | string, trackName: string, trackLengthM?: number): void {
+  cars.set(String(car), carName); tracks.set(String(track), trackName);
+  if (trackLengthM != null && Number.isFinite(trackLengthM) && trackLengthM > 0) trackLengths.set(String(track), trackLengthM);
 }
-export function injectDiscoveredAMS2Identity(carRows: Iterable<{ ordinal: number; name: string }>, trackRows: Iterable<{ ordinal: number; name: string }>): void {
-  for (const car of carRows) cars.set(car.ordinal, car.name);
-  for (const track of trackRows) tracks.set(track.ordinal, track.name);
+export function injectDiscoveredAMS2Identity(carRows: Iterable<{ ordinal?: number | string; carId?: string; trackId?: string; name: string }>, trackRows: Iterable<{ ordinal?: number | string; carId?: string; trackId?: string; name: string }>): void {
+  for (const car of carRows) cars.set(String(car.carId ?? car.ordinal), car.name);
+  for (const track of trackRows) tracks.set(String(track.trackId ?? track.ordinal), track.name);
 }
 const unavailable = { source: "unavailable", reason: "source-limitation" } as const;
 export const ams2Adapter: GameAdapter = {
@@ -40,5 +40,5 @@ export const ams2Adapter: GameAdapter = {
   suspensionThresholds: {values: [25,65,85]},
   getCarName: id => cars.get(id) ?? `AMS2 car #${id}`,
   getTrackName: id => tracks.get(id) ?? `AMS2 track #${id}`,
-  getTrackOrdinalByName: name => [...tracks].find(([,n]) => n.toLowerCase() === name.toLowerCase())?.[0],
+  getTrackIdByName: name => [...tracks].find(([,n]) => n.toLowerCase() === name.toLowerCase())?.[0],
 };

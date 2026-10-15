@@ -1,10 +1,12 @@
+import { RecordingLayoutMigration } from "../components/RecordingLayoutMigration";
 import { getAllGames } from "@raceiq/shared/games/registry"
 import { QueryClientProvider } from "@tanstack/react-query";
-import { createRootRoute, Link, Outlet, useLocation } from "@tanstack/react-router";
+import { createRootRoute, ErrorComponent, Link, Outlet, redirect, useLocation, useRouter } from "@tanstack/react-router";
 import { Menu } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { OnboardingModal } from "@/components/onboarding/OnboardingModal";
 import { Settings } from "@/components/settings/Settings";
+import { DashboardAuthUnavailable, loadDashboardAuth } from "@/lib/dashboard-auth";
 import { useSettings } from "@/hooks/settings";
 import { applyLocale } from "@/lib/locale";
 import { m } from "@/paraglide/messages";
@@ -12,7 +14,6 @@ import { getLocale, isLocale } from "@/paraglide/runtime";
 import { AppSidebar } from "../components/AppSidebar";
 import { RaceResultStatus } from "../components/RaceResultStatus";
 import { ResponsiveWorkspace } from "../components/ResponsiveWorkspace";
-import { CaptureMigration } from "../components/CaptureMigration";
 import { StaleLapReprocessing } from "../components/StaleLapReprocessing";
 import { UpdateModal } from "../components/UpdateModal";
 import { Button } from "../components/ui/button";
@@ -20,7 +21,31 @@ import { useLocalStorage } from "../hooks/useLocalStorage";
 import { useWebSocket } from "../hooks/useWebSocket";
 import { queryClient } from "../lib/queryClient";
 import { useTelemetryStore } from "../stores/telemetry";
+import { gameIdForPathname } from "../lib/game-routes";
 import { uiStore, useUiStore } from "../stores/ui";
+import { GameRouteProvider, gameStore, usesStoreGameContext, useGameStore } from "../stores/game";
+function OverlayShell() {
+  useWebSocket();
+  const { displaySettings, settingsLoaded } = useSettings();
+  const settingsLanguage = displaySettings.language;
+
+  useEffect(() => {
+    if (!settingsLoaded || !settingsLanguage || !isLocale(settingsLanguage)) return;
+    if (getLocale() !== settingsLanguage) applyLocale(settingsLanguage);
+  }, [settingsLoaded, settingsLanguage]);
+
+  useLayoutEffect(() => {
+    document.documentElement.classList.add("overlay-source");
+    return () => document.documentElement.classList.remove("overlay-source");
+  }, []);
+
+  return <Outlet />;
+}
+
+function isOverlayPath(pathname: string) {
+  return pathname === "/overlay" || pathname === "/overlay/";
+}
+
 
 let _gamePrefixes: string[] | null = null;
 function getGamePrefixes() {
@@ -35,7 +60,6 @@ function useUpdateCheck() {
 }
 
 function AppShell() {
-  useWebSocket();
   const { displaySettings, settingsLoaded } = useSettings();
 
   // Bootstrap the Paraglide UI locale from the server-persisted `language`
@@ -70,6 +94,12 @@ function AppShell() {
     return true;
   });
   const location = useLocation();
+  const routeGameId = gameIdForPathname(location.pathname);
+  useLayoutEffect(() => {
+    if (!(routeGameId === null && usesStoreGameContext(location.pathname))) {
+      gameStore.actions.setGameId(routeGameId);
+    }
+  }, [location.pathname, routeGameId]);
   const hiddenGames: string[] = displaySettings.hiddenGames ?? [];
 
   // Close mobile drawer on route change, but keep it open when the user
@@ -87,10 +117,6 @@ function AppShell() {
     return <div className="h-screen bg-app-bg" />;
   }
 
-  const forceWelcome = new URLSearchParams(window.location.search).has("welcome");
-  if (forceWelcome || !displaySettings.onboardingComplete) {
-    return <OnboardingModal />;
-  }
 
   if (isPortable) {
     return (
@@ -178,21 +204,68 @@ function AppShell() {
         {(showUpdateModal || updateProgress) && <UpdateModal version={updateState?.latest ?? updateAvailable ?? "?"} currentVersion={updateState?.current ?? "?"} newReleases={updateState?.newReleases ?? []} fullReleaseNotes={updateState?.fullReleaseNotes ?? null} currentReleaseNotes={updateState?.currentReleaseNotes ?? null} currentReleaseDate={updateState?.currentReleaseDate ?? null} updatesDisabled={updateState?.updatesDisabled} onClose={() => setShowUpdateModal(false)} />}
         {onboardingOpen && <OnboardingModal onClose={closeOnboarding} />}
       </div>
-      <CaptureMigration />
+      <RecordingLayoutMigration />
       <StaleLapReprocessing />
       <RaceResultStatus compact />
     </>
   );
 }
+function DashboardConnection() {
+  useWebSocket();
+  return null;
+}
 
 function RootLayout() {
+  const router = useRouter();
+  const { auth } = Route.useRouteContext();
+  const location = useLocation();
+  const pathname = location.pathname;
+  const routeGameId = gameIdForPathname(pathname);
+  const storedGameId = useGameStore((state) => state.gameId);
+  const gameId = routeGameId ?? (usesStoreGameContext(pathname) ? storedGameId : null);
+  useEffect(() => {
+    const refresh = () => { void router.invalidate(); };
+    window.addEventListener("raceiq-auth-required", refresh);
+    const timer = window.setInterval(refresh, 60_000);
+    return () => {
+      window.removeEventListener("raceiq-auth-required", refresh);
+      window.clearInterval(timer);
+    };
+  }, [router]);
   return (
     <QueryClientProvider client={queryClient}>
-      <AppShell />
+      <GameRouteProvider value={gameId}>
+        {auth.authenticated && <DashboardConnection />}
+        {isOverlayPath(location.pathname) ? <OverlayShell /> : pathname === "/login" || pathname === "/onboarding" ? <Outlet /> : <AppShell />}
+      </GameRouteProvider>
     </QueryClientProvider>
   );
 }
 
 export const Route = createRootRoute({
+  beforeLoad: async ({ location }) => {
+    const auth = await loadDashboardAuth();
+    if (auth.pending && location.pathname !== "/onboarding") {
+      throw redirect({ to: "/onboarding", search: { redirect: location.href, welcome: undefined } });
+    }
+    if (!auth.pending && !auth.authenticated && location.pathname !== "/login") {
+      throw redirect({ to: "/login", search: { redirect: location.href } });
+    }
+    if (auth.authenticated && location.pathname !== "/login" && location.pathname !== "/onboarding" &&
+      (!auth.onboardingComplete || new URLSearchParams(location.searchStr).has("welcome"))) {
+      throw redirect({ to: "/onboarding", search: { redirect: location.href, welcome: true } });
+    }
+    return { auth };
+  },
+  errorComponent: function AccessUnavailable({ error }) {
+    const router = useRouter();
+    if (!(error instanceof DashboardAuthUnavailable)) return <ErrorComponent error={error} />;
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-3 bg-app-bg p-4 text-app-text">
+        <p className="text-sm text-status-danger" role="alert">{m.access_unavailable()}</p>
+        <Button variant="app-outline" onClick={() => void router.invalidate()}>{m.access_retry()}</Button>
+      </div>
+    );
+  },
   component: RootLayout,
 });

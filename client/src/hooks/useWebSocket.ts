@@ -7,8 +7,19 @@ import { telemetryStore } from "../stores/telemetry";
 import { devTelemetryStore } from "../stores/dev-telemetry";
 import { queryKeys } from "./query-keys";
 import { buildWebSocketUrl, type DevWebSocketTarget } from "./websocket-url";
+import { invalidateDashboardQueries } from "./dashboard";
 
 declare const __RACEIQ_DEV_WS_TARGET__: DevWebSocketTarget;
+
+let dashboardRefreshTimer: number | undefined;
+
+function invalidateDashboard() {
+  if (dashboardRefreshTimer !== undefined) window.clearTimeout(dashboardRefreshTimer);
+  dashboardRefreshTimer = window.setTimeout(() => {
+    dashboardRefreshTimer = undefined;
+    invalidateDashboardQueries();
+  }, 100);
+}
 
 const VERSION_REQUEST_TIMEOUT_MS = 10_000;
 const RACE_RESULT_REPROCESS_ERROR = "One or more race results could not be reconciled.";
@@ -23,24 +34,6 @@ function fetchVersionInfo(signal: AbortSignal) {
     .catch(() => {});
 }
 
-async function refreshCaptureMigrationStatus(signal?: AbortSignal) {
-  try {
-    const response = await client.api.sessions["capture-migration-status"].$get(undefined, signal ? { init: { signal } } : undefined);
-    if (!response.ok) {
-      telemetryStore.actions.setCaptureMigrationStatusReady();
-      return;
-    }
-    const data = await response.json();
-    telemetryStore.actions.setCaptureMigration({
-      sessionCount: data.sessionCount,
-      captureCount: data.captureCount,
-    });
-    telemetryStore.actions.restoreCaptureMigrationProgress(data.migrationProgress);
-  } catch {
-    // Status refresh is best-effort; maintenance view provides manual retry.
-    telemetryStore.actions.setCaptureMigrationStatusReady();
-  }
-}
 
 export function useWebSocket() {
   const wsRef = useRef<WebSocket | null>(null);
@@ -95,7 +88,6 @@ export function useWebSocket() {
 
       ws.onopen = () => {
         telemetryStore.actions.setConnected(true);
-        void refreshCaptureMigrationStatus();
         startVersionRequest();
         if (devTelemetryStore.get().subscriptionWanted) {
           ws.send(JSON.stringify({ type: "subscribe", channel: "dev-telemetry" }));
@@ -122,35 +114,18 @@ export function useWebSocket() {
             telemetryStore.actions.setUpdateProgress({ stage: data.stage, percent: data.percent ?? 0 });
           } else if (data.type === "onboarding_complete") {
             queryClient.invalidateQueries({ queryKey: ["settings"] });
+          } else if (data.type === "dashboard_updated") {
+            invalidateDashboard();
           } else if (data.type === "session-laps") {
             telemetryStore.actions.setSessionLaps(data.laps);
           } else if (data.type === "dev-state") {
             telemetryStore.actions.setDevState(data);
           } else if (data.type === "lap-saved") {
             queryClient.invalidateQueries({ queryKey: ["laps"] });
+            invalidateDashboard();
             queryClient.invalidateQueries({ queryKey: queryKeys.userTunes });
           } else if (data.type === "stale-lap-detection") {
             telemetryStore.actions.setStaleLapDetection({ sessionCount: data.sessionCount as number, currentVersion: data.currentVersion as string });
-          } else if (data.type === "capture-migration-available") {
-            telemetryStore.actions.setCaptureMigration({ sessionCount: data.sessionCount as number, captureCount: data.captureCount as number });
-          } else if (data.type === "capture-migration-progress") {
-            if (data.status === "success" || data.status === "partial") {
-              telemetryStore.actions.restoreCaptureMigrationProgress({
-                status: data.status,
-                done: data.done as number,
-                total: data.total as number,
-                migrated: data.migrated as number,
-                failed: data.failed as number,
-                error: data.error as string | null ?? null,
-              });
-            } else {
-              telemetryStore.actions.setCaptureMigrationProgress({
-                done: data.done as number,
-                total: data.total as number,
-                status: data.status as "migrated" | "error",
-                error: data.error as string | undefined,
-              });
-            }
           } else if (data.type === "stale-race-results") {
             telemetryStore.actions.setStaleRaceResults({ sessionCount: data.sessionCount as number, currentVersion: data.currentVersion as string });
           } else if (data.type === "race-result-reconciled") {
@@ -164,6 +139,7 @@ export function useWebSocket() {
             if (done === total) {
               if (!failedEarlier && !failedNow) telemetryStore.actions.setStaleRaceResults(null);
               telemetryStore.actions.setRaceResultReprocessProgress(null);
+              invalidateDashboard();
             }
             queryClient.invalidateQueries({ queryKey: queryKeys.sessions });
             queryClient.invalidateQueries({ queryKey: queryKeys.sessionResults });
@@ -186,7 +162,8 @@ export function useWebSocket() {
         }
       };
 
-      ws.onclose = () => {
+      ws.onclose = (event) => {
+        if (event.code === 1008) window.dispatchEvent(new Event("raceiq-auth-required"));
         abortVersionRequest();
         const s = telemetryStore.get();
         telemetryStore.actions.setConnected(false);

@@ -35,7 +35,12 @@ export function mergePitCycleReason(current: PitCycleReason | null, next: PitCyc
   return "pit lap";
 }
 
-export function assessLapRecording(packets: readonly TelemetryPacket[], lapTime: number): LapQualityResult {
+export function assessLapRecording(
+  packets: readonly TelemetryPacket[],
+  lapTime: number,
+  options: { closed?: boolean } = {},
+): LapQualityResult {
+  const closed = options.closed ?? true;
   if (packets.length < 30) return { valid: false, reason: "too few telemetry packets" };
   const first = packets[0]!;
   const last = packets[packets.length - 1]!;
@@ -51,7 +56,7 @@ export function assessLapRecording(packets: readonly TelemetryPacket[], lapTime:
     return { valid: false, reason: "starting lap" };
   }
   const capturedAMS2RaceStart = first.gameId === "ams2" && first.ams2?.sessionType === "race" && first.LapNumber === 1 && first.CurrentLap <= 0;
-  if (first.gameId !== "acc" && !capturedAMS2RaceStart) {
+  if (closed && first.gameId !== "acc" && !capturedAMS2RaceStart) {
     const dx = last.PositionX - first.PositionX;
     const dz = last.PositionZ - first.PositionZ;
     if (Math.sqrt(dx * dx + dz * dz) > 20) {

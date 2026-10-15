@@ -12,8 +12,8 @@ export function resolveAMS2LapReset(previous: TelemetryPacket, lastLastLap: numb
   // during the untimed lead-in. Distance wrapping alone is not a restart.
   const elapsedMs = packet.TimestampMS - previous.TimestampMS;
   const continuousStartLineWrap =
-    previous.sessionUID === packet.sessionUID && previous.TrackOrdinal === packet.TrackOrdinal &&
-    previous.CarOrdinal === packet.CarOrdinal && previous.LapNumber === packet.LapNumber &&
+    previous.sessionUID === packet.sessionUID && previous.trackId === packet.trackId &&
+    previous.carId === packet.carId && previous.LapNumber === packet.LapNumber &&
     previous.CurrentLap < 0 && packet.CurrentLap >= -1 && packet.CurrentLap <= 1 &&
     previous.LastLap <= 0 && packet.LastLap <= 0 &&
     before.trackLengthM > 60 && before.trackLengthM === after.trackLengthM &&

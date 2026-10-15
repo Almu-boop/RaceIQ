@@ -259,7 +259,7 @@ describe("AMS2 authoritative live distance", () => {
   test("a track with no outline advances through all sectors on consecutive laps", async () => {
     initGameAdapters();
     const tracker = new SectorTracker();
-    await tracker.reset(-1, "ams2");
+    await tracker.reset("-1", "ams2", "-1");
     const ams = (distance: number, time: number, lap = 1) => pkt({
       gameId: "ams2", DistanceTraveled: (lap - 1) * 3000 + distance, CurrentLap: time, LapNumber: lap,
       LastLap: lap > 1 ? 90 : 0,
@@ -276,7 +276,7 @@ describe("AMS2 authoritative live distance", () => {
   test("reference delta aligns lap position and survives the finish-line position wrap", async () => {
     initGameAdapters();
     const tracker = new SectorTracker();
-    await tracker.reset(-1, "ams2");
+    await tracker.reset("-1", "ams2", "-1");
     const frame = (total: number, position: number, time: number, lap: number) => pkt({
       gameId: "ams2", DistanceTraveled: total, CurrentLap: time, LapNumber: lap,
       ams2: { trackLengthM: 3000, lapDistanceM: position } as TelemetryPacket["ams2"],
@@ -292,7 +292,7 @@ describe("AMS2 authoritative live distance", () => {
   test("joining a session midway through a lap uses the game's lap position", async () => {
     initGameAdapters();
     const tracker = new SectorTracker();
-    await tracker.reset(-1, "ams2");
+    await tracker.reset("-1", "ams2", "-1");
     const data = tracker.feed(pkt({ gameId: "ams2", DistanceTraveled: 7500, CurrentLap: 45, LapNumber: 3,
       ams2: { trackLengthM: 3000, lapDistanceM: 1500 } as TelemetryPacket["ams2"],
     }));
