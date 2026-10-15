@@ -6,7 +6,21 @@ import { join, resolve } from "node:path";
 import { runtime } from "../../config/runtime";
 
 test.describe.configure({ retries: 0 });
-test("recording migration imports legacy captures, migrates into occupied folders, and preserves unrelated files", async ({ request }) => {
+test("an empty recording folder does not show a migration dialog", async ({ page, request }) => {
+  const api = `http://localhost:${runtime.freshInstall.port}`;
+  const access = await request.get(`${api}/api/auth/status`);
+  expect(access.ok()).toBe(true);
+  if ((await access.json() as { pending: boolean }).pending) {
+    const setup = await request.post(`${api}/api/auth/setup`, { data: { password: null, exposureConfirmed: true } });
+    expect(setup.ok()).toBe(true);
+  }
+  const status = page.waitForResponse((response) => response.url().endsWith("/api/storage/layout-migration") && response.request().method() === "GET");
+  await page.goto("/", { waitUntil: "networkidle" });
+  expect(await (await status).json()).toMatchObject({ fileCount: 0, progress: { status: "idle" } });
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+});
+
+test("legacy recordings automatically prompt for consent and migrate to the user-selected folder", async ({ page, request }) => {
   const api = `http://localhost:${runtime.freshInstall.port}`;
   const settingsPath = join(runtime.freshInstall.dataDir, "settings.json");
   const originalSettings = readFileSync(settingsPath, "utf8");
@@ -45,8 +59,33 @@ test("recording migration imports legacy captures, migrates into occupied folder
     legacyFiles.forEach((file, index) => expect(readFileSync(file)).toEqual(originalCaptures[index]));
     expect(existsSync(join(source, "fm-2023", "own", importedFiles[0]!))).toBe(false);
 
-    const accepted = await request.post(`${api}/api/storage/layout-migration`, { data: { directory: occupied } });
-    expect(accepted.status()).toBe(202);
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    const prompt = page.getByRole("dialog", { name: "Organize your recordings", exact: true });
+    await expect(prompt).toBeVisible();
+    await expect(prompt.getByRole("radio", { name: /Keep current folder/ })).toBeChecked();
+    await expect(prompt.getByRole("button", { name: "Organize recordings", exact: true })).toBeEnabled();
+    await expect(prompt).toContainText(source);
+    // Detection and rendering must not move anything before the user consents.
+    legacyFiles.forEach((file, index) => expect(readFileSync(file)).toEqual(originalCaptures[index]));
+    expect(existsSync(join(source, "fm-2023", "own", importedFiles[0]!))).toBe(false);
+
+    // Required migration cannot be skipped by a button, Escape, or backdrop click.
+    await expect(prompt.getByRole("button", { name: "Later", exact: true })).toHaveCount(0);
+    await page.keyboard.press("Escape");
+    await expect(prompt).toBeVisible();
+    await page.mouse.click(4, 4);
+    await expect(prompt).toBeVisible();
+    legacyFiles.forEach((file, index) => expect(readFileSync(file)).toEqual(originalCaptures[index]));
+    expect(existsSync(join(source, "fm-2023", "own", importedFiles[0]!))).toBe(false);
+
+    await prompt.getByRole("radio", { name: "Choose a new folder", exact: true }).check();
+    await expect(prompt.getByRole("textbox", { name: "Folder path", exact: true })).toBeVisible();
+    await prompt.getByRole("textbox", { name: "Folder path", exact: true }).fill(occupied);
+    const accepted = page.waitForResponse((response) => response.url().endsWith("/api/storage/layout-migration") && response.request().method() === "POST");
+    await prompt.getByRole("button", { name: "Organize and move recordings", exact: true }).click();
+    const response = await accepted;
+    expect(response.status()).toBe(202);
+    expect(response.request().postDataJSON()).toEqual({ directory: occupied });
     await expect.poll(async () => {
       const response = await request.get(`${api}/api/storage/layout-migration`);
       expect(response.ok()).toBe(true);
@@ -56,6 +95,15 @@ test("recording migration imports legacy captures, migrates into occupied folder
       fileCount: 0,
       progress: { status: "success", migrated: importedFiles.length, failed: 0 },
     });
+    const success = page.getByRole("dialog", { name: "Recordings organized", exact: true });
+    await expect(success).toBeVisible();
+    await expect(success.getByRole("status")).toHaveText(`Organized ${importedFiles.length} files.`);
+    await expect(success).toContainText(occupied);
+    await success.getByRole("button", { name: "Close", exact: true }).click();
+    const reloadedStatus = page.waitForResponse((response) => response.url().endsWith("/api/storage/layout-migration") && response.request().method() === "GET");
+    await page.reload({ waitUntil: "networkidle" });
+    expect(await (await reloadedStatus).json()).toMatchObject({ fileCount: 0 });
+    await expect(page.getByRole("dialog")).toHaveCount(0);
     expect(readFileSync(join(occupied, "keep.txt"), "utf8")).toBe("Do not overwrite");
     importedFiles.forEach((filename, index) => expect(readFileSync(join(occupied, "fm-2023", "own", filename))).toEqual(originalCaptures[index]));
     legacyFiles.forEach((file) => expect(existsSync(file)).toBe(false));

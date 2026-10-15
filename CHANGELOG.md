@@ -12,8 +12,18 @@
 - Add OBS overlays for live driving, timing, standings, nearby race order, supported car damage, pedal inputs, and distance driven, with sample previews and metric or imperial units.
 - Choose a recording folder, relocate existing recordings, and organize them into per-game `own` and `others` folders.
 - Support AC Evo Tourist layout.
+- Add Hindi, Korean, European Portuguese, and Simplified Chinese interface translations.
 
 ### Fixes
+- Stop reopening the recording-organization success dialog after reload when no recordings need migration.
+- Show the track layout after the track name with a hyphen and remove the track-detail header subtitle.
+- Hide the track-detail Debug tab in production builds.
+- Clarify setup browser labels with “Save to my setups” and the “Mine” filter.
+- Adapt dashboard activity to the selected period: daily duration for Today, daily bars for This Week, weekday-column calendars for This Month, and monthly totals for This Year; fill the available panel width.
+- Show monthly Clean laps trend points for This Year while preserving cumulative clean rates.
+- Keep dashboard period controls visible while scrolling.
+- Reduce excess space above the dashboard period controls.
+- Restore the visible down arrow and solid background on the AI chat scroll-to-bottom button.
 - Keep experiment lap counts and analysis tied to the selected test when importing laps, revisiting setups, or receiving live updates.
 - Keep lap-chat follow-ups grounded in the selected lap, latest analysis, fresh telemetry, and earlier driver notes.
 - Exclude running-start fragments from lap replay and align corner measurements and highlights with the timed lap.
@@ -38,6 +48,7 @@
 - Keep racing, throttle, and braking lines sharp when zooming into the replay map.
 
 ### Internal
+- Exercise the initial recording-migration prompt, explicit consent, relocation, and no-work reload behavior through the real browser and storage API.
 - Export complete chat debugging data as JSON, including retained generations, thinking, tool activity, and system prompts.
 - Reduce F1 race-result processing from 4,851 ms to 567 ms in a matched benchmark; this is not an end-to-end recording measurement.
 - Respect development onboarding overrides and support explicit backend proxy targets without a local database.
