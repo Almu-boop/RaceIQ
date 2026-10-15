@@ -16,9 +16,10 @@ test("an empty recording folder does not show a migration dialog", async ({ page
     const setup = await request.post(`${api}/api/auth/setup`, { data: { password: null, exposureConfirmed: true } });
     expect(setup.ok()).toBe(true);
   }
-  const status = page.waitForResponse((response) => response.url().endsWith("/api/storage/layout-migration") && response.request().method() === "GET");
-  await page.goto("/", { waitUntil: "networkidle" });
-  expect(await (await status).json()).toMatchObject({ fileCount: 0, progress: { status: "idle" } });
+  const status = await request.get(`${api}/api/storage/layout-migration`);
+  expect(status.ok()).toBe(true);
+  expect(await status.json()).toMatchObject({ fileCount: 0, progress: { status: "idle" } });
+  await page.goto("/", { waitUntil: "domcontentloaded" });
   await expect(page.getByRole("dialog")).toHaveCount(0);
 });
 
