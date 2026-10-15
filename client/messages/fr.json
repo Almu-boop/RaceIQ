@@ -1688,6 +1688,7 @@
   "dataguide_surface_temp": "Température de la surface.",
   "dataguide_tire_wear_remaining": "Usure restante des pneus.",
   "dataguide_brake_disc_temp": "Température des disques de frein.",
+  "analyse_motec_unsupported_game": "L’importation MoTeC n’est pas encore prise en charge pour {game}. Utilisez plutôt un enregistrement RaceIQ natif.",
   "label_position": "Position",
   "label_last": "Dernier",
   "tuneform_copy_clipboard": "Copier dans le presse-papiers",
