@@ -5,60 +5,35 @@
 - Imports and integrations now use string car and track IDs instead of ordinal fields. Existing sessions and setup links migrate automatically; downgrading requires a pre-upgrade database backup.
 
 ### Features
+- New home dashboard with cleaner session and favourite widgets, clean-rate and podium trends.
 - Configure dashboard password protection during setup or in Access & security settings.
 - Choose dashboard network interfaces and allowed browser domains without changing telemetry reception.
 - Share dashboard and HUD links through copied URLs or QR codes, including saved hostnames such as Tailscale domains.
 - Add OBS overlays for live driving, timing, standings, nearby race order, supported car damage, pedal inputs, and distance driven, with sample previews and metric or imperial units.
-- Refresh the dashboard with cleaner session and favourite widgets, clean-rate and podium trends, and seven days of activity by default.
-- Request automated lap insights in Analyse chat, with visible tool activity and clear explanations when data or findings are unavailable.
 - Choose a recording folder, relocate existing recordings, and organize them into per-game `own` and `others` folders.
+- Support AC Evo Tourist layout.
 
 ### Fixes
-- Restore migration of existing recordings into organized folders on Windows.
 - Keep experiment lap counts and analysis tied to the selected test when importing laps, revisiting setups, or receiving live updates.
 - Keep lap-chat follow-ups grounded in the selected lap, latest analysis, fresh telemetry, and earlier driver notes.
 - Exclude running-start fragments from lap replay and align corner measurements and highlights with the timed lap.
-- Restore dashboard, driver-profile, and Analyse pages when opening the app.
 - Limit AI setup recommendations to available, legal adjustments and omit unchanged settings.
 - Show setup values from the lap's linked setup and preserve bump values in older AC Evo setups.
-- Block screenshots for chat models without image support and remove failed screenshot messages without losing conversation or lap analysis.
+- Allow remove failed screenshot messages without losing conversation or lap analysis.
 - Keep experiment chat tied to the selected version and its laps; allow multiple setup alternatives without unnecessary refresh prompts.
 - Preserve the selected experiment branch when undoing an unrelated branch deletion or partial restoration.
 - Prevent simultaneous saves of new setups from overwriting existing files.
 - Preserve saved lap analysis when clearing chat history.
-- Replace unavailable dashboard network interfaces without losing other selections.
-- Open Windows tray links on an active selected address when localhost is disabled.
-- Retry dashboard initialization after an authorization-status failure instead of showing a blank page.
-- Make browser-domain restrictions opt-in and clarify how to allow external HUD hostnames.
-- Show interface names and IP addresses in Portable settings; generate shared links only for active dashboard addresses.
-- Preserve the welcome wizard and show sign-in only after password protection is configured.
-- Refuse to reopen dashboard setup when a previously configured database is lost or replaced.
-- Keep localhost access working after adding allowed browser domains.
-- Simplify Access & security forms, clarify password requirements, and warn that unprotected visitors can edit data, settings, and use AI chat.
-- Restore track edges in AC Evo Tourist replay without joining edges across the missing connector.
-- Preserve car and track selections in older bookmarks and native AC Evo venue/layout URLs.
-- Refresh experiment spread and corner results after recorded laps are repaired.
-- Wait for the car catalog before importing setup folders and require a valid car selection.
-- Keep live Tourist route maps open between finish and start.
-- Keep outdated-recording warnings visible until every stale session is repaired.
-- Ask for missing car and track identities when importing MoTeC ZIPs or opening saved sessions, preserving valid selections and original MoTeC content.
 - Restore experiment history-lap imports when no car or track is selected.
 - Persist setup name, author, description, and weakness edits.
-- Show saved lap favorites and telemetry availability in lap details.
-- Restore session car and track names for display, search, and sorting.
-- Avoid lookup errors on Home and live dashboards before a car is known.
 - Preserve all four brake temperatures in ACC and AC Evo MoTeC imports.
-- Keep bundled AC Evo track maps and setup-folder metadata available after discovery.
 - Restore the Any car filter in the AC Evo setup browser.
 - Prevent crafted AI credential requests from running commands on macOS.
-- Reject unrelated browser origins while preserving dashboard and live telemetry access through reverse proxies.
 - Preserve incomplete-lap eligibility and LMU first-outlap classification.
-- Keep imports, cleanup, and dashboard chat working after enabling password protection.
 - Load detailed LMU track boundaries without long stalls.
 - Show unnamed multi-turn sections once in Analyse and track-detail labels.
 - Keep AC Evo layouts distinct during import, setup selection, and session repair without losing notes, favorites, or setup links.
 - Replay long Tourist laps without chart crashes or closed-circuit map overlays.
-- Show AC Evo car and layout names immediately after import instead of numeric placeholders.
 - Reconcile older recordings with updated car, track, and lap detection, preserving matched lap annotations and reporting captures that cannot be repaired.
 - Keep racing, throttle, and braking lines sharp when zooming into the replay map.
 
