@@ -1,22 +1,98 @@
 ## Unreleased
 
 ### Features
-- Export complete chat history as JSON for developer debugging, including retained chat generations, stored thinking, tool calls and results, and system prompts.
-- Optionally protect dashboard access with a password and configure trusted browser origins independently, while keeping existing local and remote access working without new settings.
-- Reduce F1 race-result processing time from 4,851 ms to 567 ms (88.3% less time) in a matched benchmark; this does not measure end-to-end recording performance.
 
-- Browse enriched iRacing car, car-class, and track catalogs with official car images, offline pit-road maps, and grouped lap sections.
+### Fixes
+
+### Internal
+
+## v0.20.0 - 2026-10-15
+
+### Breaking
+- Legacy full-frame RaceIQ captures are no longer supported for import and replay. Migrate remaining legacy recordings when prompted before updating.
+- Imports and integrations now use string car and track IDs instead of ordinal fields. Existing sessions and setup links migrate automatically; downgrading requires a pre-upgrade database backup.
+
+### Features
+- New home dashboard with cleaner session and favourite widgets, clean-rate and podium trends.
+- Configure dashboard password protection during setup or in Access & security settings.
+- Choose dashboard network interfaces and allowed browser domains without changing telemetry reception.
+- Share dashboard and HUD links through copied URLs or QR codes, including saved hostnames such as Tailscale domains.
+- Add OBS overlays for live driving, timing, standings, nearby race order, supported car damage, pedal inputs, and distance driven, with sample previews and metric or imperial units.
+- Choose a recording folder, relocate existing recordings, and organize them into per-game `own` and `others` folders.
+- Support AC Evo Tourist layout.
+- Add Hindi, Korean, European Portuguese, and Simplified Chinese interface translations.
 
 ### Fixes
 - Show a pointer cursor over clickable session rows while preserving the original date/time appearance, keyboard controls, and separate Recap and Analyse actions.
+- Keep converted recordings from older releases readable after updating, including checkpoint-only F1, iRacing, and LMU captures.
+- Stop reopening the recording-organization success dialog after reload when no recordings need migration.
+- Show the track layout after the track name with a hyphen and remove the track-detail header subtitle.
+- Hide the track-detail Debug tab in production builds.
+- Clarify setup browser labels with “Save to my setups” and the “Mine” filter.
+- Adapt dashboard activity to the selected period: daily duration for Today, daily bars for This Week, weekday-column calendars for This Month, and monthly totals for This Year; fill the available panel width.
+- Show monthly Clean laps trend points for This Year while preserving cumulative clean rates.
+- Keep dashboard period controls visible while scrolling.
+- Reduce excess space above the dashboard period controls.
+- Restore the visible down arrow and solid background on the AI chat scroll-to-bottom button.
+- Keep experiment lap counts and analysis tied to the selected test when importing laps, revisiting setups, or receiving live updates.
+- Keep lap-chat follow-ups grounded in the selected lap, latest analysis, fresh telemetry, and earlier driver notes.
+- Exclude running-start fragments from lap replay and align corner measurements and highlights with the timed lap.
+- Limit AI setup recommendations to available, legal adjustments and omit unchanged settings.
+- Show setup values from the lap's linked setup and preserve bump values in older AC Evo setups.
+- Allow remove failed screenshot messages without losing conversation or lap analysis.
+- Keep experiment chat tied to the selected version and its laps; allow multiple setup alternatives without unnecessary refresh prompts.
+- Preserve the selected experiment branch when undoing an unrelated branch deletion or partial restoration.
+- Prevent simultaneous saves of new setups from overwriting existing files.
+- Preserve saved lap analysis when clearing chat history.
+- Restore experiment history-lap imports when no car or track is selected.
+- Persist setup name, author, description, and weakness edits.
+- Preserve all four brake temperatures in ACC and AC Evo MoTeC imports.
+- Restore the Any car filter in the AC Evo setup browser.
 - Prevent crafted AI credential requests from running commands on macOS.
-- Reject unrelated browser origins on dashboard and live telemetry requests while preserving same-origin access through reverse proxies.
-- Preserve incomplete-lap eligibility and LMU first-outlap classification across ordinal detector transitions.
-
-- Load LMU track boundaries without long stalls on detailed SVG maps.
+- Preserve incomplete-lap eligibility and LMU first-outlap classification.
+- Load detailed LMU track boundaries without long stalls.
 - Show unnamed multi-turn sections once in Analyse and track-detail labels.
+- Keep AC Evo layouts distinct during import, setup selection, and session repair without losing notes, favorites, or setup links.
+- Replay long Tourist laps without chart crashes or closed-circuit map overlays.
+- Reconcile older recordings with updated car, track, and lap detection, preserving matched lap annotations and reporting captures that cannot be repaired.
+- Recheck all historical AC Evo recordings for Tourist layout identity and rebuild their laps after recording-folder organization completes; keep dependent startup work blocked when an earlier repair is incomplete.
+- Keep racing, throttle, and braking lines sharp when zooming into the replay map.
 
 ### Internal
+- Add a release-only Ubuntu Docker smoke test that seeds the latest published release, completes migration dialogs, upgrades to freshly fetched main, and streams checkout, seed, server, and phase progress to OrbStack container logs.
+- Add `test:upgrade --replay` to retain successful upgrade recordings and open the local Playwright Trace Viewer after Docker exits, including failed runs with available traces.
+- Seed all six supported games in the Docker upgrade smoke, validate converted recording provenance and framing before checkout, require successful startup reconciliation, and verify each game's session IDs survive the release-to-main transition; extend bounded deadlines for the full dataset.
+- Align setup, track, cleanup, and migration browser tests with current labels, production Debug visibility, and organized capture paths; isolate legacy fixture conversion and delete disposable sessions without redundant parent deletion.
+- Exercise the initial recording-migration prompt, explicit consent, relocation, and no-work reload behavior through the real browser and storage API.
+- Export complete chat debugging data as JSON, including retained generations, thinking, tool activity, and system prompts.
+- Reduce F1 race-result processing from 4,851 ms to 567 ms in a matched benchmark; this is not an end-to-end recording measurement.
+- Respect development onboarding overrides and support explicit backend proxy targets without a local database.
+- Keep development dashboard links, browser origins, selected network interfaces, and live telemetry working across localhost, LAN, and Tailscale.
+- Package organized recording paths in seeded Playwright databases while rejecting unsafe capture paths.
+- Verify setup navigation and recording-folder changes without depending on the optional Welcome 3D demo, and avoid startup-maintenance import cycles.
+- Document the reusable confirmation-dialog-to-background-progress pattern from sparse recording conversion, including state ownership, recovery, accessibility, and operation precedence.
+- Keep seeded Playwright discovery independent of server-only catalog imports, and reset persisted dashboard access between fresh-install wizard attempts with an explicit loopback settings check.
+- Recreate the database and dashboard access setup when seeding with `--clean`.
+- Wait for dashboard metadata and loading panels to finish before generating the Home marketing screenshot.
+- Include the privacy-safe iRacing SessionInfo path manifest in clean checkouts so CI can validate the telemetry catalog.
+- Add `bun clean` to remove repository-local development data without targeting custom `DATA_DIR` locations.
+- Log legacy fixture conversion to sparse format during database seeding.
+
+- Isolate dashboard-authentication tests in subprocesses so Windows releases database handles before cleanup, and verify password recovery through the command in a separate process.
+- Run development-dashboard SQLite assertions in a subprocess so Windows releases native database handles before fixture cleanup.
+- Limit live `ps` resource-sampler tests to supported platforms.
+- Share the application-owned database connection with dashboard authentication to prevent Linux WAL cleanup from discarding imported sessions during upgrade verification.
+- Ban Bun's separate SQLite driver in repository lint and use libSQL for synchronous fixtures and tooling.
+- Preserve dashboard credentials and login sessions from earlier feature builds while applying identity and dashboard read-model migrations.
+- Limit CI test execution to two concurrent Turbo tasks and one Bun unit-test worker per task to reduce resource pressure on constrained runners.
+- Write seed-imported session captures in sparse canonical format.
+- Preserve raw-fixture developer playback and live UDP benchmarks; retain segment boundaries and acquisition timestamps during seed conversion.
+- Update browser coverage for dashboard periods, session analysis navigation, and persisted onboarding settings without relying on removed headings or recap buttons; enable feature-gated responsive routes in both fresh and seeded test servers.
+- Align responsive Analyse waits with replay readiness and keep session-table browser tests scoped to visible rows after expansion.
+- Report Paraglide development and production compilation stages, a 10-second elapsed-time heartbeat, and total build duration; preserve validated cache reuse.
+- Bound HTTP request/response adapter typing to avoid expanding the full RPC router schema during backend typechecking, preserving existing RPC contracts.
+- Support recorder benchmark CPU/RSS sampling on Windows through PowerShell/CIM, and fail subprocess sampling errors instead of hanging tooling tests.
+- Add a release-seeded startup upgrade regression that verifies historical Tourist sessions are automatically reprocessed into the correct layout and lap times.
 - Remove unused compiled artifact downloads and base production builds from dev-mode dashboard screenshot CI.
 - Split current and base dashboard screenshot renders into four CI shards while retaining the complete screenshot inventory.
 - Document new-game integration, lossless sparse recording, lap correctness checks, and gzip fixture splitting without Git LFS; align capture and architecture guides with current implementation.
@@ -29,6 +105,14 @@
 - Correct Linux benchmark CPU/RSS sampling and run iRacing parser/import benchmarks independently of production release flags.
 - Skip build, test, browser, snapshot, and benchmark PR jobs for automated release version bump branches.
 - Declare the frontend contract tests' backend-core dependency so clean CI installs resolve setup-import test modules.
+- Add revision-checked SQLite dashboard summaries and indexed UTC projections; expose a bounded, snapshot-consistent dashboard API with explicit pending coverage.
+- Add the version-5 SQLite dashboard processor with durable capture readiness, revision-checked publication, resumable backfill, retry state, and ingest-pass capture facts; keep dashboard recap separate from generic analysis.
+- Add isolated Bun/SQLite dashboard scale assertion, timing, and recording/backfill contention runners.
+- Read timestamped recorder dumps correctly in contention checks, preserve failed-scenario evidence, fix duplicate-lap SQL, and close child input after the final command.
+- Maintain revision-safe monthly dashboard entity rollups for older complete months, preserving recent daily detail and exact boundaries; backfill existing summaries without changing source data.
+- Separate realistic active-user dashboard benchmarks from archive stress, report actual period membership and SQL Promise timings, and preserve incomplete/failed-scope measurements without weakening budgets.
+- Reuse a read-only SQLite connection and cached statements for synchronous dashboard snapshots; measure those queries directly and apply the active-user recorder fixture profile.
+- Upgrade the runtime and tooling to Bun 1.4.3.
 
 ## v0.19.2 - 2026-10-04
 

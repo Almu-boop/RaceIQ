@@ -27,6 +27,8 @@ import { LMU_SOURCE_FRAME_MAGIC, LMU_SOURCE_FRAME_V2_SIZE } from "@raceiq/captur
 import { ACC_PACKED_MAGIC, ACEVO_PACKED_MAGIC } from "@raceiq/capture-formats/kunos/pack-triplet";
 import { encodeKunosSparseFrame } from "@raceiq/capture-formats/session/kunos-sparse";
 import { encodeGenericSparseFrame, genericFrameIdentity } from "@raceiq/capture-formats/session/generic-sparse";
+import { KNOWN_GAME_IDS } from "@raceiq/shared/games/ids";
+import { isCatalogCarId, isCatalogTrackId } from "../games/session-identity";
 import { resolveCarName } from "@raceiq/game-catalogs/racing/cars/resolve-name";
 import { resolveTrackName } from "@raceiq/game-catalogs/racing/tracks/resolve-name";
 import { extractMotecArchive } from "@raceiq/backend-core/motec/import-staging";
@@ -41,6 +43,7 @@ import {
   advanceSessionFrames,
   encodeFrameLength,
   encodeMetaFrame,
+  encodeSparseCaptureFormatFrame,
   encodeSegmentBoundaryFrame,
   encodeSegmentContextEndFrame,
   encodeSegmentContextFrame,
@@ -59,7 +62,6 @@ import {
 } from "@raceiq/capture-formats/iracing/source-frame";
 import { parseF1Header } from "@raceiq/capture-formats/f1-2025/f1-wire";
 import type { GameId } from "@raceiq/shared/games/ids";
-
 export const LAPS_ZIP_VERSION = 4;
 
 export interface ManifestLap {
@@ -74,8 +76,8 @@ export interface ManifestEntry {
   gameId: GameId;
   /** Session id in the *source* database (informational — import always creates a new session). */
   sessionId: number;
-  carOrdinal: number;
-  trackOrdinal: number;
+  carId: string;
+  trackId: string;
   carName: string;
   trackName: string;
   createdAt: string;
@@ -117,7 +119,7 @@ async function readCapture(row: RawLapRow): Promise<Buffer | null> {
     if (!row.rawFile) return null;
     return await loadSessionCapture({
       rawFile: row.rawFile, source: row.source ?? null, gameId: row.gameId as GameId,
-      carOrdinal: row.carOrdinal, trackOrdinal: row.trackOrdinal,
+      carId: row.carId, trackId: row.trackId,
     });
   } catch {
     return null;
@@ -140,16 +142,26 @@ function parseCaptureGameId(
   bytes: Buffer,
   manifestGame: ReadonlyMap<string, GameId>,
 ): GameId | null {
-  return (
+  const gameId = (
     detectGameIdFromBuffer(bytes) ??
     manifestGame.get(memberName) ??
     detectGameIdFromFilename(captureFileName(memberName))
   );
+  return gameId && KNOWN_GAME_IDS.includes(gameId) ? gameId : null;
 }
+export interface MissingMotecIdentity {
+  file: string;
+  gameId: GameId | null;
+  carId: string | null;
+  trackId: string | null;
+  unsupported: boolean;
+}
+
 export interface LapsZipDetection {
   isRaceIqArchive: boolean;
   captureCount: number;
   gameIds: GameId[];
+  missingMotecIdentities: MissingMotecIdentity[];
 }
 
 /** Inspect archive contents without importing any captures. */
@@ -157,10 +169,19 @@ export function detectLapsZip(zipData: Uint8Array): LapsZipDetection {
   const files = unzipBounded(zipData, LAPS_ZIP_LIMITS);
   const names = fileNamesForZip(files);
   const manifest = parseManifestFile(files);
+  const manifestEntries = new Map((manifest?.entries ?? []).map((entry) => [entry.file, entry]));
   const manifestGame = new Map<string, GameId>();
   for (const entry of manifest?.entries ?? []) manifestGame.set(entry.file, entry.gameId);
   const gameIds = [...new Set(names.map((name) => parseCaptureGameId(name, Buffer.from(files[name]), manifestGame)).filter((gameId): gameId is GameId => gameId != null))];
-  return { isRaceIqArchive: names.length > 0, captureCount: names.length, gameIds };
+  const missingMotecIdentities = names.flatMap<MissingMotecIdentity>((file) => {
+    if (!file.endsWith(".motec.zip")) return [];
+    const entry = manifestEntries.get(file);
+    if (!entry || !KNOWN_GAME_IDS.includes(entry.gameId)) return [{ file, gameId: null, carId: null, trackId: null, unsupported: true }];
+    const carId = typeof entry.carId === "string" && isCatalogCarId(entry.gameId, entry.carId) ? entry.carId : null;
+    const trackId = typeof entry.trackId === "string" && isCatalogTrackId(entry.gameId, entry.trackId) ? entry.trackId : null;
+    return carId && trackId ? [] : [{ file, gameId: entry.gameId, carId, trackId, unsupported: false }];
+  });
+  return { isRaceIqArchive: names.length > 0, captureCount: names.length, gameIds, missingMotecIdentities };
 }
 
 function selectedLapsBySession(
@@ -265,7 +286,13 @@ function buildParserContextRecords(buf: Buffer, beforeOffset: number): Buffer[] 
 }
 
 /** Re-encode lap frames with segment-local checkpoints and source identities. */
-function sparseLapRecords(buf: Buffer, start: number, end: number, gameId: GameId): Buffer[] {
+function sparseLapRecords(
+  buf: Buffer,
+  start: number,
+  end: number,
+  gameId: GameId,
+  includeFormatMarker: boolean,
+): Buffer[] {
   const parts: Buffer[] = [];
   let previous: Buffer | null = null;
   let checkpoint = 0;
@@ -281,9 +308,10 @@ function sparseLapRecords(buf: Buffer, start: number, end: number, gameId: GameI
     const supportsGeneric = gameId === "fm-2023" || gameId === "f1-2025" || gameId === "iracing";
     const identity = supportsGeneric ? genericFrameIdentity(record.frame) : null;
     const canDelta = isLmuV2 || isKunos || identity !== null;
+    const previousLength = previous?.length;
     const sameIdentity = previous !== null && (
-      (isLmuV2 && previous.length === record.frame.length) ||
-      (isKunos && previous.length === record.frame.length) ||
+      (isLmuV2 && previousLength === record.frame.length) ||
+      (isKunos && previousLength === record.frame.length) ||
       (identity !== null && genericFrameIdentity(previous) === identity)
     );
     let frame = record.frame;
@@ -304,6 +332,11 @@ function sparseLapRecords(buf: Buffer, start: number, end: number, gameId: GameI
     const prefix = encodeFrameLength(frame.length, record.frameTimeMs);
     parts.push(prefix, frame);
     outputOffset += prefix.length + frame.length;
+    if (includeFormatMarker && emitted === 0) {
+      const marker = encodeSparseCaptureFormatFrame();
+      parts.push(marker);
+      outputOffset += marker.length;
+    }
     previous = canDelta ? record.frame : null;
     emitted++;
   }
@@ -344,16 +377,16 @@ export async function buildLapsZip(
         throw new Error("MoTeC source archive is missing on disk");
       }
       const gameId = first.gameId as GameId;
-      const trackName = resolveTrackName(first.trackOrdinal ?? -1, gameId);
-      const carName = resolveCarName(first.carOrdinal ?? -1, gameId);
-      const fileName = `${gameId}-${slugify(trackName) || `track${first.trackOrdinal ?? 0}`}-session${sessionId}.motec.zip`;
+      const trackName = resolveTrackName(first.trackId ?? "", gameId);
+      const carName = resolveCarName(first.carId ?? "", gameId);
+      const fileName = `${gameId}-${slugify(trackName) || `track${first.trackId ?? ""}`}-session${sessionId}.motec.zip`;
       files[fileName] = sourceBytes;
       const sourceLaps = allRows
         .filter((row) => row.sessionId === sessionId)
         .sort((a, b) => a.lapNumber - b.lapNumber);
       entries.push({
         file: fileName, gameId, sessionId,
-        carOrdinal: first.carOrdinal ?? 0, trackOrdinal: first.trackOrdinal ?? 0,
+        carId: first.carId ?? "", trackId: first.trackId ?? "",
         carName, trackName, createdAt: first.createdAt,
         laps: sourceLaps.map((r) => ({ lapNumber: r.lapNumber, lapTime: r.lapTime, isValid: r.isValid })),
       });
@@ -367,6 +400,7 @@ export async function buildLapsZip(
     const buf = await readCapture(first);
     if (!buf) continue;
     const segments: Buffer[] = [];
+    let sparseFormatMarkerWritten = false;
     for (const row of usable) {
       const start = row.rawByteOffset as number;
       const frameCount = row.rawFrameCount as number;
@@ -383,28 +417,30 @@ export async function buildLapsZip(
       const end = first.gameId === "iracing"
         ? iracingSegmentEnd(buf, start, frameCount, prefix)
         : advanceSessionFrames(buf, start, frameCount + 1);
+      const sparseRecords = first.gameId === "lmu" || first.gameId === "acc" || first.gameId === "ac-evo" ||
+        first.gameId === "fm-2023" || first.gameId === "f1-2025" || first.gameId === "iracing"
+        ? sparseLapRecords(buf, start, end, first.gameId, !sparseFormatMarkerWritten)
+        : [buf.subarray(start, end)];
+      if (sparseRecords.length > 0) sparseFormatMarkerWritten = true;
       segments.push(Buffer.concat([
         encodeSegmentBoundaryFrame(),
         ...(context.length > 0
           ? [encodeSegmentContextFrame(), ...context, encodeSegmentContextEndFrame()]
           : []),
         ...(prefix ? [prefix] : []),
-        ...(first.gameId === "lmu" || first.gameId === "acc" || first.gameId === "ac-evo" ||
-          first.gameId === "fm-2023" || first.gameId === "f1-2025" || first.gameId === "iracing"
-          ? sparseLapRecords(buf, start, end, first.gameId)
-          : [buf.subarray(start, end)]),
+        ...sparseRecords,
       ]));
     }
     if (segments.length === 0) continue;
     const gameId = first.gameId as GameId;
     const slice = Buffer.concat([encodeMetaFrame(), ...segments]);
-    const trackName = resolveTrackName(first.trackOrdinal ?? -1, gameId);
-    const carName = resolveCarName(first.carOrdinal ?? -1, gameId);
-    const fileName = `${gameId}-${slugify(trackName) || `track${first.trackOrdinal ?? 0}`}-session${sessionId}.bin.gz`;
+    const trackName = resolveTrackName(first.trackId ?? "", gameId);
+    const carName = resolveCarName(first.carId ?? "", gameId);
+    const fileName = `${gameId}-${slugify(trackName) || `track${first.trackId ?? ""}`}-session${sessionId}.bin.gz`;
     files[fileName] = gzipBufferSync(slice);
     entries.push({
       file: fileName, gameId, sessionId,
-      carOrdinal: first.carOrdinal ?? 0, trackOrdinal: first.trackOrdinal ?? 0,
+      carId: first.carId ?? "", trackId: first.trackId ?? "",
       carName, trackName, createdAt: first.createdAt,
       laps: usable.map((r) => ({ lapNumber: r.lapNumber, lapTime: r.lapTime, isValid: r.isValid })),
     });
@@ -443,7 +479,7 @@ export interface ImportZipResult {
  * re-detected. Duplicates are not merged — importing the same zip twice gives
  * you the laps twice, same as the single-file `.bin` import.
  */
-export async function importLapsZip(zipData: Uint8Array, options: { ownership?: SessionOwnership } = {}): Promise<ImportZipResult> {
+export async function importLapsZip(zipData: Uint8Array, options: { ownership?: SessionOwnership; identityOverrides?: Record<string, { carId: string; trackId: string }> } = {}): Promise<ImportZipResult> {
   const files = unzipBounded(zipData, LAPS_ZIP_LIMITS);
   const manifest = parseManifestFile(files);
 
@@ -477,10 +513,16 @@ export async function importLapsZip(zipData: Uint8Array, options: { ownership?: 
       }
       try {
         const extracted = extractMotecArchive(bytes);
+        const override = options.identityOverrides?.[name];
+        const carId = override?.carId ?? entry.carId;
+        const trackId = override?.trackId ?? entry.trackId;
+        if (!carId || !trackId || !isCatalogCarId(entry.gameId, carId) || !isCatalogTrackId(entry.gameId, trackId)) {
+          throw new Error("MoTeC car and track must resolve in current game catalogs");
+        }
         const result = await importMotec(extracted.ldBytes, extracted.ldxBytes, {
           gameId: entry.gameId,
-          carOrdinal: entry.carOrdinal,
-          trackOrdinal: entry.trackOrdinal,
+          carId,
+          trackId,
           ownership: options.ownership,
         });
         laps.push(...result.laps);
