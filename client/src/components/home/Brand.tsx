@@ -67,7 +67,7 @@ const BRAND_CARDS: ReadonlyArray<{
   { key: "acEvo", gameId: "ac-evo", route: "/ac-evo", name: "Assetto Corsa Evo", logoSrc: "/acevo-logo.svg" },
   { key: "iracing", gameId: "iracing", route: "/iracing", name: "iRacing", logoSrc: "/iracing-logo.svg" },
   { key: "lmu", gameId: "lmu", route: "/lmu", name: "Le Mans Ultimate", logoSrc: "/lmu-logo.svg" },
-  { key: "ams2", gameId: "ams2", route: "/ams2", name: "Automobilista 2", logoSrc: "" },
+  { key: "ams2", gameId: "ams2", route: "/ams2", name: "Automobilista 2", logoSrc: "/ams2-logo.svg" },
 ];
 
 function GameBrandCard({ game, stats, loading, error, selected }: { game: (typeof BRAND_CARDS)[number]; stats: GameStats[GameKey]; loading: boolean; error: boolean; selected: boolean }) {

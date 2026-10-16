@@ -74,35 +74,37 @@ function SemanticTireDiagram({ frame, gameId }: { frame: SemanticAnalysisFrame; 
     const meters = suspensionM[index];
     if (normalized === null && meters === null) return null;
     return (
-      <SuspBar
-        norm={normalized ?? 0}
-        thresholds={adapter.suspensionThresholds.values}
-        mmTravel={showMillimeters && meters !== null ? meters * 1000 : undefined}
-        mmMode={adapter.suspensionThresholds.millimeterMode ?? "absolute"}
-      />
+      <div className="shrink-0 pt-6">
+        <SuspBar
+          norm={normalized ?? 0}
+          thresholds={adapter.suspensionThresholds.values}
+          mmTravel={showMillimeters && meters !== null ? meters * 1000 : undefined}
+          mmMode={adapter.suspensionThresholds.millimeterMode ?? "absolute"}
+        />
+      </div>
     );
   };
   return (
-    <div className="relative mx-auto flex w-full max-w-[30rem] flex-col gap-3">
-      <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
-        <WeightShiftRadar frame={frame} gameId={gameId} />
-      </div>
-      <div className="flex items-center justify-between w-full">
-        <div className="flex items-center gap-1">
+    <div className="mx-auto flex w-full min-w-max max-w-sm shrink-0 flex-col gap-2">
+      <div className="flex w-full items-start justify-between gap-4">
+        <div className="flex shrink-0 items-start gap-1">
           {wheel(0, "left")}
           {suspensionBar(0)}
         </div>
-        <div className="flex items-center gap-1">
+        <div className="flex shrink-0 items-start gap-1">
           {suspensionBar(1)}
           {wheel(1, "right")}
         </div>
       </div>
-      <div className="flex items-center justify-between w-full">
-        <div className="flex items-center gap-1">
+      <div className="pointer-events-none flex justify-center">
+        <WeightShiftRadar frame={frame} gameId={gameId} />
+      </div>
+      <div className="flex w-full items-start justify-between gap-4">
+        <div className="flex shrink-0 items-start gap-1">
           {wheel(2, "left")}
           {suspensionBar(2)}
         </div>
-        <div className="flex items-center gap-1">
+        <div className="flex shrink-0 items-start gap-1">
           {suspensionBar(3)}
           {wheel(3, "right")}
         </div>
