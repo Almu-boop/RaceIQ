@@ -3,9 +3,11 @@
 ### Features
 
 ### Fixes
+- Hide the entire Tires section on iRacing live dashboards without changing recorded-lap analysis or other games.
 - Hide iRacing 3D track, racing-line, tire-trail, and input overlays because live telemetry does not provide world-position samples.
 
 ### Internal
+- Update live iRacing browser checks to expect the Tires section to be absent in Driver and Pit Crew views.
 
 ## v0.20.0 - 2026-10-15
 
@@ -60,11 +62,14 @@
 - Show unnamed multi-turn sections once in Analyse and track-detail labels.
 - Keep AC Evo layouts distinct during import, setup selection, and session repair without losing notes, favorites, or setup links.
 - Replay long Tourist laps without chart crashes or closed-circuit map overlays.
+- Show AC Evo source car and layout names immediately after import instead of generated numeric placeholders.
 - Reconcile older recordings with updated car, track, and lap detection, preserving matched lap annotations and reporting captures that cannot be repaired.
 - Recheck all historical AC Evo recordings for Tourist layout identity and rebuild their laps after recording-folder organization completes; keep dependent startup work blocked when an earlier repair is incomplete.
+- Use suitable local network addresses for remote HUD links and let users choose an address when multiple adapters are available.
 - Keep racing, throttle, and braking lines sharp when zooming into the replay map.
 
 ### Internal
+- Seed selectable ACC and AC Evo setup files consistently in development and compiled E2E servers.
 - Add a release-only Ubuntu Docker smoke test that seeds the latest published release, completes migration dialogs, upgrades to freshly fetched main, and streams checkout, seed, server, and phase progress to OrbStack container logs.
 - Add `test:upgrade --replay` to retain successful upgrade recordings and open the local Playwright Trace Viewer after Docker exits, including failed runs with available traces.
 - Seed all six supported games in the Docker upgrade smoke, validate converted recording provenance and framing before checkout, require successful startup reconciliation, and verify each game's session IDs survive the release-to-main transition; extend bounded deadlines for the full dataset.
