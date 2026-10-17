@@ -32,6 +32,7 @@
     "./ams2/dump": "./src/ams2/dump.ts"
   },
   "scripts": {
-    "typecheck": "bunx tsc --project tsconfig.json --noEmit"
+    "lint": "../../client/node_modules/.bin/oxlint .",
+    "typecheck": "bun check --project tsconfig.json"
   }
 }

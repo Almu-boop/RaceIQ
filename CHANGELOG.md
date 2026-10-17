@@ -26,11 +26,19 @@
 - Restore Live child-page routing, production Raw Data updates and AMS2 game navigation.
 - Restore AMS2 live sector progression using telemetry track length and lap position; show available live tire pressures, use percentages in replay pedal charts, and exclude invalid laps from recorded PBs.
 - Keep game links visible on Live pages.
+- Prevent overlapping database writes from blocking recording imports and setup or session deletion.
 - Hide the entire Tires section on iRacing live dashboards without changing recorded-lap analysis or other games.
 - Hide iRacing 3D track, racing-line, tire-trail, and input overlays because live telemetry does not provide world-position samples.
 
 ### Internal
+- Reuse the Linux build artifact across Playwright shards and collect replay allocations sooner on memory-limited CI runners.
+- Avoid `bun run test` port collisions with running services by selecting available ports for Playwright server sets when overrides are unset, while honoring explicit `PW_*_PORT` values and preserving isolated test databases.
+- Reuse one prepared Playwright database snapshot across seeded server sets to avoid duplicate fixture imports.
 - Update live iRacing browser checks to expect the Tires section to be absent in Driver and Pit Crew views.
+- Run locale generation before frontend contract typechecking so clean CI workspaces resolve Paraglide modules.
+- Compare archived PR-head and base screenshots in the final comment workflow to generate UI diff images.
+- Shorten visual and Playwright job labels while preserving parallel workflow branches.
+- Report signal termination and progress in screenshot database seeding failures.
 
 ## v0.20.0 - 2026-10-15
 
