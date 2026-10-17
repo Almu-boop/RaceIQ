@@ -2,6 +2,7 @@ import { analyseSemanticIds } from "@raceiq/shared/games/metric-contracts";
 import { getGame } from "@raceiq/shared/games/registry";
 import { GForceCircle } from "../src/components/telemetry/GForceCircle";
 import {suspensionTravelBias} from "../src/lib/suspension";
+import { supportsPositionDependentSceneFeature } from "../src/lib/wireframe-capabilities";
 import { describe, expect, test } from "bun:test";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createElement } from "react";
@@ -819,3 +820,11 @@ for (const adapter of [getGame("ams2")]) {
     expect(markup).not.toContain("—");
   });
 }
+describe("position-dependent 3D features", () => {
+  test("disables world-position overlays for iRacing without affecting other games", () => {
+    for (const feature of ["track", "racingLine", "trails", "inputs"] as const) {
+      expect(supportsPositionDependentSceneFeature("iracing", feature)).toBe(false);
+      expect(supportsPositionDependentSceneFeature("ac-evo", feature)).toBe(true);
+    }
+  });
+});
